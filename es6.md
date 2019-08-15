@@ -1,0 +1,1018 @@
+###es6特性
+***默认参数的
+```js
+    1-es5写法
+        function hello(txt){
+            txt = txt || 'hello'
+        }
+    2-es6写法
+        function hello(txt='hello'){
+
+        }
+```
+***字符串模板(不依赖第三方库)
+```js
+    es6写法
+        let name = 'xiaoben'
+        let txt = `hello ${name}`
+```
+***let和const命令
+    let：1.可以行成块级作用域
+         2.不可重复定义同一个变量，重复声明会报错
+```js
+    function test(){
+        for(let i=0;i<3;i++){
+            console.log(i) 用let声明的i，for循环的大括号就形成了块级作用域
+        }
+        console.log(i) 这里的i访问不了for循环里面的i的，会报引用错误 (es6默认是开启严格模式的)
+    }
+```
+    const 1.用于常量的定义，不可修改，只读属性
+          2.声明的时候必须赋值
+          3.当const定义的是对象的时候其实定义的是对象的指针，可以对对象进行修改，和简单数值的定义是不一样的。
+```js
+                const K={
+                    a:1
+                }
+                K.b=2
+                这里允许这么改的
+```
+***解构赋值
+    1-什么是解构赋值
+        左边一种结构右边一种结构，左边和右边的值一一对应(如果解构赋值在结构上没有成功配对，那么这个变量就为undefind)
+    2-解构赋值的分类(其他解构赋值与数组解构赋值和对象解构赋值差不多)
+        数组解构赋值，对象解构赋值，字符串解构赋值，布尔值解构赋值，函数参数解构赋值，数值解构赋值
+        1-数组解构赋值
+```js
+        let a,b,reset
+        [a,b,...reset]=[1,2,3,4,5,6]
+        console.log(a,b,rest) ===>重点是reset的结果3,4,5,6组成的数组
+```
+        2-对象解构赋值
+```js
+        let a,b;
+        {a,b}={a:1,b:2}
+        console.log(a,b)  结果a为1，b为2
+```
+    ****数组结构赋值的使用场景(怎么用的)
+```js
+    第一种使用场景
+        functiong f(){
+            return [1,2]
+        }
+        let a,b
+        [a,b]=f()  最终a,b的值是1,2
+
+    第二种使用场景(能够取到想要的值)
+        function f(){
+            return [1,2,3,4]
+        }
+        let a,b
+        [a,,,b]=f() 最终a,b的值为1,4 
+
+    第三种使用场景
+        function f(){
+            return [1,2,3,4]
+        }
+        let a,b
+        [a,...b]=f() 最终a,b的值为1, [2,3,4]
+```
+    ****对象解构赋值的使用场景
+```js
+    默认值的使用
+        let {a=10,b=5}={a:3} //a的初始值为10,之后被3覆盖了，所以最终a的值为3，b为默认值5
+    对象解构赋值的另外一种重要的使用场景
+        let metaData = {
+            title:'abc',
+            test:[{
+                title:'test',
+                desc:'description'
+            }]
+        }
+        let {title:esTitle,test:[{title:cnTitle}]} = metaData; //需要跟原来的数组结构一一对应
+        console.log(esTitle,cnTitle) //最后输出的结果 abc test
+```
+
+
+
+***正则扩展
+    正则新增特性：构造函数的变化，正则方法的扩展，u修饰符，y修饰符，s修饰符
+```js
+    知识点：正则的构造函数
+        let regex = new RegExp('xyz','i')
+        let regex2 = new RegExp(/xyz/i)
+        console.log(regex.test('xyz123'),regex2.test('xyz123')) //结果true，true
+        let regex3 = new RegExp(/xyz/ig,'i') //这种写法在es5中是报错的，在es6写法允许，后面的修饰符i会覆盖前面的ig修饰符
+        console.log(regex3.flags)//flags是es6新增的方法可以查是修饰符
+```
+****es6新增的2个修饰符 y,u
+    y和g的相同点:都是全局匹配
+          不同点:g修饰符在第一次匹配成功的时候，在接下来继续匹配时只要满足就会进行匹配；而y在接下类匹配中紧跟着匹配，要是第一项不满足就返回null
+```js
+    知识点：g和y修饰符的区别，以及涉及到的方法方法；
+    *****y修饰符
+        let s= 'bbb_bb_b'
+        let a1 = /b+/g
+        let a2 = /b+/y
+        console.log(a1.exec(s),a2.exec(s)) 可以匹配
+        console.log(a1.exec(s),a2.exec(s)) 第一个可以匹配，a2匹配不到null
+        console.log(a1.sticky) sticky这个属性是判断正则表达式有没有y修饰符，返回值为布尔值
+
+
+    知识点：u修饰符的使用
+    *****u修饰符
+        第一种情况：
+        console.log(/\u{61}/.test('a'))   结果false
+        console.log(/\u{61}/u.test('a'))  结果true
+                                          原因：a的字符编码为61，不加上u修饰符js解析器没法解析出a的编码是多少，所以第一个结果为false.
+
+        第二种情况：如果字符串中有的字符是大于俩个字节的一定要加上u修饰符才能够正确的识别，否则的话就会出现意想不到的错误
+
+        总结：1-正则表达式中有大于俩个字节的字符需要加上u修饰符
+             2-es5中 . 可以匹配任意字符并不是这样的，大于俩个字节的字符是不能被匹配到的
+```
+
+
+
+***字符串扩展
+    字符串新增特性：Unicode表示法，遍历接口，模板字符串，新增方法(10种)
+
+    ****Unicode表示法
+```js
+        console.log('\u0061') 输出结果 a
+        console.log('\u20BB7') 输出结果 口7 
+                                原因：\u20BB7已经大于俩个字节所以js解析器无法解析需要加大括号就可以如下
+        console.log('\u{20BB7}')     
+```
+    ****遍历接口
+        一个字他的码值大于俩个字节的时候使用length，就会把他处理成四个字节处理，而在计算长度的时候每俩个字节为一个长度，所以大于俩个码值的字的长度就是2
+
+    ****新增的方法
+```js   
+        let str = 'string'
+        console.log(str.includes('s'))      str字符串中包含s
+        console.log(str.startsWidth('str')) str字符串中是否以str开头
+        console.log(str.endsWidth('ing'))   str字符串中是否以ing结尾
+        str.repeat(2)    str字符串重复俩次
+```
+    ****es7起草的新增的方法
+```js
+        '1'.padStart(2,'0')  前置位补位
+        '1'.padEnd(2,'0')    后置位补位
+        
+```
+
+    ****标签模板
+    标签模板其实不是模板，而是函数调用的一种特殊形式，‘标签’指的就是函数，紧跟在后面的模板字符串就是它的参数。如果模板字符串里有变量，就不是简单的调用了，而是会将模板字符串先处理成多个参数，在调用函数
+```js
+        let a = 5
+        let b = 10
+        tag`Hello ${a +b } world ${a-b}`
+        上面表达式等同下面的表达式
+        tag(['Hello','world',''],15,-5)
+        也就是下面的调用方式
+        function tag(s,v1,v2){
+            s ==>  ['Hello','world','']
+            v1 ==>  15
+            v2 ==> -5
+        }
+
+    标签模板的使用场景 ：就是过滤HTML字符串，防止用户输入恶意内容上
+```
+
+
+
+***数值扩展
+    数值处理新增特征：1.新增方法 2.方法调整
+```js
+    第一种新增的方法
+    console.log(0b111110001) 以0b开头的为二进制表示法,这里b大小写不分
+    console.log(0o767)    以0o开头的为八进制表示法
+```
+    第二种新增的方法  接收的参数必须是数值 数值要在-2的53次方和2的53次方之间
+    Number.isFinite 判断数值是不是有尽(无尽有尽的意思)
+    Number.isInteger 判断这个数是不是整数 
+```js
+    用法
+    console.log(Number.isFinite(15)) 结果为true
+    Number.isFinite(NaN)   结果为false
+    Number.isFinite('true'/0)
+
+    Number.isInteger(12) 返回true
+    Number.isInteger('12') 返回false
+    Number.isInteger(12.0) 返回true
+
+    Number.MAX_SAFE_INTEGER 返回最大值
+
+    判断是否是有效的数值 意思就是在数值区间内
+    Number.isSafeInteger(10) 
+
+    es6中取整数部分的方法
+    Math.trunc(4.1) 返回结果 4
+    Math.trunc(4.9) 返回结果 4
+
+    判断整数负数还是零
+    Math.sign(-6) 返回结果 -1
+    Math.sign(0) 返回结果   0
+    Math.sign(6) 返回结果   1
+
+    计算数值立方根
+    Math.cbrt(-1)  返回结果 -1
+    Math.cbrt(8)  返回结果 2
+
+```
+
+
+
+***数组扩展
+    数组新增特性：
+    1-Array.of()
+```js
+    let arr = Array.of(3,4,5,6,9,11)
+    console.log(arr) 返回arr是由 3,4,5,6,9,11组成放的数组
+```
+    2-把伪数组或者集合转成真正的数组 Array.from()
+        伪数组是不可以使用数组的方法的
+        转成真正的数组之后就可以使用数组的方法
+```js
+    Array.from([1,3,5],function(item){return item*2}) 返回结果为2,6,10；
+    原因：这里Array.from()第一个参数是数组，第二个参数是函数，这里就起到了map效果
+```
+    3-fill 可以将数组的所有的值，都变成同一个值
+```js
+    [1,'a',undefined].fill(7) 返回[7,7,7]
+    ['a','b','c'].fill(7,1,3) 返回['a',7,7]  说明file() 第一个参数替换的数字，第二个参数是要替换的起始位置，第三个参数是从起始位置开始要替换的长度
+```
+    4-kyes values entries
+```js
+    for(let index of ['1','c','ks'].keys()){
+        console.log(index)       返回结果为数组的索引
+    }
+
+    for(let value of ['1','c','ks'].values()){
+        console.log(value)       返回结果为数组的值
+    }
+
+    for(let [value,index] of ['1','c','ks'].entries()){
+        console.log(index,value)  既可以返回对应数组的索引，也可以返回数组的值
+    }
+```
+    5-copyWidthin(参数一，参数二，参数三) 参数一指要替换的位置；参数二指数组中从这个位置开始的值替换的参数一的位置；参数三到那个位置结束
+```js
+    [1,2,3,4,5].copyWidthin(0,3,4) 返回结果 [4,2,3,4,5]
+```
+
+    6-find findIndex 
+```js
+    [1,2,3,4,5,6].find(function(item){return item>3}) 返回 数组中大于3的值的第一位，且是满足条件的第一位
+    [1,2,3,4,5,6].findIndex(function(item){return item>3}) 返回数组中大于3的值的索引，且是满足条件的第一位
+```
+
+
+
+
+***函数扩展
+    函数新增特性: 参数默认值  rest参数  扩展运算符  箭头函数  this绑定  尾调用
+
+    1-函数参数默认值
+```js
+    第一种简单的情况
+        function hello(txt='hello'){
+            console.log(txt)  返回 'hello'
+        }
+
+    第二种情况 1
+    let x = 'test';
+    function tests(x,y=x){
+        console.log(x,y) 返回 undefined undefined  原因 函数作用域的问题
+    }
+    2 function tests(a,y=x){
+        console.log(x,y) 返回 test test 为什么跟第一种情况不一样，原因:y=x相当于x赋值给y
+    }
+
+```
+    2-rest参数 rest参数的作用就是将函数的参数转成数组
+```js
+    function test(...arg){   rest参数的写法
+        for(let v of arg){
+            console.log(v)
+        }
+    }
+    test(1,2,3,4,5)
+
+```
+
+    3-扩展运算符 ok
+    4-箭头函数 ok
+    5-this绑定
+
+
+    6-尾调用  概念：函数的最后一句话是函数
+              作用：尾调用可以提升性能的
+```js   
+    function tail(x){
+        console.log(x)  运行返回的结果为 123
+    }
+    function fx(x){
+        return tail(x)   这里的return语句就是函数fx最后一步 尾调用一定是这种情况其他的匀不是尾调用
+    }
+    fx(123)
+```
+
+
+
+
+***对象扩展
+    函数新增特性：简洁表示法，属性表达式，扩展运算符，Object新增方法
+
+
+        1-简洁表示法
+```js
+    // es5中的写法
+    let o=1
+    let k=2
+    let es5={
+        o:o,
+        k:k
+    }
+    // es6中的简洁表示的写法
+    let es6={
+        o,
+        k
+    }
+    // 关于es6和es5中方法的写法的不同点
+    // es5的对象中方法的写法
+    let es5_methods={
+        hello:function(){
+            console.log('hello')
+        }
+    }
+    // es6对象中方法的写法
+    let es6_methods={
+        hello(){
+            console.log('hello')
+        }
+    }
+
+```
+    2-属性表达式
+```js
+    let a = 'b'
+    // es5中对象属性的表达式，key值是固定的
+    let es5_obj={
+        a:'c',
+        b:'c'
+    }
+    es6中对象的key值用[]包起来的，是一个可变的变量  如这里的key值a会被替代为b值
+    let es6_obj={
+        [a]:'c'
+    }
+    console.log(es5_obj) 返回 es5_obj={a:'c',b:'c'}
+    console.log(es6_obj) 返回 es6_obj={b:'c'}  
+```
+
+    3-Object新增API
+```js
+    第一个api
+    Object.is() 方法判断俩个值是不是相等
+    Object.is('abc','abc')和'abc'==='abc' 这个方法和全等效果是一样的 
+
+
+    第二个api Object.assign()  参数一:要拷贝到的对象上  参数二:要拷贝的对象
+    作用：拷贝  
+    注意点：1.此拷贝为浅拷贝 2.此方法拷贝的是自身对象的属性，不会拷贝继承的属性，也不会拷贝不可枚举的属性
+    Object.assign({a:'a'},{b:'b'}) 返回 {a:'a',b:'b'}
+
+
+    第三个api Object.entries()  遍历的作用
+```
+    
+    4-扩展运算符
+```js
+    let {a,b,...c} = {a:'test',b:'kill',c:'ddd',d:'ccc'}  c对象结果为 c={c:'ddd',d:'ccc'}
+
+```
+
+
+
+
+***Symbol数据类型
+    Symbol的概念：用这种数据类型声明的变量是独一无二的，是不相等的
+    Symbol的作用：
+```js
+    // Symbol数据类型的声明
+    let al=Symbol()
+    let a2=Symbol()
+    console.log(a1===a2) 返回false 所以虽然是用同一个Symbol数据类型声明的，但是他们始终不相等
+
+    let a3=Symbol.for('a3')
+    let a4=Symbol.for('a3')
+    console.log(a3===a4) 返回true 原因用Symbol.for('a3')去声明变量的时候，这个参数a3是一个key值，for首先到全局找有没有注册过这key值，如注册过就返回这个key值，如果没有注册过，就调Symbol()生成了独一无二的值
+```
+
+```js
+    // symbol的作用，用代码的形式体现 下面objkey值中a1 其实就是'abc'和第二个key值名同名，但是这里不冲突这就是Symbol的作用:可以使用同一个变量而不发生报错
+    let a1 = Symbol.for('abc')
+    let obj={
+        [a1]:'123',            
+        'abc':345,
+        'c':456
+    }
+    console.log(obj) 返回结果obj={'abc':345,'c':456,Symbol('abc':'123')} 
+
+    // 但是对对象进行遍历的时候，枚举不出Symbol数据类型的值
+    for(let [key,value] of Object.entries(obj)){
+        console.log(key,value)   返回值 'abc'  'c'  并没有Sybmol数据类型声明的值
+    }
+    // 用getOwnPropertySymbols()能找出通过symbol数据类型声明的值
+    Object.getOwnPropertySymbols(obj).forEach(function(item){
+        console.log(item) 返回值 只返回通过Symbol声明的数据类型的值 Symbol('abc')
+    })
+```
+
+
+
+
+***数据结构   
+    总结：尽量使用map,，考虑唯一性用set，尽可能不要用传统的数组和对象obj
+    Set的用法 WeakSet的用法 Map的用法 WeakMap的用法
+
+    1-set的用法  对set的理解:set是一个集合(数组也是一个集合),set和数组的区别是set里面的集合是不可以重复的
+```js
+    // 第一种set初始化的方式
+    let list = new Set()
+    往list里面添加内容的方法add
+    list.add(5)
+    list.add(7) 
+    list.size 返回结果为2  size方法可以理解为原来数组中的length方法，查找数组中的长度
+
+    // 第二种set初始化的方式
+    let arr = [1,2,3,4,5]
+    let list = new Set(arr) 理解:对arr数组就行了转化，转化成了set集合
+
+    list.size 返回结果为 5 
+
+    // 利用set集合不可重复的特性，进行数组去重
+    let arr =[1,2,3,1,2]
+    let list2 = new Set(arr)
+    list2 返回结果为[1,2,3] 起到了去重的效果
+
+    // set集合判断是否存在，删除，清空
+    let arr = ['add','delete','clear','has']
+    let list = new Set(arr)
+    list.has('add')  返回结果true 说明'add'存在于set集合里面
+    list.delete('add') 返回结果true 代表set集合删除成功
+    list.clear() 返回true 代表set清空成功
+
+    // set的遍历
+    let arr = ['add','delete','clear','has']
+    let list = new Set(arr)
+    for(let key of list.keys()){
+        console.log(key) 返回结果 'add','delete','clear','has'
+    }
+    for(let value of list.values()){
+        console.log(value) 返回结果 'add','delete','clear','has'
+    }
+    for(let [key,value] of list.entries()){
+        console.log(key,value)  返回结果索引和值都是 'add','delete','clear','has'
+    }
+```
+    2-关于weakset 
+        1-只能添加object数据类型，不支持添加数字，字符串，数组等等
+        2-可以正常使用has,delete,add方法
+        3-不可以遍历，没有size属性，没有clear方法
+
+
+    3-Map的用法  Map相当于是对象，但是和Object的区别在于，object的key值只可以是字符串或者Symbol类型，而Map的key值可以是任意字符(可以是对象，数组，函数等等)
+
+```js
+// 第一种map的定义方式
+    let map = new Map()
+    let arr=['123']
+    map.set(arr,456) 
+    console.log(map) 返回结果 ['123'] ==>456
+    console.log(map.get(arr)) 取map的key的值 返回结果456
+
+// 第二种map的定义方式
+    let map = new Map([['a',123],['b',456]]) 传入的参数必须是数组，数组里面的元素还是数组，每项数组必须是俩项key.value，一定要注意这种格式否则要报错
+    
+    map.size 返回 2
+    map.delete('a') 返回结果true map里面就只有{'b'==>456}
+    map.clear() 清空
+```
+
+    4-关于weakmap
+        1-weakmap接收的key值必须是对象
+        2-没有size属性，没有clear方法，不可以遍历
+        3-可以正常使用has,delete,add方法
+
+
+
+
+***map，set与数组对象进行比较
+```js
+    // 数据结构的横向对比 增，查，改，删
+    let map = new Map()
+    let array = []
+    // 数组和map类型在 增 方面的对比
+    map.set('t',1)
+    array.push({t:1})
+    // 数组和map类型在 查 方面的对比
+    let map_exist = map.has('t')
+    let array_exist = array.find(item=>item.t)
+    // 数组和map类型在 改 方面的对比
+    map.set('t',2)
+    array.forEach(item=>item.t?item.t=2:'')
+    // 数组和map类型在 删 方面的对比
+    map.delete('t')
+    let index = array.findIndex(item=>item.t)
+    array.splice(index,1)
+
+
+    // set和array的对比
+    // set和array的对比 增 方面的对比
+    set.add({t:1})
+    array.push({t:1})
+    // set和array的对比 查 方面的对比
+    let set_exist = set.has()
+    let array_exist = array.find(item=>item.t)
+    // set和array的对比 改 方面的对比
+    set.forEach(item=>item.t?item.t=2:'')
+    array.forEach(item=>item.t?item.t=2:'')
+    // set和array的对比 删 方面的对比
+    set.forEach(item=>item.t?item.delete(item):'')
+    let index = array.findIndex(item=>item.t)
+    array.splice(index,1)
+
+
+    // map,set,object的对比
+    let item = {t:1}  这里对{t:1}进行了存储，用has的话返回true
+    let map = new Map()
+    let set = new Set()
+    let obj = {}
+    // 增
+    map.set('t',1)
+    set.add(item)
+    obj['t'] = 1
+    // 查
+    map.has('t')
+    set.has(item)
+    't' in obj
+    // 改
+    map.set('t',2)
+    item.t = 2
+    obj['t'] = 2
+    // 删除
+    map.delete('t')
+    set.delete(item)
+    delete obj['t']
+```
+
+
+
+
+***Proxy(代理)和Reflect(反射)
+    Proxy和Reflect的概念
+    Proxy和Reflect的使用场景(优点：将条件和业务逻辑本身隔开，代码的复用性更高)
+
+    1-Proxy的使用
+```js
+    // 这里obj类似于供应商的对象
+    // 然后通过Proxy新生成一个对象，这个对象映射obj
+    // 最后用户访问的是obj的映射monitor对象
+
+    let obj = {
+        time:'2017-03-11',
+        name:'net',
+        _r:123
+    }
+    let monitor = new Proxy(obj,{
+        // 拦截(代理)对象属性的读取  get方法中target就是obj key是obj的key值  下面的操作是把原来兑现的2017改成2018
+        get(target,key){
+            return target[key].replace('2017','2018')
+        },
+        // 拦截对象设置属性  下面的操作是只允许对象的name属性进行更改设置
+        set(target,key,value){
+            if(key==='name'){
+                return target[key]=value
+            }else{
+                return target[key]
+            }
+        },
+        // 拦截key in object操作  下面操作是只有用户在查找对象中的name时返回true访问其他的都返回false
+        has(target,key){
+            if(key==='name'){
+                return target[key]
+            }else{
+                return false
+            }
+        },
+        // 拦截delete增加删除限制  下面操作是只有属性是name开头的允许删除，不是name的不允许删除
+        deleteProperty(target,key){
+            if(key ==='name'){
+                dekete target[key]
+            }else{
+                return target[key]
+            }
+        },
+        // 拦截object.keys,object.getOwnPropertySymbols,object.getOwnPropertyNames  下面操作是过滤掉time属性，让用户访问不了time属性，达到了保护time属性的做法
+        ownKeys(target){
+            return Object.keys(target).filter(item=>item!='time')
+        }
+
+
+    })
+    //理解： 用户操作的是monitor，不管用户是读取monitor属性，还是设置monitor对象的属性，最终通过Proxy再传递给obj对象
+    monitor.time 直接联系到代理中的get
+    monitor.name = 'shihui' 直接联系到代理中的set
+    delete monitor.name 删除对象中的name值
+    Object.keys(monitor) 返回结果_r,name 这样time属性通过ownKeys的代理被保护起来了
+```
+
+    2-Reflect和Proxy使用是一模一样的
+```js
+    let obj = {
+        time:'2017-03-11',
+        name:'net',
+        _r:123
+    }
+    Reflect.get(obj,'time')      获取
+    Reflect.set(obj,'name','shihui')  设置
+    Reflect.has(obj,'name')  是否存在
+```
+
+*****proxy和Reflect真实使用场景
+```js
+    function validator(target,validator){
+        return new Proxy(target,{
+            _validator:validator,    配置选项
+            set(target,key,value,proxy){   代理的管理
+                if(target,key,value,proxy){
+                    if(target.hasOwnProperty(key)){  判断当前的对象有没有key值，如果没有说明不能进行赋值
+                        let va = this._validator[key]
+                        if(va(value)){
+                            return Reflect.set(target,key,value,proxy)
+                        }else{
+                            throw Error(`不能设置${key}到${value}`)
+                        }
+                    }else{
+                        throw Error(`${key}不存在`)
+                    }
+                }
+            }
+        })
+    }
+
+    设置过滤选项校验的条件
+    const personValidators={
+        name(val){
+            return typeof val === 'string'
+        }
+        age(val){
+            return typeof val === 'number' && val > 18
+        }
+    }
+    上面是条件，下面是对象
+    class Person{
+        constructor(name,age){
+            this.name = name;
+            this.age = age;
+            return validator(this,personValidators) 返回的validator实际上是代理了Person对象
+        }
+    }
+
+    const person = new Person('lilei',30)
+    person.name = 'meimei'
+```
+
+
+
+
+***类与对象
+    类的概念：基本语法，类的继承，静态方法，静态属性，getter，setter
+
+    1-基本语法      类的基本定义和生成方式
+```js
+    基本定义和生成实例
+    class Parent{
+        constructor(name='shihui'){   
+            this.name = name    给对象实例添加属性name
+        }
+    }
+    let parent = new Parent('v')
+    console.log(parent)  返回结果 {name:'v'}
+```
+
+    2-继承
+```js
+    class Parent{
+        constructor(name='shihui'){
+            this.name = name
+        }
+    }
+    class Child extends Parent{
+        constructor(name='child'){
+            super(name)           子类可以通过super改变父类的参数,不传递参数默认使用父类的参数
+
+            this.type='child' 在自己内部添加自己的属性且一定要放在super后面，写在前面是报错的
+        }
+    }
+    console.log(new Child()) 返回{name:'shihui'}
+```
+
+    3-getter,setter
+```js
+    class Parent{
+        constructor(name='shihui'){
+            this.name=name;
+        }
+        
+        get longName(){
+            return 'mk' + this.name
+        }
+
+        set longName(value){
+            this.name=value
+        }
+    }
+    let v= new Parent()
+    console.log(v.longName) 返回 mkshihui 读取值操作触发get
+    v.longName = 'hello' 设置操作 触发set
+    console.log(v.longName) 返回 mkhello
+```
+
+    4-静态方法
+```js
+    class Parent{
+        constructor(name='shihui'){
+            this.name = name
+        }
+        static tell(){     静态方法通过static关键字声明的，静态方法是通过类去调用，而不是通过类的实例去调用
+            console.log('tell')
+        }
+    }
+    Parent.tell()   调用静态方法
+```
+
+    5-静态属性
+```js
+    class Parent{
+        constructor(name='shihui'){
+            this.name = name
+        }  
+    }
+    Parent.type='test'  静态属性的定义
+    
+    console.log(Parent.type)   静态属性的读取
+```
+
+
+
+
+***Promise
+    promise好用的原因:es5中异步操做定时器，但使用定时器不知道相关代码执行的相关顺序，所以才出现了promise
+
+    什么是异步
+    Promise的作用
+    Promise的基本用法
+
+    Promise的基本用法
+```js
+    // 1-promise的基本用法
+    let ajax = function(){
+        console.log('执行2')
+        return new Promise(function(resolve,reject){
+            setTimeout(function(){
+                resolve()
+            },1000)
+        })
+    }
+
+    ajax().then(function(){  ajax函数运行完之后返回Promise实例，而这个实例有then的方法表示要执行下一步，then参数体就是要执行的下一步（第一个function方法对应的事resolve，第二个参数方法对应的是reject）
+        console.log('promise,timeout2')
+    })
+
+    // 2-Promise的多步调用
+    let ajax = function(){
+        console.log('执行3')
+        return new Promise(function(resolve,reject){
+            setTimeout(function(){
+                resolve()   说明 执行到resolve()的时候就会触发then中第一个参数方法的执行
+            },1000)
+        })
+    }
+    ajax()
+    .then(function(){
+     return new Promise(function(resolve,reject){
+         setTimeout(function(){
+             resolve()
+         },1000)
+     })   
+    })
+    .then(function(){
+        console.log('timeout3')
+    })  返回 执行3  timeout3
+
+    // 3-使用promise捕获错误
+    let ajax = function(num){
+        console.log('执行4')
+        return new Promise(function(resolve,reject){
+            if(num>5){
+                resolve()
+            }else{
+                throw new Error('出错了') 有错误输出执行此操作的时候就会执行catch
+            }
+        })
+    }
+    ajax(6).then(function(){
+        console.log('log',6)  代码正常执行输入 'log6'
+    }).catch(function(err){
+        console.log('catch',err)  
+    })
+```
+
+    ****promise高级用法 promise.all()
+    promise.all作用，如 加载图片的时候，当所有图片的状态都发生改变的时候才会加载到页面上，如果有一个图片正在加载中是不会显示到页面中来
+```js
+    // 所有图片加载完再显示到页面
+    function loading(src){
+        return new Promise((resolve,reject)=>{
+            let img = document.createElement('img')
+            img.src = src
+            img.onload=function(){
+                reslove(img)
+            }
+            img.onerror=function(err){
+                reject(err)
+            }
+        })
+    }
+    function showImgs(imgs){
+        imgs.forEach(function(imgs){
+            document.body.appendChild
+        })
+    }
+    promise.all([    代表这句话把多个promise实例当做一个promise实例，all下面是一个数组，数组传递进来多个promise实例，当所有promise实例发生改变的时候，那么这个新的总的promise实例才会发生变化
+    也就是说下面三张图片都加载完成之后，才会触发promise.all新的promise对象，所以新生成的promise对象才会有then方法
+        loading('img1')
+        loading('img2')
+        loading('img3')
+    ]).then(showImgs)
+```
+
+    *****promise高级用法 promise.race 与 promise.all相反 表示只要有一个图片加载完就会显示到页面上
+    
+```js
+    // 有一个图片加载完就添加到页面上
+    function loading(src){
+        return new Promise((resolve,reject)=>{
+            let img = document.createElement('img')
+            img.src = src
+            img.onload=function(){
+                reslove(img)
+            }
+            img.onerror=function(err){
+                reject(err)
+            }
+        })
+    }
+    function showImgs(img){
+        let p = document.createElement('p')
+        p.appendChild(img)
+        document.body.appendChild(p)
+    }
+    promise.race([
+        loading('img1')
+        loading('img2')
+        loading('img3')
+    ]).then(showImgs)
+    最终的结果是哪个图片先加载就显示那张图片
+```
+
+
+
+
+*** Iterator和for...of循环
+    什么是Iterator接口: 对于数组，Object对象，map，set这些怎么去读取，因为他们本身数据结构不同，要用一个相同办法的接口，让不同的数据结构得到统一的读取的方式，这就是Iterator接口所要实现的功能
+
+    2-Iterator的基本用法
+```js
+    // 1-iterator在数组中的应用
+    let arr = ['hello','world']
+    let map = arr[Symbol.iterator]() 数组中有内置的Symbol.iterator接口，所以可以直接调用，执行返回的map对象，然后这个map有next方法,来执行以下
+    console.log(map.next()) 返回{value:'hello',done:false}  value值表示数组的第一项，done表示是否有下一步状态，false表示还是有下一步，true表示没有下一步了
+    console.log(map.next()) 返回{value:'world',done:false}
+    console.log(map.next()) 返回{value:undefined,done:true}
+
+    // 上面iterator是数组的接口，接下来我们自己定义iterator接口
+    // 2-让object可以使用for...of循环
+    let obj={
+        start:[1,2,3],
+        end:[7,8,9],
+        [Symbol.iterator](){  声明了iterator接口方法
+            let self = this;
+            let index = 0;
+            let arr = self.start.concat(self.end) 将start和end合并成一个数组
+            let len = arr.length
+            return {   返回的对象中要有next方法
+                next(){
+                    if(index<len){
+                        return {
+                            value:arr[index++],
+                            done:false
+                        }
+                    }else{
+                        return{
+                            value:arr[index++],
+                            done:true
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for(let key of obj){  执行机制：遍历obj对象会自动调用Symbol.iterator这个接口返回一个对象，对象里面有next方法，然后next方法执行返回相应的值
+        console.log(key) 
+    }  返回 1,2,3,7,8,9
+```
+
+
+
+
+***Generator
+    基本概念：异步编程的解决方案，比如早期的异步编程的方式
+    next函数的用法
+    yield的语法
+
+
+
+
+***模块化
+```js 
+    // 提倡滴三种方法
+    // 1-导出第一种情况
+    export let A=123  导出阶段
+    import {A} from '文件地址'
+    // 导出第二种情况 
+    export let A=123  导出阶段
+    import * as lessons from '文件地址'   *代表的所有东西，通过lessons别名就保存在lessons里面了  通过lessons.A就可以拿到内容
+    // 导出第三种情况 
+    let A = 123
+    export default {
+        A
+    }
+    import lesson from '文件地址'
+    console.log(lesson.A)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+***基本技能
+    那我们应该要做的事
+        1-先构造支持es6的环境，使用glup,babel,webpack,npm这些一套完整的构建工具，可以构造支持es6的环境  构建工具可以实现编译，监听，打包，上线的流程(因为 开发了es6代码是不能直接部署到线上让浏览器去访问的，浏览器不支持是会报错的)
+        2-基础语法
+        3-实战演练
+
+***项目构建
+    1-基础架构：
+        业务逻辑：页面(html，css) 交互(js)
+        自动构建：编译(babel编译工具)
+                 辅助：自动刷新，文件合并，资源压缩(图片压缩，css压缩等等)
+        服务接口：数据，接口
+    2-任务自动化：怎么去编译，文件的压缩，怎么去依赖的，这些都是要通过任务自动
+    化来实现
+        2-1什么是任务自动化：减少人工作业，让电脑监听所有的操作，自动响应
+        2-2什么是gulp：gulp是个工具，是解决自动化构建工具的，增强工作流程的工具
+        2-3gulp的作用：完成任务自动化，帮助工作流顺畅的进行
+        2-4了解如何使用gulp完成任务自动化：看gulp中文文档(了解经常使用的插件)
+    3-编译工具：babel，webpack
+        3-1什么是babel(js的编译工具) , webpack(实现模块化)
+        3-2babel的核心用法：解决兼容性问题，解决编译问题，怎么去做编译
+        3-3了解webpack及webpack-stream的作用：webpack-stream是gulp的支持，gulp是通过stream流支持的
+    4-代码实现
+        创建ES6前端工程
+        完成目录结构，自动构建，服务器搭建
+
+
+***解构赋值
+***箭头函数
+***set和Map
+***异步操作
+***类与对象
+***模块化
+
+
