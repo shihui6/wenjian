@@ -1,4 +1,5 @@
 ###Websocket
+    Websocket适合在浏览器和服务器建立持久连接
     Websocket伴随着h5产生的
     Websocket是什么？
         浏览器发出websocket请求，与服务器建立web端的socket连接，就允许浏览器和服务器相互发送消息。如果浏览器端和服务端都不断开，那么socket是不会断开的。
