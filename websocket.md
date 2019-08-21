@@ -52,7 +52,7 @@
 
     ***websocket的框架 socketio
 socket需要在客户端和服务器同时引入
-
+    socketio好处：可以直接发送json对象，不需要对对象进行格式化
 服务端
 ```js
     1.安装websocketio
@@ -121,3 +121,5 @@ socket需要在客户端和服务器同时引入
         document.body.appendChild(div)
     }
 ```
+
+    
