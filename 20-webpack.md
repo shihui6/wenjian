@@ -13,6 +13,9 @@
 
 
 ###使用webpack
+```js
+    查找插件的用法通过:www.npmjs.com/package/postcss-loader 
+```
     1-初始化package.json
 ```
 npm init -y
@@ -29,6 +32,15 @@ npm init -y
 let path = require('path')
 let HtmlWebpackPlugin = require('html-webpack-plugin')
 let CleanWebpackPlugin = require('clean-webpack-plugin')
+
+// A-分别抽离css和less文件 的实现
+let ExtractTextWebpackPlugin = require('extract-text-webpack-plugin')
+let LessExtract = new ExtractTextWebpackPlugin('css/less.css')
+let csssExtract = new ExtractTextWebpackPlugin('css/css.css')
+
+//B- 没用的css会被消除掉
+let PurifycssWebpack = require('purifycss-webpack')
+
 module.exports = {
     entry:'./src/index.js', //入口
     output:{
@@ -42,17 +54,29 @@ module.exports = {
         compress:true,//服务器压缩
         open:true,//自动打开浏览器
         hot:true //热更新插件，相应的在plugins里也要添加相应的插件
-         
     },
     module:{//模块配置
         rules:[
-            {test:/\.css$/,use:[
-                {loader:'style-loader'},
+            {
+            test:/\.css$/,use:cssExtract.extract({ //A
+                use:[
                 {loader:'css-loader'}
-            ]}
+                ]
+                })
+            },
+            {
+                test:/\.less$/,use:LessExtract.extract({  //A
+                    use:[
+                        {loader:'css-loader'},
+                        {loader:'less-loader'}
+                    ]
+                })
+            }
         ]
     },
     plugins:[//插件的配置
+        cssExtract, //A
+        LessExtract,
         new webpack.HotModuleReplacementPlugin(), //实现热更新
         new CleanWebpackPlugin(['./build']), //将build文件清空
         //  打包html插件
@@ -64,6 +88,10 @@ module.exports = {
                 removeAttrbuteQuotes:true, //去除index.html中的引号
                 collapseWhitespace:true //去除空行，将index.html改成一行
             }
+        }),
+        // B-没用的css会被消除掉，一定放在htmlwebpackPlugin后面
+        new purifycssWebpack({
+            paths:glob.sync(path.resolve('src/*.html')) //将 src下面的所有的html用不到的css样式进行删除
         })
     ],
     mode:'development',//可以更改模式 
