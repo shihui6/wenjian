@@ -77,7 +77,7 @@ module.exports = {
     plugins:[//插件的配置
         cssExtract, //A
         LessExtract,
-        new webpack.HotModuleReplacementPlugin(), //实现热更新
+        new webpack.HotModuleReplacementPlugin(), //实现热更新  
         new CleanWebpackPlugin(['./build']), //将build文件清空
         //  打包html插件
         new HtmlWebpackPlugin({
