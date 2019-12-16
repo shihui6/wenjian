@@ -70,3 +70,44 @@ tap和click事件在应用中都是一样的效果，一般只要取其中的一
 			除了在MP中不编译，在其他平台都编译
 		// #endif
 
+***uni-app flex布局
+	1- Flex布局的概念
+		1-1 flexible box:弹性盒状布局
+		1-2 容器控制内部元素的布局定位
+		1-3 css3引入的新布局模型
+		1-4 伸缩元素，自由填充，自适应
+	2- Flex布局的优势
+		2-1 可在不同方向排列元素
+		2-2 控制元素排列的方向
+		2-3 控制元素的对齐方式
+		2-4 控制元素之间的等距
+		2-5 控制单个元素放大与缩小比例，占比，对齐方式
+	 3- Flex布局的常用术语
+	 	3-1 flex container ：flex容器
+		3-2 flex item ：flex项目(元素)
+		3-3 flex direction ：布局方向
+	4- Flex布局的模型
+		主轴，交叉轴俩个方向
+	5- Flex容器的属性
+		5-1.flex-direction : 设置元素的排列方向
+			row和row-reverse是水平排序的，row：水平从左向右排序，row-reverse是从右向左排序
+			column和column-reverse是垂直的排序
+		5-2 flex-wrap :是容器内的元素换行
+				nowrap 不换行 (默认不换行)
+				wrap 换行	
+				wrap-reverse 逆向换行排序
+		5-3 justify-content : 设置元素在主轴上的对齐方式
+				flex-start 左对齐 默认
+				flex-end   右对齐	
+				center	   居中对齐
+				space-between 俩端对齐，元素和元素之间留有一定的间隙 并且间隙都是等间距的
+				space-around  元素俩边平均等分剩余空白间隙部分，最左或最右和元素之间距离是1:2的关系
+		5-4 设置垂直轴的对其方式
+				flex-start
+				flex-end
+				center
+				baseline  将元素(容器)里的文字作为基准线排成一行 (保证每个文字都在同一条线上)
+				stretch(默认) 将容器里元素的高度和容器的高度设置成一样
+
+***将style里面的css样式导入进来的方式 在style里有方法
+	@import url('地址')
