@@ -102,7 +102,7 @@ tap和click事件在应用中都是一样的效果，一般只要取其中的一
 				center	   居中对齐
 				space-between 俩端对齐，元素和元素之间留有一定的间隙 并且间隙都是等间距的
 				space-around  元素俩边平均等分剩余空白间隙部分，最左或最右和元素之间距离是1:2的关系
-		5-4 aligh-items 设置垂直轴的对其方式
+		5-4 align-items 设置垂直轴的对其方式
 				flex-start	在垂直轴上向起点位置(向上/向左)对齐
 				flex-end	在垂直轴上向结束位置(向下/向右)对齐
 				center
@@ -111,3 +111,21 @@ tap和click事件在应用中都是一样的效果，一般只要取其中的一
 
 ***将style里面的css样式导入进来的方式 在style里有方法
 	@import url('地址')
+
+***注意点：uni-app运行时展开的初始页面会根据运行时编辑器停留的页面，而不会根据pages.json里配置的路由显示
+
+***uni-app中网络请求
+	网络请求的方法定义在函数里面
+	代码示例用法
+```js
+uni.request({
+    url: 'https://www.example.com/request', //仅为示例，并非真实接口地址。
+    data: {
+        text: 'uni.request'
+    },
+    success: (res) => {
+        console.log(res.data);
+        this.text = 'request success';
+    }
+});
+```
