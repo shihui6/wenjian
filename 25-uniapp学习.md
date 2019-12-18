@@ -61,7 +61,12 @@ tap和click事件在应用中都是一样的效果，一般只要取其中的一
 		<!-- #ifndef app-plus -->
 			除了在这个平台不编译，其他平台都出现
 		<!-- #endif -->
+```js
+		// 同时在俩个或者以上的平台展示或者处理兼容问题
+		// #ifdef app-plus || H5
 
+		// #endif
+```
 		1-2在js文件中编译
 		// #ifdef H5
 			只在H5中编译
@@ -108,6 +113,9 @@ tap和click事件在应用中都是一样的效果，一般只要取其中的一
 				center
 				baseline  将元素(容器)里的文字作为基准线排成一行 (保证每个文字都在同一条线上)
 				stretch(默认) 将容器里元素的高度和容器的高度设置成一样
+		5-5 align-self 属性定义flex子项单独在侧轴（纵轴）方向上的对齐方式。
+					align-self的取值 auto|stretch|center|flex-start|flex-end|baseline|initial|inherit;
+		
 
 ***将style里面的css样式导入进来的方式 在style里有方法
 	@import url('地址')
@@ -125,7 +133,43 @@ uni.request({
     },
     success: (res) => {
         console.log(res.data);
-        this.text = 'request success';
+        this.text = 'request success';                
     }
 });
+```
+
+***uni-app video视频组件的使用
+```js
+// 	具体关于video组件属性和事件的使用，关注uni-app官网组件的介绍
+	<video
+		src="" //视频播放地址
+		poster="" //视频封面图片
+	></video>
+```
+
+
+***uni-app中组件动画的使用
+```js
+// 1-设定组件进行动画
+<view :animation="animationData" style="background:red;height:100rpx;width:100rpx"></view>
+// 2-构建动画数据，并且通过step来表示这组动画的完成
+this.animation.translateY(-60).opacity(1).step({
+	duration:400
+})
+// 3- 导出动画数据到view组件，实现组件的动画效果
+this.animationData = this.animation.export()
+```
+
+	1-问题：使用v-for渲染，点击事件时所有被渲染的组件，他们的事件会同时触发，我们需要的是点击哪个组件只触发对应组件的事件
+		方案：将动画导出到对应点击的组价那种就可以  代码如下
+```js
+	this.animationData[index] = this.animation.export()   //this.animationData[index] 对应点击时的组件
+```
+
+
+***下拉刷新设计到的事件
+```js
+// 在pages.json 里面开启下拉刷新功能
+onPullDownRefresh(){} //下拉刷新时 调用次函数
+uni.stopPullDownRefresh()  // 下拉刷新完成时，结束下拉刷新的动作
 ```

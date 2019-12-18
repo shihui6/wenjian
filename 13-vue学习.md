@@ -115,6 +115,14 @@ params类似 post, 跳转之后页面 url后面不会拼接参数 , 但是刷新
     特点，可以在当前页面用到import组件的所有的功能
 
 
+***vue中的列表渲染v-for知识点
+```js
+    <div v-for="(item,index) in alls"></div>
+    // 1-如果此div有css样式，则v-for指令会渲染当前div，当然没有样式也会渲染，只不过咋们看不到
+    // 2-div里面有内容，连同内容和div一起渲染
+```
+
+
 
 
 
