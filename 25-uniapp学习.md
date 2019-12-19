@@ -173,3 +173,24 @@ this.animationData = this.animation.export()
 onPullDownRefresh(){} //下拉刷新时 调用次函数
 uni.stopPullDownRefresh()  // 下拉刷新完成时，结束下拉刷新的动作
 ```
+
+***uni-app中的生命周期中的页面生命周期
+onReachBottom  页面上拉触底事件的处理函数(滚动条到地步之后会触发此事件)
+	下拉刷新功能思路(前提是要保证页面显示的内容产生下拉框)
+		1-根据输入框搜索的值，复制到下拉刷新函数中进行下拉刷新操作
+		2-下拉框触及底部时会触发onReachBottom周期函数
+		3-每次下拉，将请求的数据追加添加到原来的数组里面进行展示
+		4-开启加载动画，且加载完成时关闭加载动画loading
+
+***uni-app中点击图片跳转到该图片详情页  或者  跳转页面
+	1-通过uni.navigateTo跳转相应的页面
+```js
+	uni.navigateTo({
+		url:'../movie/movie?trailer=1234'
+	})
+```
+	2-在对应的页面中通过页面周期函数onLoad参数即可获得参数对象
+
+***uni-app图片预览功能
+	uni.previewImage(OBJECT)  次接口可以实现图片预览功能
+		
