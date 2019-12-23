@@ -10,13 +10,15 @@
  * @param {Egg.Application} app - egg application
  */
 module.exports = app => {
-  const { router, controller } = app;  //app是全局应用对象，这里已经实例化好了，
+  const { router, controller } = app;  //问题：问什么在routerjs里面没有引入home和product就直接可以引用，
+    //   是因为app是全局应用对象，这里已经实例化好了，
   // 全局应用对象只能实例化一次；在这里eggjs已经把路由和控制器都设置好了
   router.get('/', controller.home.index);
   router.get('/product',controller.product.index);   //get请求的写法
 };
 ```
 
+<!-- 2-下面是homejs里面的代码 -->
 ```js
 const Controller = require('egg').Controller;
 // home.js里面是各种业务逻辑，例如：商品模块，用户信息模块
@@ -56,10 +58,29 @@ module.exports = ProductService
  let res = ctx.service.product.index()
 ```
 
+***关于ctx的几个运用
+ctx.query   get请求的请求参数
+ctx.param   动态路由的请求参数
+ctx.request.body  post请求的请求参数
+
 ***View模板渲染
     绝大多数情况，我们都需要读取数据后渲染模板，然后呈现给用户。故我们需要引入对应的模板引擎
     框架内置egg-view作为模板解决方案，并支持多模板渲染，每个模板引擎都以插件的方式引入，但保持渲染的API一致。
 
 用法：
-    1-先安装
-    2-
+    1-先安装  npm i egg-view-ejs --save
+```js
+    // 2-然后在plugin.js里面配置 
+        exports.ejs = {
+            enable:true,
+            package:"egg-view-ejs"
+        }
+    //   在config.default.js里配置
+        exports.view = {
+            mapping：{
+                ".ejs":"ejs"  //以.ejs结尾的文件，都用ejs模板进行渲染
+            }
+        }
+    // 3-在页面组件的js文件中使用模板
+    ctx.render('index.html',{res})  //ctx.render("模板文件",模板中所需的数据)
+```
