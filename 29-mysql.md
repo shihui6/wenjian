@@ -22,8 +22,6 @@
         2-使用命令行 
             net start mysql 启动服务
             net stop mysql 停止服务
-    查看当前正在使用的数据库
-        select database();
 
     登录mysql客户端
         mysql -uroot -pwossh1423875545 -P3306 -hlocalhost    //-P后面是端口号
@@ -72,7 +70,7 @@
         2-查看当前服务器下的数据库列表
             SHOW {DATABASES | SECHEMAS} [LIKE '']
         3-查看数据库创建时候的使用的编码方式是什么
-            CREATE SHOW DATABASE T1
+            SHOW CREATE  DATABASE T1
         4-创建以gbk的编码方式的数据库
             CREATE DATABASE T2 CHARACTER SET GBK
         5-将数据库的编码方式由原有的GBK改成utf8
@@ -128,7 +126,9 @@
             表中 行为记录，列为字段
 
             1-打开数据库    use + 数据库名称
-            2-创建数据表
+               重要知识点： 查看当前正在使用的数据库
+                            select database();
+            2-创建数据表    (创建表字段后面加类型顺序  type null key default extra)
                 CREATE TABLE [IF NOT EXISTS] table_name (
                 column_name data_type,       //column_name 列名称    data_type  数据类型
             )
@@ -138,8 +138,8 @@
                         salary FLOAT(8,2) UNSIGNED
                     )
 
-            3-查看数据表  SHOW TABLES [FORM db_name]  [LIKE 'parttern' | WHERE expr]
-                    例子：SELECT DATABASE() FROM TEST;
+            3-查看数据表  SHOW TABLES [FROM db_name]  [LIKE 'parttern' | WHERE expr]   查看这个数据库中有什么表
+                    例子：show tables  查看这个数据库中的表
             
             4-查看刚刚创建好了的数据表的结构
                 SHOW COLUMNS FROM tbl_name
@@ -154,10 +154,13 @@
                 select expr ,...from tbl_name
                     例子：select * from tab1
 
+            6-删除数据表  
+                drop table + 表名
+
             7-NULL，字段值可以为空   NOT NULL，字段值禁止为空 
                 运用：可以规定字段中的值，可以为空和禁止为空(必填)
                     例子：create table tab1(
-                        username VARVHAR(20) NOT NULL,    //username字段禁止为空
+                        username VARCHAR(20) NOT NULL,    //username字段禁止为空
                         age TINYINT UNSIGNED NULL           //age字段可以为空
                     );
 
@@ -167,7 +170,7 @@
                 默认情况下，起始值为1，每次的增量为1
                     例子：create table tab2(
                         id SMALLINT AUTO_INCREMENT PRIMARY KEY,
-                        username VARVHAR(20) NOT NULL
+                        username VARCHAR(20) NOT NULL
                     );
 
             9-mysql数据表中的主键约束
@@ -194,11 +197,97 @@
                     )
 
 
+***mysql外键约束的要求和解析
+        约束：
+            1-约束保证数据的完整性和一致性
+            2-约束分为表级约束和列级约束  (约束只针对某一个字段称之为列级约束；约束针对俩个及俩个以上则是表级约束)
+            3-约束类型包括
+                    not null  (非空约束)
+                    primary key(主键约束)
+                    unique key (唯一约束)
+                    default    (默认约束)
+                    foreign key(外键约束)
+
+                外键约束的知识点
+                    定义：保持数据一致性，完整性。实现一对一或一对多的关系
+                外键约束的要求：
+                    1-父表(子表所参照的表)和子表(具有外键列的表)必须使用相同的存储引擎，而且禁止使用临时表
+                    2-数据表的存储引擎只能为InnoDB
+                    3-外键列(加过foreign key关键词的那一列)和参照列(外键列所参照的列)必须具有相似的数据类型。其中数字的长度或是否有符号位必须相同；而字符的长度则可以不同
+                    4-外键列(外键列没有索引,mysql不会创建索引)和参照列(不创建索引，mysql则会自动创建索引)必须创建索引。如果外键列不存在索引的话，mysql将自动创建索引
+                如何编辑数据表的默认存储引擎
+                    1-编辑mysql配置文件
+                    2-找到default-storage-engine=INNODB  (找到default-storage-engine把引擎改为INNODB)
+                    3-重新启动mysql
+                如何满足外键列和参照列具有相似的数据类型
+                    查看数据表的存储引擎 和 数据表的编码格式
+                        show create table + 表名
+                            例子：show create table tab1
+                    1-先创建俩张数据表 (父表和子表，并进行外键约束)
+                        1-1父表：create table provincess(
+                            id SMALLINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+                            pname VARCHAR(20) NOT NULL
+                        );
+                        1-2子表：(子表创建外键约束要参照父表的字段)
+                            create table usr(
+                                id SMALLINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+                                username VARCHAR(10) NOT NULL,
+                                pid SMALLINT UNSIGNED,          //pid是外键列，必须和参照列(父表里的)具有相似的数据类型
+                                FOREIGN KEY(pid) REFERENCES provincess(id)   //定义外键列为pid  参照provincess表中的id(参照列)   
+                            )
+                                解释索引：父表provincess已经定义了主键id，所以自动生成索引；子表的pid为外键列参照父表id系统也会自动生成索引
+                        1-3查看表中创建的索引
+                            show index from + 表名\G;   \\ 反斜杠G是查找索引以列表的形式展示
+                    
+                    2-外键约束的参照操作  (如果要在表中插入记录必须现在父表中插入记录，才能在字表中插入记录，因为子表参照的是父表中的信息)
+                        1-CASCADE:从父表删除或更新且自动删除或更新子表中的匹配的行
+                                例子： create table usr{
+                                    id SMALLINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+                                    username VARCHAR(10) NOT NULL,
+                                    pid SMALLINT UNSIGNED, 
+                                    FOREIGN KEY(pid) REFERENCES provincess(id) ON DELETE CASCADE  //在外键约束的时候进行ON DELETE 定义外键约束的参照操作
+                                }
+
+                                删除表中的一条记录 delete from 表名 where 条件
+                                            例子  delete from usr where id = 1
+                        2-SET NULL:从父表删除或更新行，并设置子表中的外键列为NULL。如果使用该选项，必须保证子表列没有指定的NOT NULL
+                        3-RESTRICT::拒绝对父表的删除或更新操作
+                        4-NO ACTION:标准SQL的关键字，在mysql中与restrict相同
 
 
+***mysql修改数据表
+    1-添加/删除列
+            添加单列  ALTER TABLE tbl_name(表名) ADD [COLUMN] col_name(列名称) column_definition(列定义) [FIRST | AFTER col_name]
+                    例子：ALTER TABLE tab1 ADD password VARCHAR(32) NOT NULL AGTER username  在username这一列后面添加 password字段(一列)
+                        ALTER TABLE tab1 ADD password varchar(32) NOT NULL   tab1表的最后面添加password字段(一列)
 
+            添加多列 ALTER TABLE tbl_name ADD [COLUMN] (col_name column_definition,...)
 
+            删除列(可以删除一列，也可以删除多列) ALTER TABLE tbl_name DROP [COLUMN] col_name
+                    例子：ALTER TABLE tab1 DROP password,DROP age    删除多列
+    2-添加主键约束
+            ALTER TABLE tbl_name ADD [CONSTRAINT[symbol]] PRIMARY KEY [index_type] (index_col_name)
+                例子：ALTER TABLE tab1 ADD CONSTRAINT PK_user_id PRIMARY KEY (id)   //将id列改成主键约束
+    3-添加唯一约束
+            ALTER TABLE tbl_name ADD [CONSTRAINT[symbol]] UNIQUE [INDEX|KEY] [index_name] [index_type] (index_col_name,...)
+                例子：alter table tab1 unique (username)
+    4-添加外键约束 (所添加的外键约束必须符合添加外键的条件)
+            ALTER TABLE tbl_name ADD [CONSTRAINT[symbol]] FOREIGN KEY [index_name] (index_col_name,...) reference_definition
+            例子：给表二的pid参照表一id添加外键约束
+                alter table tab2 ADD FOREIGN KEY (pid) reference tab1 (id)
+    5-添加/删除默认约束
+            ALTER TABLE tbl_name ALTER [COLUMN] col_name {SET DEFAULT literal | DROP DEFAULT}
+                例子：alter table tab1 alter age set default 12   //添加默认值
+                     alter table tab1 alter age drop default       //删除默认值
+    6-删除主键约束
+            ALTER TABLE tbl_name DROP PRIMARY KEY
+                alter table tab1 drop primary key
+            ALTER TABLE tbl_name DROP {INDEX|KEY} index_name    (首先通过show index from tab1\G  查看表中的索引)
+                alter table tab1 drop index username
+    7-删除外键约束
+            ALTER TABLE tbl_name DROP FOREIGN KEY fk_symbol  (首先查看表的外键约束 show create table tab1 查看出外键约束 fk_symbol位置填写外键约束的内容)
 
+                
 
 
 
