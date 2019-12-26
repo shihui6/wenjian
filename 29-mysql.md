@@ -288,7 +288,84 @@
             ALTER TABLE tbl_name DROP FOREIGN KEY fk_symbol  (首先查看表的外键约束 show create table tab1 查看出外键约束 fk_symbol位置填写外键约束的内容)
 
                 
+    大纲：
+        1-修改列定义
+            ALTER TABLE tb1_name MODIFY[COLUMN] col_name column_definition
+                例子：alter table tab1 modify id smallint unsigned not null first  //将id字段的位置调到第一位
+                例子：alter table tab1 modify id tinyint unsigned not null   //修改类型
 
+        2-修改列名称
+                ALTER TABLE tb1_name CHANGE[COLUMN] old_col_name new_col_name column_definition [first | after col_name]   可修改列定义也可修改列名称
+                例子：alter table tab1 change pid p_id tinyint unsigned not null;  //将表中的字段pid改成p_id
+
+        3-修改数据表的名字
+            方法一：ALTER TABLE tb1_name RENAME [TO|AS] new_tbl_name
+            方法二：RENAME TABLE tbl_name TO new_tbl_name [,tbl_name2 TO new_tbl_name2]...
+
+总结：
+    约束 
+        按功能划分：NOT NULL,PRIMARY KEY, UNIQUE KEY, DEFAULT ,FOREIGN KEY
+        按数据列的数目划分为：表级约束，列级约束
+        修改数据表：
+            针对字段的操作：添加/删除字段，修改列定义，修改列名称等
+            针对约束的操作：添加/删除各种约束
+            针对数据表的操作：数据表更名(俩种方式)
+
+
+###表的增删改查
+        条件表达式(对跟新,查询表有用)：对记录进行过滤，如果没有指定的where子句，则显示所有记录。在where表达式中，可以使用mysql支持的函数或运算符。
+        1-插入记录 insert
+            insert [into] tbl_name [(col_name,...)] {values|value} ({expr | default},...),...
+                例子： insert tab1 values('tom',12,3,4,5)           //只插入一行记录  名字，密码，年龄，性别
+                    insert tab1 values('tom',12,3,4,5),(null,33,22,33,44)   //一次性的插入多个值  插入的值里面可以是函数运算 可以是默认值
+        2-插入记录第二种方法  (此方法与第一种方式的区别，此方法可以使用子查询)
+            insert [into] tbl_name set col_name={expr | default}      //可插入多个数值，也可以只用子查询
+                例子： insert tab1 set username='tom'  
+                例子： insert tab1(username) select username from tab2 where age > 30 将另一个表中的数据插入到另一个表中 (将表2的username字段且年龄大于30的字段插入到tab1当中)
+
+        1-跟新记录
+            update[low_priority][ignore]table_reference set col_name1={expr1|default}[,col_name2={expr2|default}]...where where_condition
+                例子：undate tab1 set age = age + 5 //不加更新条件，会将所有的age字段的年龄加5
+                      undate tab1 set age = age + 10 where id%2=0  //加上条件  id为偶数的人，年龄加10
+        
+        1-删除记录(单表删除)
+            delete from tbl_name [where where_condition]
+                例子：delete from tab1 where id = 6; //加条件 指id为6的被删除   不加条件的话是将所有记录删除
+        
+        1-查询记录
+            查询总结
+                select select_expr [,select_expr..]
+                    [
+                        from table_references
+                        [where where_condition]
+                        [group by {col_name | position} [asc | desc],...]
+                        [having where_condition]
+                        [order by {col_name | expr | position} [asc | desc],...]
+                        [limit {[offset,] row_count | row_count OFFSET offset}]
+                    ]
+            select select_expr [,select_expr...]   //select_expr 只查询的描述
+                例子：select id from tab1;  
+                     select id,username from tab1;      //查询字段显示出的结果集跟字段写的顺序有关
+                     select id as tabid,username as tabusername from tab1;  //查询字段使用别名
+
+            查询结果分组：
+                [group by {col_name | position} [asc | desc],...] //asc升序是默认的 desc是降序
+                    例子： select age from tab1 group by age
+            分组条件
+                [having where_condition]      // 分组的条件要么是聚合函数，要么条件字段必须出现在select语句当中  否则会出现错误
+                    例子：select sex,age from tab1 group by 1 having age > 34  //要么条件字段必须出现在select语句当中
+                    例子：select sex from tab1 group by 1 having count(id) >=2 //分组的条件要么是聚合函数
+
+            对查询结果进行排序
+                [order by {col_name | expr | position}[asc | desc],...]
+                例子：select * from tab1 order by id desc  //id以降序排列
+                     select * from tab1 order by id ,age desc;  //id升序，age降序排列
+
+            限制查询结果返回的数量
+                [LIMIT {[offset,] row_count | row_count OFFSET offset}]  默认情况下是查询全部结果
+                    例子：select * from tab1 limit 3    //查询3条记录
+                        select * from tab1 limit 2,2    //查询从起始位置2开始的2条记录
+        
 
 
 
