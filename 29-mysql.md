@@ -429,6 +429,7 @@
                 table_reference
                 ON condition_expr
             例子：update tbd_goods inner join tbd_goods_cates on goods_cate = cate_name set goods_cate = cate_id //更新tbd_goods 内连接表tbd_goods_cates 连接条件是 需要将当前的goods_cate(是tbd_goods的字段)等于cate_name(事故tbd_goods_cates的字段)作为连接条件 将tbd_goods的goods_cate字段改成tbd_goods_cates字段cate_id的值
+            追加说明：更新tbd_goods表中的tbd_goods_cates字段，内连接tbd_goods_cates，且goods_cate = cate_name俩表中的字段相等的，就将tbd_goods_cates字段赋cate_id
 
         多表更新要用到连接，连接类型
             INNER JOIN,内连接
