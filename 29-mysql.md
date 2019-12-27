@@ -143,7 +143,9 @@
             
             4-查看刚刚创建好了的数据表的结构
                 SHOW COLUMNS FROM tbl_name
+                DESC TABLE
                     例子：SHOW COLUMNS FROM tab1
+                          DESC tab1
             
             5-插入记录
                 insert [into] tbl_name [(col_name)] values(val,...)
@@ -366,6 +368,75 @@
                     例子：select * from tab1 limit 3    //查询3条记录
                         select * from tab1 limit 2,2    //查询从起始位置2开始的2条记录
         
+
+###mysql数据操作
+        改变客户端数据的显示方式
+            set names gbk;  //只影响客户端的数据的显示，并不影响真实的数据表中的数据
+
+        1-子查询
+            定义：指出现在其他sql语句内的select子句
+                例如：select * from t1 where col1 = (select col2 from t2);
+                其中select * from t1,称为outer query/outer statement(称之为外层查询或者外层声明) select col2 from t2,称为subquery(称之为子查询)
+            使用子查询的注意点：
+                1-子查询指嵌套在查询内部，且必须始终出现在圆括号内。
+                2-子查询可以包含多个关键字或条件，如 distinct,group by,order by,limit,函数等
+                3-子查询的外层查询可以是：select,insert,update,set或do
+            子查询返回值：
+                子查询返回标量，一行，一列或子查询
+        
+        2-子查询产生的情况比较多
+            第一类子查询
+            2-1使用比较运算符的子查询：=,>,<,>=,<=,!=,<=>
+                语法结构：operand comparison_operator subquery
+                
+            拓展:查询表格中某一个字段的平均值
+                SELECT AVG(字段名称) FROM TABLE  //AVG是聚合函数
+                    例子：select AVG(good_price) from tab1
+                查询表格中某一个字段的平均值且查询后的结果四舍五入保留2位小数
+                    select ROUND(AVG(good_price),2) from tab1
+                查询表中哪些商品的价格大于5636(这里就会用到子查询)
+                    select good_id,good_name,good_price from tab1 where good_price >= (select ROUND(AVG(good_price),2) from tab1) //显示由good_id,good_name,good_price组成的表格字段且价格这些字段对应的商品的价格大于计算出来的值，并且这些字段都是tab1中
+            2-2用ANY,SOME或ALL修饰的比较运算符的情况
+                如果子查询返回多个结果，需要用ANY,SOME或ALL修饰的比较运算符  
+                        ANY     SOME       ALL
+                >,>=   最小值   最小值     最大值
+                <,<=   最大值   最大值     最小值
+                =      任意值   任意值
+                <>,!=                     任意值
+
+            第二类子查询
+            1-使用[NOT] IN的子查询
+                语法结构
+                    operand comparison_operator [NOT] IN (subquery) = ANY 运算符IN等效;  另外 !=ALL或<>ALL运算符与NOT IN等效
+
+            第三类子查询(用的比较少)
+            2-使用[NOT] EXISTS的子查询(这种情况用的比较少)
+                如果子查询返回任何行，EXISTS将返回TRUE；否则为FALSE
+
+
+    ***将查询结果写入到数据表中
+        语法：INSERT [INTO] tbl_name [(col_name,...)] SELECT...
+            例子：insert tab1(colomn) select column from tab2 group by column  //将表tab2中的column字段的数据插入到tab1中的column字段上
+
+
+
+    ***多表更新
+        定义：参照一个表更新另外的表
+        语法：UPDATE table_references SET col_name1 = {expr1 | default} [,col_name2={expr2 | default}]... [WHERE where_condition]
+                表的参照(也就是table_reference)语法
+                table_reference
+                {[INNER | CROSS] JOIN | {LEFT | RIGHT} [OUTER] JOIN}
+                table_reference
+                ON condition_expr
+            例子：update tbd_goods inner join tbd_goods_cates on goods_cate = cate_name set goods_cate = cate_id //更新tbd_goods 内连接表tbd_goods_cates 连接条件是 需要将当前的goods_cate(是tbd_goods的字段)等于cate_name(事故tbd_goods_cates的字段)作为连接条件 将tbd_goods的goods_cate字段改成tbd_goods_cates字段cate_id的值
+
+        多表更新要用到连接，连接类型
+            INNER JOIN,内连接
+                在MYSQL中，JOIN,CROSS JOIN和INNER JOIN是等价的
+            LEFT [OUTER] JOIN,左外连接
+            RIGHT [OUTER] JOIN,右外连接
+
+
 
 
 
