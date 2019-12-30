@@ -323,7 +323,7 @@
         2-插入记录第二种方法  (此方法与第一种方式的区别，此方法可以使用子查询)
             insert [into] tbl_name set col_name={expr | default}      //可插入多个数值，也可以只用子查询
                 例子： insert tab1 set username='tom'  
-                例子： insert tab1(username) select username from tab2 where age > 30 将另一个表中的数据插入到另一个表中 (将表2的username字段且年龄大于30的字段插入到tab1当中)
+                例子： insert tab1(username) select username from tab2 where age > 30 将一个表中的数据插入到另一个表中 (将表2的username字段且年龄大于30的字段插入到tab1当中)
 
         1-跟新记录
             update[low_priority][ignore]table_reference set col_name1={expr1|default}[,col_name2={expr2|default}]...where where_condition
@@ -421,6 +421,7 @@
 
 
     ***多表更新
+        1-
         定义：参照一个表更新另外的表
         语法：UPDATE table_references SET col_name1 = {expr1 | default} [,col_name2={expr2 | default}]... [WHERE where_condition]
                 表的参照(也就是table_reference)语法
@@ -430,6 +431,10 @@
                 ON condition_expr
             例子：update tbd_goods inner join tbd_goods_cates on goods_cate = cate_name set goods_cate = cate_id //更新tbd_goods 内连接表tbd_goods_cates 连接条件是 需要将当前的goods_cate(是tbd_goods的字段)等于cate_name(事故tbd_goods_cates的字段)作为连接条件 将tbd_goods的goods_cate字段改成tbd_goods_cates字段cate_id的值
             追加说明：更新tbd_goods表中的tbd_goods_cates字段，内连接tbd_goods_cates，且goods_cate = cate_name俩表中的字段相等的，就将tbd_goods_cates字段赋cate_id
+
+        2-多表更新一步到位
+        创建数据表同时将查询结果写入到数据表
+            语法：CREATE TABLE [IF NOT EXISTS] tbl_name [(create_definition)] select_statement
 
         多表更新要用到连接，连接类型
             INNER JOIN,内连接
