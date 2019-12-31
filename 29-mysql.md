@@ -325,12 +325,12 @@
                 例子： insert tab1 set username='tom'  
                 例子： insert tab1(username) select username from tab2 where age > 30 将一个表中的数据插入到另一个表中 (将表2的username字段且年龄大于30的字段插入到tab1当中)
 
-        1-跟新记录
+        1-跟新记录 (更新表中数据)
             update[low_priority][ignore]table_reference set col_name1={expr1|default}[,col_name2={expr2|default}]...where where_condition
                 例子：undate tab1 set age = age + 5 //不加更新条件，会将所有的age字段的年龄加5
                       undate tab1 set age = age + 10 where id%2=0  //加上条件  id为偶数的人，年龄加10
         
-        1-删除记录(单表删除)
+        1-删除记录(单表删除)  删除表中的数据，而不是删除数据表
             delete from tbl_name [where where_condition]
                 例子：delete from tab1 where id = 6; //加条件 指id为6的被删除   不加条件的话是将所有记录删除
         
@@ -435,14 +435,37 @@
         2-多表更新一步到位
         创建数据表同时将查询结果写入到数据表
             语法：CREATE TABLE [IF NOT EXISTS] tbl_name [(create_definition)] select_statement
+                 例子：create table tb1 (
+                         id smallint unsigned primary key auto_increment,
+                         brandname varchar(20) not null
+                       )select brandname from tb2
+                    将数据表tb2里的brandname字段的数据插入到新创建的表tb1中。(create和select语句连起来写)
 
-        多表更新要用到连接，连接类型
-            INNER JOIN,内连接
-                在MYSQL中，JOIN,CROSS JOIN和INNER JOIN是等价的
-            LEFT [OUTER] JOIN,左外连接
-            RIGHT [OUTER] JOIN,右外连接
+            
+        连接：
+            mysql在select语句，多表更新，多表删除语句中支持join操作
+
+            1-多表更新要用到连接，连接类型
+                 INNER JOIN,内连接   
+                     在MYSQL中，JOIN,CROSS JOIN和INNER JOIN是等价的
+                 LEFT [OUTER] JOIN,左外连接 
+                 RIGHT [OUTER] JOIN,右外连接
+                 1-1内连接定义：左表和右边重合部分的记录
+                 1-2外连接
+                        左外连接：显示左表的全部记录及右表符合连接条件的记录
+                        右外连接：显示右表的全部记录及左表符合连接条件的记录
 
 
+            2-连接条件
+                使用ON关键字来设定连接条件，也可以使用WHERE来代替
+                通常使用ON关键字来设定连接条件
+                使用WHERE关键字进行结果集记录的过滤
+            3-多表的链接(链接3张表)
+                例子：select goods_id,goods_name,cate_name,brand_name from tb1  INNER JOIN tb1 ON tb1.cate_id = tb2.cate_id INNER JOIN tb3 ON tb1.brand_id = tb3.brand_id
+
+            4-多表删除
+                语法：DELETE tbl_name[.*] [,tbl_name[.*]]...  FROM table_references [WHERE where_condition]
+                    例子： 
 
 
 
