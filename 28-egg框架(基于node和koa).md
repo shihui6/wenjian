@@ -84,3 +84,30 @@ ctx.request.body  post请求的请求参数
     // 3-在页面组件的js文件中使用模板
     ctx.render('index.html',{res})  //ctx.render("模板文件",模板中所需的数据)
 ```
+
+***eggjs框架使用mysql数据库
+    1-在config文件plugin.js配置 
+            exports.mysql = {
+                enable: true,
+                package: 'egg-mysql',
+            };
+    2-在config.default.js文件里配置登录mysql数据库数据源，也可以配置多个mysql数据源
+    3-await app.mysql.select('数据表')调数据
+
+
+***前后端联调配置处理接口跨域
+    在vue.config.js里用代理
+```js
+module.exports = {
+    devServer:{
+        proxy:{
+            '/article':{   //检测到以/article开头请求的时候，将请求代理到目标服务器上(也是下面的target)
+                target:"http://localhost:7001",  
+                ws:true,  //允许webSocket服务
+                changeOrgin:true  //开启虚拟服务器，让虚拟服务器去请求代理服务器，这样子就是俩台服务器在进行交互，不需要担心跨域的问题
+            }
+        }
+    }
+}
+```
+    

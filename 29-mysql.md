@@ -27,7 +27,7 @@
         mysql -uroot -pwossh1423875545 -P3306 -hlocalhost    //-P后面是端口号
 
     查看mysql版本
-        在命令行中 输入mysql -V 
+        在命令行中 输入select version();
 
     mysql参数解释  登录指定端口的数据库
         -D , --database=name  打开指定数据库
@@ -367,6 +367,9 @@
                 [LIMIT {[offset,] row_count | row_count OFFSET offset}]  默认情况下是查询全部结果
                     例子：select * from tab1 limit 3    //查询3条记录
                         select * from tab1 limit 2,2    //查询从起始位置2开始的2条记录
+
+        ***总结：
+            记录的操作 增，删，改
         
 
 ###mysql数据操作
@@ -404,6 +407,7 @@
                 =      任意值   任意值
                 <>,!=                     任意值
 
+                    例子：
             第二类子查询
             1-使用[NOT] IN的子查询
                 语法结构
@@ -434,6 +438,7 @@
 
         2-多表更新一步到位
         创建数据表同时将查询结果写入到数据表
+                create...select 语句
             语法：CREATE TABLE [IF NOT EXISTS] tbl_name [(create_definition)] select_statement
                  例子：create table tb1 (
                          id smallint unsigned primary key auto_increment,
