@@ -86,6 +86,7 @@ ctx.request.body  post请求的请求参数
 ```
 
 ***eggjs框架使用mysql数据库
+```js
     1-在config文件plugin.js配置 
             exports.mysql = {
                 enable: true,
@@ -93,7 +94,7 @@ ctx.request.body  post请求的请求参数
             };
     2-在config.default.js文件里配置登录mysql数据库数据源，也可以配置多个mysql数据源
     3-await app.mysql.select('数据表')调数据
-
+```
 
 ***前后端联调配置处理接口跨域
     在vue.config.js里用代理
