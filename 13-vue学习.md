@@ -12,6 +12,94 @@
         4-1通过$emit
 
 
+具体实例
+***vue子组件调用父组件里面的方法或者传递数据
+    思路1：在子组件里用$emit向父组件触发一个事件，父组件监听这个事件就行了
+```js
+    父组件
+<template>
+  <div>
+    <child @fatherMethod="fatherMethod"></child>
+  </div>
+</template>
+<script>
+  import child from '~/components/dam/child';
+  export default {
+    components: {
+      child
+    },
+    methods: {
+      fatherMethod() {
+        console.log('测试');
+      }
+    }
+  };
+</script>
+
+子组件
+
+<template>
+  <div>
+    <button @click="childMethod()">点击</button>
+  </div>
+</template>
+<script>
+  export default {
+    methods: {
+      childMethod() {
+        this.$emit('fatherMethod');
+      }
+    }
+  };
+</script>
+```
+思路二:父组件把方法传入子组件中，在子组件里直接调用这个方法
+```js
+父组件
+<template>
+  <div>
+    <child :fatherMethod="fatherMethod"></child>
+  </div>
+</template>
+<script>
+  import child from '~/components/dam/child';
+  export default {
+    components: {
+      child
+    },
+    methods: {
+      fatherMethod() {
+        console.log('测试');
+      }
+    }
+  };
+</script>
+
+
+子组件
+<template>
+  <div>
+    <button @click="childMethod()">点击</button>
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+      fatherMethod: {
+        type: Function,
+        default: null
+      }
+    },
+    methods: {
+      childMethod() {
+        if (this.fatherMethod) {
+          this.fatherMethod();
+        }
+      }
+    }
+  };
+</script>
+```
 
 ***vue路由跳转
     1-第一种方式<router-link>方式
