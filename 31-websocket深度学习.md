@@ -12,7 +12,7 @@
         1-概念：
             H5已经直接提供了websocket的API，所以我们可以直接去使用
         2-使用
-            2-1通过websocket的构造函数创建
+            2-1通过websocket的构造函数创建(客户端)
                 ```js
                     var socket = new WebSocket('ws://echo.webscoket.org')
                 ```
@@ -116,6 +116,8 @@
                             })
                     })
                 ```
+
+                
             3-3：socketio浏览器端的实现
                 3-3-1:使用标准的js库写法
                         <script src="/socket.io/socket.io.js"></script>
@@ -129,7 +131,7 @@
 
                 3-3-3：服务器发送数据给我客户端，通过'connect'在客户端监听，有数据从服务器传输过来，触发此事件(可不用,可以直接使用事件)
                         socket.on('connect',function(socket){
-                        3-3-3：服务器发送数据
+                        3-3-3：向服务器发送数据
                             ```js
                                 socket.emit('fasong',{name:'zs',age:18})
                             ```
@@ -139,8 +141,23 @@
                                 })
                         })
                 
-                3-3-4:socket
-                    3-3-4-1:socket.id
+                3-3-4:io([url], [, options])
+                    参数一：url （字符串）连接的服务器url，默认的指向widnow.location
+                    参数二：option （Object）forceNew （布尔型）是否重用当前已存在的链接。
+                    参数三：Return Socket
+
+                    3-3-4-1：重点说一下options中transports的配置
+                        ```js
+                            //默认设置
+                            const socket = io('http://localhost:8000', {transports: ['polling', 'websocket']});
+                            //设置成websocket
+                            const socket = io('http://localhost:8000', {transports: ['websocket']});
+                        ```
+                            解释说明：使用socket.io默认情况下，首先建立长轮询连接，然后升级成websocket，也可以设置直接成websocket，这样设置后socket.io不能降级，不会根据当前环境自动选择最佳方式实现通讯
+
+                
+                3-3-5:socket
+                    3-3-5-1:socket.id
                             概念：是标识符socket session独一无二的符号，在客户端连接到服务端被设置
                             实例：
                                 ```js
@@ -149,6 +166,107 @@
                                         console.log(socket.id)  //客户端连接到服务端前提下，才有socket.id
                                     })
                                 ```
+
+                3-3-6：socket.disconnected(是否与服务器断开连接，返回boolean值)
+                        ```js
+                            const socket = io('http://localhost')
+                            socket.on('connect',()=>{
+                                console.log(socket.disconnected)   //判断是否与服务器断开连接 返回boolean
+                            })
+                        ```
+
+                3-3-7：socket.open() 手动打开
+                    定义：socket.open()和socket.connect()是一个意思
+                        ```js
+                            //手动打开socket
+                            const socket = io({
+                                autoConnect: false
+                            });
+
+                            // ...
+                                socket.connect();
+
+                            //socket断开重新连接
+                            socket.on('disconnect', () => {
+                                socket.connect();
+                            });
+                        ```
+                
+                3-3-8：socket.close()  手动断开连接
+                    概念：socket.close()和socket.disconnect()是一个意思
+
+                3-3-9：socket.binary() 
+                    概念：指定发出的数据是否包含二进制。指定时提高性能。值true或false
+                    用法：
+                    ```js
+                        socket.binary(false).emit('event',{some:'data'})
+                    ```
+                
+                3-3-10：socket.emit(eventName[, ...args][, ack])
+                    参数一：eventName （String）向socket发送的事件名
+                    参数二：args 向socket发送的参数
+                    参数三：ack 响应服务器确认消息的应答
+                    返回值：Returns Socket
+                        ```js
+                            socket.emit('add user', 'tobi', (data) => {
+                                console.log(data); // receive data 发送数据给服务器成功之后受到服务器的响应
+                            });
+
+                            // server:
+                            io.on('connection', (socket) => {
+                                socket.on('add user', ({userName},  fn)  => {
+                                    fn('receive data');  //服务器收到客户端的数据之后，发送响应给客户端
+                                });
+                            });
+                        ```
+                
+                3-3-11：socket.compress([value])
+                    概念：设置修改器，是否对向服务器传输的数据进行压缩。默认为true，即压缩。
+                    参数一：value (布尔型)
+                    返回值：Returns Socket
+                        ```js
+                            socket.compress(false).emit('add user', { userName: 'ningxiaojie' });
+                        ```
+
+                3-3-12:disconnect
+                    概念：断开连接时触发事件处理器
+                    原因：eason （String） 服务器或客户端断开连接的原因触发该事件
+                    ```js
+                        socket.on('disconnect', (reason) => { });
+                    ```
+
+                3-3-13:reconnect
+                    概念：重连成功时触发事件处理器
+                    回调函数参数：attempt （Num） 重连次数
+                        ```js
+                            socket.on('reconnect', (attempt) => {});
+                        ```
+                3-3-14:reconnect_attempt
+                    概念：尝试重连时触发事件处理器
+                    回调函数参数：attempt （Number） 重连次数
+                        ```js
+                            socket.on('reconnect_attempt', (attempt) => {});
+                        ```
+                
+                3-3-15:reconnecting
+                    概念：尝试重连时触发事件处理器
+                    回调函数参数：attempt （Number） 重连次数
+                        ```js
+                            socket.on('reconnecting',(attempt)=>{})
+                        ```
+                
+                3-3-16:reconnect_error
+                    概念：重连错误时触发事件处理器
+                    回调函数参数：error （Object） 错误对象
+                        ```js
+                            socket.on('reconnect_error', (error) => {});
+                        ```
+
+                3-3-17:reconnect_failed
+                    概念：重连失败时触发事件处理器
+                        ```js
+                            socket.on('reconnect_failed', () => {});
+                        ```
                 
                 
 
