@@ -94,10 +94,12 @@
                     ```js
                         const socket = io('http://localhost:8080',{transports:['websocket']})
                     ```
+
         3-用法：
             3-1：
                 3-1-1:可以在http服务里面用
                 3-1-2：可以在express服务里面用
+
             3-2：安装socket.io包(服务器器端的实现)
                 ```js
                     npm install --save socket.io
@@ -117,17 +119,20 @@
                     })
                 ```
 
-                
+
             3-3：socketio浏览器端的实现
+
                 3-3-1:使用标准的js库写法
                         <script src="/socket.io/socket.io.js"></script>
                         <script>
                             var socket = io('http://localhost:3000')
                         </script>
+
                 3-3-2:使用node编译，则使用require('socket.io-client')
                     3-3-2-1:导入socket.io模块
                                 const io = require('socket.io-client')
                                 import io from 'socket.io-client'
+
 
                 3-3-3：服务器发送数据给我客户端，通过'connect'在客户端监听，有数据从服务器传输过来，触发此事件(可不用,可以直接使用事件)
                         socket.on('connect',function(socket){
@@ -144,7 +149,7 @@
                 3-3-4:io([url], [, options])
                     参数一：url （字符串）连接的服务器url，默认的指向widnow.location
                     参数二：option （Object）forceNew （布尔型）是否重用当前已存在的链接。
-                    参数三：Return Socket
+                    返回值：Return Socket
 
                     3-3-4-1：重点说一下options中transports的配置
                         ```js
@@ -342,6 +347,60 @@
                             })
                         ```
 
+
+        **websoket.io服务端方法总结
+```js
+io.on('connect', onConnect);
+
+function onConnect(socket){
+
+  // 只发给sender。 sending to the client
+  socket.emit('hello', 'can you hear me?', 1, 2, 'abc');
+
+  // 发给所有人，除了sender。 sending to all clients except sender
+  socket.broadcast.emit('broadcast', 'hello friends!');
+
+  // 发给game房间所有人，除了sender。 sending to all clients in 'game' room except sender
+  socket.to('game').emit('nice game', "let's play a game");
+
+  // 发给game1和/或game2所有人，除了sender。 sending to all clients in 'game1' and/or in 'game2' room, except sender
+  socket.to('game1').to('game2').emit('nice game', "let's play a game (too)");
+
+  // 发给game房间所有人，包含sender。 sending to all clients in 'game' room, including sender
+  io.in('game').emit('big-announcement', 'the game will start soon');
+
+  // 发给域名myNamespacs所有人，包含sender。 sending to all clients in namespace 'myNamespace', including sender
+  io.of('myNamespace').emit('bigger-announcement', 'the tournament will start soon');
+
+  // 发给域名myNamespace里room房间的所有人，包含sender。 sending to a specific room in a specific namespace, including sender
+  io.of('myNamespace').to('room').emit('event', 'message');
+
+  // 发给某一个人 sending to individual socketid (private message)
+  io.to(`${socketId}`).emit('hey', 'I just met you');
+
+  // WARNING: `socket.to(socket.id).emit()` will NOT work, as it will send to everyone in the room
+  // named `socket.id` but the sender. Please use the classic `socket.emit()` instead.
+
+  // sending with acknowledgement
+  socket.emit('question', 'do you think so?', function (answer) {});
+
+  // sending without compression
+  socket.compress(false).emit('uncompressed', "that's rough");
+
+  // sending a message that might be dropped if the client is not ready to receive messages
+  socket.volatile.emit('maybe', 'do you really need it?');
+
+  // specifying whether the data to send has binary data
+  socket.binary(false).emit('what', 'I have no binaries!');
+
+  // sending to all clients on this node (when using multiple nodes)
+  io.local.emit('hi', 'my lovely babies');
+
+  // sending to all connected clients
+  io.emit('an event sent to all connected clients');
+
+};
+```
 
 
 
