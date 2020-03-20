@@ -382,7 +382,7 @@
                         注意点：当我们给数据库中某个指定的集合插入数据的时候，如果这个集合不存在，则会自动创建这个集合，如果数据库不存在，则会自动创建这个数据库
             5-(查)查询集合中所有的数据
                 db.集合名称.find() 如果find方法不传递任何参数，就是查找是所有的数据
-                如果要查询特定调价你的数据，则需要给find方法传递参数
+                如果要查询特定的数据，则需要给find方法传递参数
                     db.集合名称.find(查询条件) 查询条件是一个对象，对象的属性名就是要找的数据的字段的名称，属性的值就是对应的要查找的字段的值
                     需求：查找name是李明达的数据
                         db.集合名称.find({name:'李明达'})
@@ -477,13 +477,13 @@
     }
     // 连接数据库
     var connection = mysql.createConnection(option)  
-    // 开启  connection.end()
+    // 开启  connection.connect()
     connection.connect()   
     // connection中的query执行查询语句并且返回结果
     connection.query("select * from product",function(err,results,fields){
         console.log(results)
     })
-
+    
 
 ```
 
