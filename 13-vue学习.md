@@ -210,6 +210,80 @@ params类似 post, 跳转之后页面 url后面不会拼接参数 , 但是刷新
     // 2-div里面有内容，连同内容和div一起渲染
 ```
 
+**vue中mixins
+  1：概念：mixins是混入(mixins),是一种分发Vue组件中可复用功能的非常灵活的方式。混入对象可以包含任意组件选项。
+  2：理解：
+    2-1：mixins是在引入组件之后，则是将组件内部的内容如data等方法、method等属性与父组件相应内容进行合并。相当于在引入后，父组件的各种属性方法都被扩充了
+    2-2：有点像注册了一个vue的公共方法，可以绑定在多个组件或者多个vue对象实例中使用。
+  3：用法：
+    3-1：定义一个混入对象
+
+    ```js
+      // 在mixins.js文件中
+      export const myMixn = {
+        data(){
+          return {
+            num:1
+          },
+          created(){
+
+          },
+          methods:{
+            hello(){
+              console.log('hello from mixin')
+            }
+          }
+        }
+      }
+    ```
+
+    3-2：把混入对象混入到当前的组件中
+
+    ```js
+      // 在template.vue组件中引用minxins混入对象
+      import {myMixn} from './mixins.js'
+      export default {
+        mixins:[myMixin]
+      }
+    ```
+
+  4：注意点：
+    4-1：方法和参数在各组件中不共享
+      实例：
+
+      ```js
+        let mixin={
+            data(){
+                return{
+                    msg:1
+                }
+            },
+            methods:{
+                foo(){
+                    console.log('hello from mixin!----'+this.msg++)
+                }
+            }
+        }
+        var child=Vue.component('child',{ 
+                template:`<h1 @click="foo">child component</h1>`, 
+                mixins:[mixin]
+        })
+        Vue.component('kid',{ 
+                template:`<h1 @click="foo">kid component</h1>`, 
+                mixins:[mixin]
+        })
+      ```
+        实例解释：虽然此处，两个组件可以通过this.msg引入mixins中定义的msg，但是，两个组件应引用的并不是同一个msg，而是各自创建了一个新的msg。如果在组件中定义相同的data，则此处会引用组件中的msg，而非mixins中的
+
+    4-2：mixins这个属性接受的是一个数组可以有多个mixins的内容，比如：mixins:[mix1,mix2,mix3],前提是定义了这些混入对象，不然就会报错
+
+    4-3：混入对象中如果有声明周期的钩子函数，那么混入对象和被混入对象的钩子都会执行一遍，而且混入对象的钩子将在实例自身钩子之前先执行。因为同名钩子函数将混合为一个数组，因此都将被调用
+
+    4-4：混入的方法methods，计算属性computed，组件components，数据data等(只要值是为对象的)，都是会被合并的。并且如果有相同的键值，则会以被混入对象中的键值即以实力中的内容为准
+
+    
+
+
 
 
 
