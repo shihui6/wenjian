@@ -1190,3 +1190,68 @@
                     document.getElementById('example')
                 );
             ```
+
+
+
+###react学习
+    概念：致力于更快的DOM渲染和更易于维护的DOM层；最开始，很多人说react是MVC中的V，总结react就是一套为视图而准备的js框架
+
+    **JSX语法解析
+        语法：遇到{}按照js语法解析
+             遇到<>按照xml语法解析
+
+    **组件化
+        1：在简单的html标签中使用组件
+            1-1：用法：通过React.createClass()创建组件
+            事例：
+
+            ```js
+                <body>
+                    <div id="root">
+                    </div>
+                    <script type="text/babel">
+                        // 通过React.createClass()创建组件
+                        var Hello = React.createClass({
+                            render:function(){
+                                return (
+                                    <div>hello world</div>
+                                )
+                            }
+                        })
+
+                        ReactDOM.render(<Hello />,document.getElementById('root'))
+                    </script>
+                </body>
+            ```
+            1-2：事例注意点：组件的首字母必须要大写，不然没用
+
+        2：组件特点：
+            2-1：组件和组件之间可以相互嵌套
+            2-2：组件本身可以具有业务逻辑(可以在组件里写js逻辑代码)
+            2-3：组件跟组件之间可以相互传值，通过this.props.属性名
+
+        3：样式的添加
+
+            ```js
+                render()=>{
+                    return (
+                        <div className="container"> 
+                            <span style={{fontSize:'30px'}}></span>
+                        </div>
+                    )
+                }
+            ```
+            注意点：
+                react中添加类用className
+                行内样式：style={{fontSize:'30px'}},对象的形式
+
+        4：生命周期：想一下关于生命周期的图
+            componentWillMount:组件渲染之前
+            componentDidMount:组件渲染之后
+            componentWillUnMount:组件卸载之前
+            shouldComponentUpdate:状态改变之后执行
+            componentWillUpdate:组件即将更新
+            componentDidUpdate:组件更新之后
+            componentWillReceiveProps:props改变之后执行
+
+
