@@ -1334,5 +1334,36 @@
                 ```
                 事例解释：在组件App中的标签SplitPane传入left和right给子组件，传入的prop都是xml标签，在SplitPane组件中通过props.left和props.right的位置展示
 
+
+    **props验证
+        原因：为了增强程序的健壮性(为了让程序更加合理)
+        1：验证用法：
+            1-1：验证类型
+                用法：
+                    引入检验库 import PropTypes from 'prop-types'
+                    组件名.propTypes = {
+                        name:PropTypes.string
+                    }
+                事例：
+                ```js
+                    User.propTypes = {
+                        name : PropTypes.string
+                    }
+                ```
+            
+            1-2：验证必选项
+                事例：
+                ```js
+                    User.propTypes = {
+                        name:PropTypes.string.isRequired
+                    }
+                ```
+
+            1-3：props添加默认值
+                ```js
+                    User.defaultProps = {
+                        name:'默认值'
+                    }
+                ```
         
         
