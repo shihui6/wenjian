@@ -1255,3 +1255,84 @@
             componentWillReceiveProps:props改变之后执行
 
 
+
+    **表单
+        1：受控组件
+            概念：使用js函数可以很方便的处理表单的提交，同时还可以访问用户填写的表单数据。实现这种效果的标准方式是受控组件
+
+        2：受控输入空值
+            2-1：概念：受控组件上指定value的值会阻止用户输入。如果指定了value，但输入仍可编辑，则可能是你意外地将value设置为undefined
+            2-2：特点：受控组件输入框value的值为undefined时，可以修改输入框的值，并且显示
+            事例：
+            ```js
+                <input type="text" value={undefined} onChange={this.handcha}/>
+            ```
+            2-3：事例解释：input标签上的value值，不使用this.setState更改，则页面不会显示。但是value值为undefined时为特例。当value为undefined时可以修改输入框的值，并且显示
+
+    
+    **组合vs继承
+        概念：组件可以接受任意的props，包括基本数据类型，React元素以及函数类型，html标签等
+        1：包含关系
+            1-1：类似于vue中路由children结合<RouterView>在组件中展示的位置
+                事例：
+
+                ```js
+                    //这里是组件
+                    function FancyBorder(props) {
+                        return (
+                            <div className={'FancyBorder FancyBorder-' + props.color}>
+                                {props.children}
+                            </div>
+                        );
+                    }
+
+                    // 父组件
+                    function WelcomeDialog() {
+                        return (
+                            <FancyBorder color="blue">
+                                // 标签FancyBorder里面的内容代替 FancyBorder组件中{props.children}的位置
+                                <h1 className="Dialog-title">
+                                    Welcome
+                                </h1>
+                                <p className="Dialog-message">
+                                    Thank you for visiting our spacecraft!
+                                </p>
+                            </FancyBorder>
+                        );
+                        }
+                ```
+                事例解释：{props.children}的位置，展示的是子组件渲染的结果
+
+            1-2：props可以传入html标签
+                事例：
+
+                ```js
+                    function SplitPane(props) {
+                        return (
+                            <div className="SplitPane">
+                            <div className="SplitPane-left">
+                                {props.left}
+                            </div>
+                            <div className="SplitPane-right">
+                                {props.right}
+                            </div>
+                            </div>
+                        );
+                    }
+
+                    function App() {
+                        return (
+                            <SplitPane
+                            left={
+                                <Contacts />
+                            }
+                            right={
+                                <Chat />
+                            } />
+                        );
+                    }
+                ```
+                事例解释：在组件App中的标签SplitPane传入left和right给子组件，传入的prop都是xml标签，在SplitPane组件中通过props.left和props.right的位置展示
+
+        
+        
