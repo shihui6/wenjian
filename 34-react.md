@@ -1310,12 +1310,12 @@
                     function SplitPane(props) {
                         return (
                             <div className="SplitPane">
-                            <div className="SplitPane-left">
-                                {props.left}
-                            </div>
-                            <div className="SplitPane-right">
-                                {props.right}
-                            </div>
+                                <div className="SplitPane-left">
+                                    {props.left}
+                                </div>
+                                <div className="SplitPane-right">
+                                    {props.right}
+                                </div>
                             </div>
                         );
                     }
@@ -1365,5 +1365,91 @@
                         name:'默认值'
                     }
                 ```
+
+
+    **高级指引
+        1：使用程序管理焦点
+            概念：通过refs父组件设置子组件的DOM元素
+            事例：
+
+            ```js
+                function CustomTextInput(props) {
+                    return (
+                        <div>
+                        <input ref={props.inputRef} />
+                        </div>
+                    );
+                }
+
+                class Parent extends React.Component {
+                    constructor(props) {
+                        super(props);
+                        // 创建ref元素
+                        this.inputElement = React.createRef();
+                    }
+                    render() {
+                        return (
+                        <CustomTextInput inputRef={this.inputElement} />
+                        );
+                    }
+                }
+
+                // 现在你就可以在需要时设置焦点了
+                this.inputElement.current.focus();
+            ```
+            事例执行机制：在父组件内部创建ref，通过inputRef绑定给子组件，子组件上通过props接受父组件传递过来的ref，就达到了父组件控制子组件元素的目的
+
+        2：React.lazy
+            2-1:概念：懒加载组件React.lazy函数能让你像渲染常规组件一样处理的动态引入的组件
+            2-2:作用：优化加载性能
+            2-3:原理：React.lazy接受一个函数，这个函数需要动态调用import()且必须返回一个Promise。
+            2-4:注意点：使用React.lazy，需要结合Suspense组件渲染import进来的组件，否则会报错无法渲染
+                2-4-1:Suspense组件用法：
+                    2-4-1-1:引入import {Suspense} from 'react'
+                    事例：
+                    ```js
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <OtherComponent /> //这是React.lazy进来的组件
+                        </Suspense>
+                    ```
+                2-4-2:Suspense里的属性fallback接受任何在组件加载过程中想展示的React元素，也可以用一个Suspense组件包裹多个懒加载组件
+                    ```js
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <section>
+                            <OtherComponent />
+                            <AnotherComponent />
+                            </section>
+                        </Suspense>
+                    ```
+
+
+        3:基于路由的代码分割
+            用法：React Router结合React.lazy配置路由进行代码分割
+
+            ```js
+                import React, { Suspense, lazy } from 'react';
+                import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+                const Home = lazy(() => import('./routes/Home'));
+                const About = lazy(() => import('./routes/About'));
+
+                const App = () => (
+                    <Router>
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <Switch>
+                                <Route exact path="/" component={Home}/>
+                                <Route path="/about" component={About}/>
+                            </Switch>
+                        </Suspense>
+                    </Router>
+                );
+            ```
+
+    **Context
+        概念：Context提供了一个无需为每层组件手动添加props，就能在组件树间进行数据传递的方法；
+        原理：Context提供了一种在组件之间共享此类值的方式，而不必显示地通过组件树的逐层传递props
         
-        
+
+
+                    
+                    
