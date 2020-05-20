@@ -22,7 +22,7 @@
                             
         3：更新元素渲染
             3-1：概念：React元素都是不可变的。当元素被创建之后，你是无法改变其内容或属性的
-            3-2：解决方法：目前更新界面的唯一方法是创建一个新的元素，然后将它传入ReactDOM.rener()方法
+            3-2：解决方法：目前更新界面的唯一方法是创建一个新的元素，然后将它传入ReactDOM.render()方法
         
     **React JSX
         1：概念：React使用JSX来代替常规的JavaScript，JSX是一个看起来很像XML的JavaScript语法扩展
@@ -149,7 +149,7 @@
                     }
                 ```
 
-        1：注意点：原生HTML元素以小写字母开头，而自定义的React类名以大写字母开头，比如HelloMessage不能写成helloMessage。除此之外还需要注意组件类只能包含一个顶层标签，否则也会报错
+        1：注意点：原生HTML元素以小写字母开头，而自定义的React类名以大写字母开头，比如HelloMessage不能写成helloMessage。还需要注意定义的组件中只能包含一个顶层标签，否则也会报错
 
         2：如果我们需要向组件传递参数，可以使用this.props对象
             事例：  
@@ -922,7 +922,7 @@
                     nextState，将要设置的新状态，该状态会替换当前的state。
                     callback，可选参数，回调函数。该函数会在replaceState设置成功，且组件重新渲染后调用。
 
-                2-1-2：注意点：replaceState()方法与setState()类似，但是方法只会保留nextState中状态，原state不在nextState中的状态都会被删除。
+                2-1-2：注意点：replaceState()方法与setState()类似，但是该方法只会保留nextState中状态，原state不在nextState中的状态都会被删除。
         
         3：设置属性：setProps
             3-1：用法：setProps(object nextProps[, function callback])
@@ -1448,7 +1448,7 @@
     **Context
         概念：Context提供了一个无需为每层组件手动添加props，就能在组件树间进行数据传递的方法；
         原理：Context提供了一种在组件之间共享此类值的方式，而不必显示地通过组件树的逐层传递props
-        
+
 
 
                     
