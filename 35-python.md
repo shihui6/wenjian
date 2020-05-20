@@ -8,6 +8,16 @@
         3:进入指定版本:如进入python3的版本
             python3
 
+    **解析器的作用和分类
+        作用：运行文件或者运行代码用的
+        原因：通过Python写出来的代码计算机直接读取看不懂，通过解析器解析成计算机可识别的代码
+        1：Python分类
+                Cpython，C语言开发的解释器(官方)，应用广泛的解释器(用的做多的解释器)
+                IPython，基于CPython的一种交互式解释器
+                其他解释器：
+                    PyPy：基于Python，基于Python语言开发的解释器
+                    Jython，运行在java平台的解释器，直接把Python代码编译成java字节码执行
+                    IronPython，运行在微软.Net平台上的Python解释器，可以直接把Python代码编译成.Net的字节码
 
     **PyCharm
         1：概念：是一种Python IDE(集成开发环境)，带有一整套可以帮助用户在使用Python语言开发时提高其效率的工具
