@@ -519,6 +519,151 @@
                     break的情况：else指的是循环正常结束之后要执行的代码，即如果是break终止循环的情况，else下方的缩进代码将不执行
                     continue的情况：continue是退出当前一次循环，继续下次循环，所以该循环在continue控制下是可以正常结束的，当循环结束后，则执行了else缩进的代码
 
+        
+    **字符串
+        1：认识字符串
+            1-1：字符串特征
+                    一对引号字符串(单引号，双引号)
+                        ```py
+                            name1 = 'Tom'
+                            name2 = "Rose"
+                        ```
+                    三引号字符串
+                        ```py
+                            name3 = '''Tom'''
+
+                            name4 = """Rose"""
+
+                            a = '''i am Tom,
+                                    nice to meet you'''
+
+                            b = """i am Tom,
+                                    nice to meet you"""
+                        ```
+                    注意点：三引号和三引号注释符号的区别是：三引号字符串是=后面跟着，三引号注释是直接书写三引号
+
+        2：下标(js里面的字符串操作一样)
+            概念：'下标'又叫'索引'
+            用法：
+                事例(通过索引获取去字符串中对应的字符)
+                ```py
+                    name = "abcdefg"
+                    print(name[0]) #输出a
+                    print(name[1]) #输出b
+                    print(name[2]) #输出c
+                ```
+
+        3：切片(相当于js里面的字符串截取)
+            语法：序列[开始位置的下标:结束位置的下标:步长]
+                    参数解释：
+                        不包含结束位置下标对应的数据，正负数均可
+                        步长是选取间隔，正负整数均可，默认步长为1
+
+                    事例：
+
+                    ```py
+                        str1 = 'abcdef'
+                        print(str1[2:5:1]) #cde
+                        print(str1[2:5:2]) #ce
+                        print(str1[2:5]) #cde
+                        print(str1[:5]) #abcde  --如果不写开始，默认从0开始选取
+                        print(str1[2:]) #cdef   --如果不写结束，表示选取到最后
+                        print(str1[:]) #abcdef  --如果不写开始和结束，表示选取所有
+
+                        # 负数测试
+                        print(str1[::-1]) #fedcba   --如果步长为负数，表示倒叙选取
+                        print(str1[-4:-1]) #cde  --下标-1表示最后一个数据，依次向前类推
+                        print(str1[-4:-1:-1]) #不能选取出数据：从-4开始到-1结束，选取方向为从左到右，但是-1步长是从右到左选取，所以选取不到数据
+                    ```
+
+        4：常用操作方法
+            概念：字符串的常用操作方法：查找，修改和判断三大类
+
+            4-1：查找
+                概念：字符串查找方法即是查找子串在字符串中的位置或出现的次数
+                4-1-1：find()
+                        概念：检测某个子串是否包含在这个字符串中，如果在返回这个子串开始位置的下标，否则返回-1
+                        语法：字符串序列.find(子串,开始位置下标,结束位置下标)
+                        注意点：开始和结束下标可以省略，表示在整个字符串序列中查找
+                4-1-2：index()
+                        概念：检测某个子串是否包含在这个字符串中，如果在返回这个子串开始位置的下标，否则报错
+                        语法：字符串序列.index(子串,开始位置下标,结束位置下标)
+                        注意点：开始和结束下标可以省略，表示在整个字符串序列中查找
+                4-1-3:count()
+                        概念：返回某个子串在字符串中出现的次数
+                        语法：字符串序列.count(子串,开始位置下标,结束位置下标)
+                        注意点：开始和结束下标可以省略，表示在整个字符串序列中查找
+                4-1-4:rfind()
+                        概念：和find()功能相同，但查找方向为右侧开始
+                4-1-5:rindex()
+                        概念：和index()功能相同，但查找放下为右侧开始
+                事例：
+
+                    ```py
+                        mystr = 'hello world and wo and shi and Python'
+                        # find()
+                        mystr.find('and') #12
+                        mystr.find('and',15,30) #23
+                        mystr.find('ands') #-1,ands子串不存在
+
+                        # index()
+                        mystr.index('and') #12
+                        mystr.index('and',15,20) #23
+                        mystr.index('and') #如果index查找子串不存在，会报错
+
+                        # count()
+                        mystr.count('and',15,30) #2
+                        mystr.count('and') #3
+                        mystr.count('ands') #0
+                    ```
+
+            4-2:修改
+                概念：通过函数的形式修改字符串中的数据 
+                4-2-1:replace()
+                        概念：替换
+                        语法：字符串序列.replace(旧子串,新子串,替换次数)
+                                返回值是修改后的字符串，不会改变原有字符串
+                        注意点：替换次数如果不写，则替换次数为该子串出现次数
+
+                        ```py
+                            mystr = 'hello world and wo and shi and Python'
+                            new_str = mystr.replace('and','he')
+                            print(new_str) #输出结果为 'hello world he wo he shi he Python'
+                        ```
+                4-2-2：split()  (跟js的字符串方法split()一样)
+                        概念：字符串分割
+                        语法：字符串序列.split(分割字符,次数)
+                            参数说明：不加参数二(次数)，则全部分割
+                        事例：
+
+                        ```py
+                            mystr = 'hello world and wo and shi and Python'
+                            list = mystr.split('and')
+                            print(list) #输出结果Wie ['hello world','wo','shi','Python']
+                        ```
+                4-2-3：join()  (与js方法不一样)
+                        概念：用一个字符或子串合并字符串，即是将多个字符串合并为一个新的字符串
+                        语法：字符或子串.join(多字符传组成的序列)
+                        事例：
+
+                        ```py
+                            list = ['aa','bb','cc']
+                            new_str = '-'.join(list)
+                            print(new_str) #输出结果为aa-bb-cc
+                        ```
+
+                4-2-4：大小写转换修改
+                    4-2-4-1：capitalize()
+                                    概念：将字符串第一个字符转换成大写
+                                    注意点：capitalize()函数转换后，只有字符串第一个字符变成大写，其他字符全是小写
+                    4-2-4-2：title()
+                                    概念：将字符串每个单词首字母转换成大写
+                                    
+
+
+
+
+
 
 
 
