@@ -1687,8 +1687,9 @@
                 print(fn2())
             ```
 
-        1：带有简单参数的lambda和函数的对比
-            事例：
+        事例：
+            带有简单参数的lambda和函数两种写法的对比
+            
 
             ```py
                 def fn1(a,b):
@@ -1696,9 +1697,220 @@
                 print(fn1(1,2))
 
                 fn2 = lambda a,b:a + b
-                print(fn2(2,3))
+                print(fn2(2,3))  #返回5
             ```
 
+        1：lambda的参数形式
+            1-1：无参数
+                事例：
+                ```py
+                    fn1 = lambda :100
+                    print(fn1())
+                ```
+            1-2：一个参数
+                事例：
+                ```py
+                    fn2 = lambda a: a
+                    print(fn2('hello world')) 
+                ```
+            1-3：默认参数
+                事例：
+                ```py
+                    fn1 = lambda a,b,c=100:a+b+c
+                    print(fn1(100,200))  #400
+                    print(fn1(100,200,300))  #600
+                ```
+            1-4：不定长位置可变参数：*args
+                事例：
+                ```py
+                    fn2 = lambda *args:args
+                    print(fn2(10,20,30))    #返回元祖 (10, 20, 30)
+                ```
+                    事例注意点：这里的可变参数传值到lambda之后，返回值为元祖
+            1-5:不定长关键字可变参数：**kwargs  (和函数里包裹关键字参数一样)
+                事例：
+                ```py
+                    fn3 = lambda **kwargs:kwargs
+                    print(fn3(name='python',age=20))    #返回字典 {'name': 'python', 'age': 20}
+                ```
+            
+        2：lambda的应用
+            2-1：带判断的lambda
+                事例：(结合三元运算符进行运算)
+                ```py
+                    fn1 = lambda a,b:a if a > b else b
+                    print(fn1(100,200))  #返回 200
+                ```
+            2-2：列表数据按字典key的值排序
+                事例：
+                ```py
+                    # 1.name key对应的值进行升序排序
+                    students = [
+                        {'name':'TOM','age':20},
+                        {'name':'ROSE','age':19},
+                        {'name':'JACK','age':22},
+                    ]
+                    students.sort(key=lambda x:x['name'])  
+                    print(students) #返回 [{'name': 'JACK', 'age': 22}, {'name': 'ROSE', 'age': 19}, {'name': 'TOM', 'age': 20}]
+                ```
+
+                事例：
+                ```py
+                    # name key对应的值进行降序排序
+                    students = [
+                        {'name':'TOM','age':20},
+                        {'name':'ROSE','age':19},
+                        {'name':'JACK','age':22},
+                    ]
+                    students.sort(key=lambda x:x['name'],reverse=True)
+                    print(students) #返回 [{'name': 'TOM', 'age': 20}, {'name': 'ROSE', 'age': 19}, {'name': 'JACK', 'age': 22}]
+                ```
+
+                事例：
+                ```py
+                    # age key对应的值进行升序排序
+                    students = [
+                        {'name':'TOM','age':20},
+                        {'name':'ROSE','age':19},
+                        {'name':'JACK','age':22},
+                    ]
+                    students.sort(key=lambda x:x['age'])
+                    print(students) #返回 [{'name': 'ROSE', 'age': 19}, {'name': 'TOM', 'age': 20}, {'name': 'JACK', 'age': 22}]
+                ```
+
+    
+    **高阶函数
+        概念：把函数作为参数传入，这样的函数成为高阶函。高阶函数是函数式编程的体现。函数式编程就是指这种高度抽象的编程范式
+        用法：
+            事例：将内置的球绝对值函数和四舍五入函数当参数传入
+            ```py
+                def sum_num(a,b,f):
+                    return f(a) + f(b)
+
+                print(sum_num(-1,2,abs))    #3
+                print(sum_num(1.3,2.9,round)) #4
+            ```
+            
+        1：内置高阶函数
+            1-1：map()  (和js里面的map意思差不多，但用法不一样)
+                    概念：map(func,lst)，将传入的函数变量func作用到lst变量的每个元素中，并将结果组成新的列表(Python2)/迭代器(Python3)返回
+                    用法：事例
+                    ```py
+                        list1 = [1,2,3,4,5,6]
+                        def func(x):
+                            return x**2
+
+                        result = map(func,list1)    #在Python中返回的迭代器，通过list()转换成列表
+                        print(result)  #返回   <map object at 0x00000000021B4FD0>
+                        print(list(result))  #[1, 4, 9, 16, 25, 36]
+                    ```
+            
+            1-2：reduce()  (和js里面的reduce意思差不多，但用法不一样)
+                    概念：reduce(func,lst)，其中func必须有两个参数，每次func计算的结果继续和序列的下一个元素做累积计算
+                    注意点：reduce()传入的参数func必须接收2个参数
+                    用法：
+                        事例：计算list1序列中各个数字的累加和
+
+                        ```py
+                            import functools
+                            list1 = [1,2,3,4,5,6]
+                            def func(a,b):
+                                return a + b
+
+                            result = functools.reduce(func,list1)
+                            print(result) # 返回结果 21
+                        ```
+
+            1-3：filter()   (和js里面的filter方法意思一样，但用法有区别)
+                    概念：filter(func,lst)函数用于过滤序列，过滤掉不符合条件的元素，返回一个filter对象。如果要转换为列表，可以使用list()来转换
+                    用法：
+                        事例：
+
+                        ```py
+                            list1 = [1,2,3,4,5,6,7,8,9,10]
+                            def func(x):
+                                return x % 2 == 0
+                            result = filter(func,list1)
+                            print(result)   #<filter object at 0x0000000002744FD0>
+                            print(list(result)) #[2, 4, 6, 8, 10]
+                        ```
+
+    **文件操作
+        作用：文件操作的作用就是把一些内容(数据)存储存放起来，可以让程序下一次执行的时候直接使用，而不必重新制作一份，省时省力
+        1：文件的基本操作
+            1-1：打开文件
+                    概念：在Python中，使用open函数，可以打开一个已经存在的文件，或者创建一个新文件，语法如下
+                    语法：
+                        open(name,mode)
+                        参数说明：
+                                返回值：返回文件对象
+                                name：是要打开的目标文件名的字符串(可以包含文件所在的具体路径)
+                                mode：设置打开文件的模式(访问模式)：只读，写入，追加等
+                                    1：访问模式对文件的影响
+                                    2：访问模式对write()的影响
+                                    3：访问模式是否可以省略
+                                        r：表示只读，如果文件不存在，报错：不支持写入操作。这是默认模式
+                                        rb：以二进制格式打开一个文件用于只读
+                                        r+：可读可写；没有该文件则报错；文件指针在开头，所以能读取出来数据
+                                        rb+：以二进制格式打开一个文件用于读写
+                                        w：表示只写，如果文件不存在，新建文件：执行写入，会覆盖原有内容
+                                        wb：以二进制格式打开一个文件只用于写入
+                                        w+：可读可写；没有该文件会新建文件；文件指针在开头，用新内容覆盖原有内容
+                                        wb+：以二进制格式打开一个文件用于读写
+                                        a：表示追加，如果文件不存在，新建文件：在原有内容基础上追加新的内容
+                                        ab：以二进制格式打开一个文件用户追加
+                                        a+：可读可写；没有该文件会新建文件；文件指针在结尾，无法读取数据(文件指针后面没有数据)
+                                        ab+：以二进制格式打开一个文件用于读写
+                                        访问模式可以省略，如果省略表示访问模式为r
+
+
+
+            1-2：读写等操作
+                    read()
+                        语法：文件对象.read(num)
+                            参数说明：num：表示要从文件中读取的数据的长度(单位是字节)，如果没有传入num，那么就表示读取文件中所有的数据
+                        用法：
+                            事例：
+                            ```py
+                                f.open('test.txt','r')
+                                f.read(10)
+                                # read不写参数表示读取所有
+                                # 文件内容如果换行，底层有\n换行符，此换行符占有一个字节
+                                f.close()
+                            ```
+
+                    readlines()
+                        概念：readlines可以按照行的方式把整个文件中的内容进行一次性读取，并且返回的是一个列表，其中每一行的数据为一个元素
+                        用法：
+                            事例：
+                            ```py
+                                f = open('test.txt')
+                                print(f.readlines()) #返回列表['aaa\n', 'bbb\n', 'vvv\n', 'bbb\n', 'ccc']
+                                f.close()
+                            ```
+                    
+                    readline()
+                        概念：readline()一次读取一行内容，调用多次就读多行
+                        用法：
+                            事例
+                            ```py
+                                f = open('test.txt')
+                                print(f.readline()) #第一调用readline读取出来的是第一行
+                                print(f.readline()) #第二调用readline读取出来的是第二行
+                                print(f.readline()) #第三调用readline读取出来的是第三行
+                                f.close()
+                            ```
+            1-3：关闭文件
+            注意：
+                可以只打开和关闭文件，不进行任何读写操作
+                只打开文件，而不关闭文件的话，那么这个文件将会持续占有内存，这样子内存消耗会比较大，内存占有量大的话，风险会比较高。
+        
+
+
+
+
+
+        
 
         
         
