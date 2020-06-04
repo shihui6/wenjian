@@ -2008,6 +2008,279 @@
         概念：面向对象是一种抽象化的编程思想，很多编程语言中都有的一种思想
         理解点：面向对象就是将编程当成是一个事物，对外界来说，事物是直接使用的，不用去管他内部的情况。而编程就是设置事物能够做什么事
 
+        1：类和对象(跟js里面的类和对象有点类似)
+            概念：类和对象的关系：用类去创建一个对象
+            1-1：类
+                    1-1-1：概念：类是一系列具有相同特征和行为的事物的统称，是一个抽象的概念，不是真实存在的事物
+                    1-1-2：作用：类是用来创建对象的
+                    1-1-3：语法：
+                            class 类名()：
+                                代码
+                                .....
+                            注意点：类名要满足标识符命名规则，同事遵循大驼峰命名习惯
+            1-2：对象
+                    1-2-1:概念：对象是类创建出来的真实存在的事物，对象又名实例
+                    1-2-2:语法：
+                            对象名 = 类名()
+            
+            用法：
+                事例：
+                ```py
+                    # 定义类
+                    class Washer():
+                        # 定义实例方法
+                        def wash(self):
+                            print('能洗衣服')
+
+                    # 创建对象
+                    haier = Washer()
+
+                    haier.wash()
+                ```
+                事例注意点：事例方法的self指的是调用该函数的对象(和js里面的思想是一样的)
+
+                事例：1：一个类可以创建多个对象，2：多个对象都调用函数的时候，self地址是否相同
+                ```py
+                    # 定义类
+                    class Washer():
+                        # 定义实例方法
+                        def wash(self):
+                            print('能洗衣服')
+                            print(self)
+
+                    # 创建对象
+                    haier1 = Washer()
+                    haier1.wash()     #haier1调用实例方法对应的self打印出的内存地址为 <__main__.Washer object at 0x00000000022E4438>
+
+                    haier2 = Washer()
+                    haier2.wash()   #haier2调用实例方法对应的self打印出的内存地址为 <__main__.Washer object at 0x00000000025E62E8>
+                ```
+                    事例解释：根据同一个类创建的不同的对象，调用实例方法时打印出来的self不一样，说明两个对象的内存地址是不一样的。
+
+        2：添加和获取对象属性
+            概念：对象属性既可以在类外面添加和获取，也能在类里面添加和获取
+            2-1：类外面添加和获取属性
+                语法：对象名.属性名 = 值
+                用法：
+                    事例：
+                    ```py
+                        # 定义类
+                        class Washer():
+                            # 定义实例方法
+                            def wash(self):
+                                print('能洗衣服')
+                                print(self.width)   #100
+                                print(self.height)  #200
+
+                        # 创建对象
+                        haier1 = Washer()
+                        haier1.width = '100'
+                        haier1.height = '200'
+                        haier1.wash()
+                    ```
+
+        3：魔法方法
+            概念：在Python中，__xx__()的函数叫魔法方法，指的是具有特殊功能的函数
+            3-1：__init__()
+                    概念：类似于js里面的构造函数constructor
+                    作用：添加事例属性，初始化对象
+                    注意点;
+                        __init__()方法，在创建一个对象时默认被调用，不需要手动调用
+                        __init__(self)中的self参数，不需要开发者传递，Python解释器会自动把当前的对象引用传递过去
+                    用法：
+                        事例
+
+                        ```py
+                            class Washer():
+                                def __init__(self):
+                                    self.width = 100
+                                    self.height = 200
+                                def print_info(self):
+                                    print(f'洗衣机的宽度是{self.width},高度是{self.height}') 
+
+                            haier = Washer()
+                            haier.print_info()  #结果为 洗衣机的宽度是100,高度是200
+                        ```
+                    3-1-1:带参数的__init__()
+                        事例：
+
+                        ```py
+                            class Washer():
+                                def __init__(self,width,height):
+                                    self.width = width
+                                    self.height = height
+                                def print_info(self):
+                                    print(f'洗衣机的宽度是{self.width},高度是{self.height}')
+
+                            haier = Washer(100,200) 
+                            haier.print_info()  #输出结果：洗衣机的宽度是100,高度是200
+                        ```
+                            事例执行机制：初始化实例对象的时候，会将参数100，200传递给__init__()；类似于js里面的初始化方法传递构造函数方法一样
+
+            3-2：__str__()
+                    概念：当使用print输出对象的时候，默认打印对象的内存地址。如果类定义了__str__方法，那么就会打印从在这个方法中return的数据
+                    用法：
+                        事例：
+                        ```py
+                            class Washer():
+                                def __init__(self,width,height):
+                                    self.width = width
+                                    self.height = height
+                                def __str__(self):
+                                    return '这是海尔洗衣机的说明'
+
+                            haier = Washer(100,200)
+                            print(haier)    #返回  这是海尔洗衣机的说明
+                        ```
+
+            3-3：__del__()
+                    执行机制：当删除对象时，Python解释器会自动调用__del__()方法
+                    用法：
+                        事例：
+
+                        ```py
+                            class Washer():
+                                def __init__(self,width,height):
+                                    self.width = width
+                                    self.height = height
+                                def __del__(self):
+                                    print(f'{self}对象已经删除了')
+
+                            haier = Washer(100,200)
+                            del haier   
+                        ```
+                            事例执行机制：
+                                1：当删除对象时 __del__会自动被调用 返回结果为 <__main__.Washer object at 0x00000000021C4390>对象已经删除了
+                                2：不手动删除的时候，我们的类，函数会自动被内存释放，所以在不手动删除的情况下，__del__()方法也会被调用
+
+            3-4：拓展：经典类和新式类
+                    概念：
+                        不由任意内置类型派生出的嘞，称之为经典类，适用2.x的版本
+                        Python3.x版本中都用的是新式类
+
+                    事例：经典类和新式类的写法
+
+                    ```py
+                        # 经典类
+                        class 类名：
+                            代码
+                            ......
+
+                        # 新式类
+                        class 类名(object): #object默认是基类
+                            代码
+                            ......
+                    ```
+
+            
+    **面向对象-继承
+        概念：Python面向对象的继承指的是多个类之间的所属关系，即子类默认继承父类的所有属性和方法
+        注意点：在Python中，所有类默认继承object类，object类是顶级类或基类；其他子类叫派生类(和js里面的说法相似，意思一样)
+        用法：
+            事例：
+
+            ```py
+                # 定义父类
+                class A(object):
+                    def __init__(self):
+                        self.num = 1
+                    def info_print(self):
+                        print(self.num)
+                        print(self) #哪个实例对象调用info_print()方法，self就指向谁
+                # 定义子类，继承父类
+                class B(A):
+                    pass
+                # 创建实例对象
+                result = B()
+                result.info_print()
+            ```
+        
+        1：单继承
+            概念：就是一个父类继承给一个子类
+        
+        2：多继承
+            概念：所谓多继承意思就是一个子类同时继承了多个父类
+            注意点：当一个类有多个父类的时候，默认使用第一个父类的同名属性和方法
+            事例：
+
+            ```py
+                class Master():
+                    def __init__(self):
+                        self.kongfu = '[master古法煎饼果子]'
+                    def make_cake(self):
+                        print(f'运用master{self.kongfu}制作的')
+
+
+                class School():
+                    def __init__(self):
+                        self.kongfu = '[古法煎饼果子]'
+
+                    def make_cake(self):
+                        print(f'运用scholl{self.kongfu}制作的')
+
+                #继承多个父类的写法
+                class Prentice(Master,School):  
+                    pass
+
+                daqiu = Prentice()
+
+                print(daqiu.kongfu)     #返回   [master古法煎饼果子]
+                daqiu.make_cake()       #返回   运用master[古法煎饼果子]制作的
+            ```
+                事例注意点：当一个类有多个父类的时候，默认使用第一个父类的同名属性和方法
+
+        3：子类重写父类同名方法和属性
+            事例：
+
+            ```py
+                class Master():
+                    def __init__(self):
+                        self.kongfu = '[古法煎饼果子]'
+                    def make_cake(self):
+                        print(f'运用master{self.kongfu}制作的')
+
+
+
+                class Prentice(Master):
+                    def __init__(self):
+                        self.kongfu = '[独创古法煎饼果子]'
+
+                    def make_cake(self):
+                        print(f'运用独创{self.kongfu}制作的')
+
+                daqiu = Prentice()
+
+                print(daqiu.kongfu)     #返回   [独创古法煎饼果子]
+                daqiu.make_cake()       #返回   运用独创[独创古法煎饼果子]制作的
+            ```
+            事例结论：如果子类和父类拥有同名属性和方法，子类创建对象调用属性和方法的时候，调用到的是子类里面的同名属性和方法
+
+        4：拓展:__mro__
+            概念：如果想要查看类的继承关系，调用  类名.__mro__即可查看
+            事例：
+
+            ```py
+                class Master():
+                    def __init__(self):
+                        self.kongfu = '[古法煎饼果子]'
+                    def make_cake(self):
+                        print(f'运用master{self.kongfu}制作的')
+
+                class Prentice(Master):
+                    def __init__(self):
+                        self.kongfu = '[独创古法煎饼果子]'
+
+                    def make_cake(self):
+                        print(f'运用独创{self.kongfu}制作的')
+
+                print(Prentice.__mro__) #返回一个元祖  (<class '__main__.Prentice'>, <class '__main__.Master'>, <class 'object'>)
+            ```
+
+
+
+
+
+
 
                 
 
