@@ -2210,7 +2210,6 @@
                     def make_cake(self):
                         print(f'运用master{self.kongfu}制作的')
 
-
                 class School():
                     def __init__(self):
                         self.kongfu = '[古法煎饼果子]'
@@ -2239,8 +2238,6 @@
                     def make_cake(self):
                         print(f'运用master{self.kongfu}制作的')
 
-
-
                 class Prentice(Master):
                     def __init__(self):
                         self.kongfu = '[独创古法煎饼果子]'
@@ -2254,6 +2251,71 @@
                 daqiu.make_cake()       #返回   运用独创[独创古法煎饼果子]制作的
             ```
             事例结论：如果子类和父类拥有同名属性和方法，子类创建对象调用属性和方法的时候，调用到的是子类里面的同名属性和方法
+
+
+        4：子类调用父类的同名方法和属性
+            事例：子类继承父类且子类要调用父类的同名属性和方法
+
+            ```py
+                class Master():
+                    def __init__(self):
+                        self.kongfu = '[master古法煎饼果子]'
+                    def make_cake(self):
+                        print(f'运用{self.kongfu}制作的')
+
+                class Prentice(Master):
+                    def __init__(self):
+                        self.kongfu = '[独创古法煎饼果子]'
+
+                    def make_cake(self):
+                    # 加自己初始化的原因：如果不加自己的初始化，kongfu属性值是上一次调用的init内的kongfu属性值
+                        self.__init__()
+                        print(f'运用{self.kongfu}制作的')
+
+                    def make_cake_cake(self):
+                    # 再次调用初始化的原因：想要调用父类的同名方法和属性，就需要再次调用init，让父类的属性值覆盖子类的属性，否则就会调用子类的属性值
+                        Master.__init__(self)   #必须要添加self事例对象
+                        Master.make_cake(self)
+
+                daqiu = Prentice()
+                daqiu.make_cake_cake()#运用[master古法煎饼果子]制作的
+                daqiu.make_cake()#运用[独创古法煎饼果子]制作的
+            ```
+
+        5：多层继承
+            事例：重孙继承爸爸和爷爷的属性和方法
+
+            ```py
+                class Master():
+                    def __init__(self):
+                        self.kongfu = '[master古法煎饼果子]'
+                    def make_cake(self):
+                        print(f'运用{self.kongfu}制作的')
+
+                class Prentice(Master):
+                    def __init__(self):
+                        self.kongfu = '[独创古法煎饼果子]'
+
+                    def make_cake(self):
+                        # 加自己初始化的原因：如果不加自己的初始化，kongfu属性值是上一次调用的init内的kongfu属性值
+                        self.__init__()
+                        print(f'运用{self.kongfu}制作的')
+
+                    def make_cake_cake(self):
+                        # 再次调用初始化的原因：想要调用父类的同名方法和属性，就需要再次调用init，让父类的属性值覆盖子类的属性，否则就会调用子类的属性值
+                        Master.__init__(self)
+                        Master.make_cake(self)
+
+                class Tusun(Prentice):
+                    pass
+
+                xiaoqiu = Tusun()
+                xiaoqiu.make_cake()     #运用[独创古法煎饼果子]制作的
+                xiaoqiu.make_cake_cake()#运用[master古法煎饼果子]制作的
+            ```
+
+        6：super()调用父类的方法
+            
 
         4：拓展:__mro__
             概念：如果想要查看类的继承关系，调用  类名.__mro__即可查看
