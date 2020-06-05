@@ -2004,6 +2004,17 @@
                 ```
 
 
+    **面向对象的三大特征
+        1：封装(面向对象基础讲到了)
+                将属性和方法书写到了类的里面的操作即为封装
+                封装可以为属性和方法添加私有权限
+        2：继承(面向对象继承讲到了)
+                子类默认继承父类的所有属性和方法
+                子类可以重写父类属性和方法
+        3：多态
+                传入不同的对象，产生不同的结果
+        
+
     **面向对象基础
         概念：面向对象是一种抽象化的编程思想，很多编程语言中都有的一种思想
         理解点：面向对象就是将编程当成是一个事物，对外界来说，事物是直接使用的，不用去管他内部的情况。而编程就是设置事物能够做什么事
@@ -2315,9 +2326,101 @@
             ```
 
         6：super()调用父类的方法
+            作用：调用父类的方法
+            语法：
+                方法一：super(当前类名,self).函数()
+                方法二：super().函数()
+            用法：
+                事例：
+
+                ```py
+                    class Master():
+                        def __init__(self):
+                            self.kongfu = '[master古法煎饼果子]'
+                        def make_cake(self):
+                            print(f'运用{self.kongfu}制作的')
+
+                    class Prentice(Master):
+                        def __init__(self):
+                            self.kongfu = '[独创古法煎饼果子]'
+
+                        def make_cake(self):
+                            print(f'运用{self.kongfu}制作的')
+                            super().__init__()      #使用super().函数()之前都要先初始化数据
+                            super().make_cake()
+
+
+                    class Tusun(Prentice):
+                        def make_cake(self):
+                            super().__init__()      #使用super().函数()之前都要先初始化数据
+                            super().make_cake()
+
+                    xiaoqiu = Tusun()   #运用[独创古法煎饼果子]制作的
+                    xiaoqiu.make_cake() #运用[master古法煎饼果子]制作的
+                ```
+                    事例执行机制：使用super()可以自动查找父类。调用顺序遵循__mro__类属性的顺序。比较适合单继承使用
             
 
-        4：拓展:__mro__
+        7：私有权限
+            概念：私有权限指：设置在Python中，可以为实例属性和方法设置私有权限，即设置某个实例属性或实例方法不继承给子类
+
+            7-1：定义私有属性和方法
+                用法：设置私有权限的方法：在属性名和方法名前面加上两个下划线
+                    事例：
+
+                    ```py
+                        class Prentice():
+                            def __init__(self):
+                                self.kongfu = '[独创古法煎饼果子]',
+                                self.__money = 100000       #设置私有属性
+
+                            def __infoPrint(self):          #设置私有方法
+                                print('这是私有方法')       
+
+                        class Tusun(Prentice):
+                            def make_cake(self):
+                                super().__init__()
+                                super().make_cake()
+
+                        xiaoqiu = Tusun()
+                        print(xiaoqiu.__money)  #报错，调用不到因为是私有属性
+                        xiaoqiu.__infoPrint()   #报错，调用不到因为是私有方法
+                    ```
+
+            7-2：获取和修改私有属性值
+                概念：在Python中，在类的内部定义函数名get_xx用来获取私有属性，定义set_xx用来修改私有属性值
+                事例：
+
+                ```py
+                    class Prentice():
+                        def __init__(self):
+                            self.kongfu = '[独创古法煎饼果子]',
+                            self.__money = 100000
+
+                        def __infoPrint(self):
+                            print('这是私有方法')
+
+                        def get_info(self):
+                            self.__infoPrint()
+
+                        def set_money(self):
+                            self.__money = 500
+
+                        def get_money(self):
+                            return self.__money
+
+                    class Tusun(Prentice):
+                        pass
+
+                    xiaoqiu = Tusun()
+                    xiaoqiu.get_info()  #调用私有方法   成功
+                    print(xiaoqiu.get_money()) #获取私有属性 成功
+                    xiaoqiu.set_money()     #设置私有属性  成功
+                    print(xiaoqiu.get_money())  #把私有属性设置成500  成功
+                ```
+
+
+        8：拓展:__mro__
             概念：如果想要查看类的继承关系，调用  类名.__mro__即可查看
             事例：
 
@@ -2337,6 +2440,122 @@
 
                 print(Prentice.__mro__) #返回一个元祖  (<class '__main__.Prentice'>, <class '__main__.Master'>, <class 'object'>)
             ```
+
+
+    **面向对象多态
+        1：多态
+            概念：多态指的是一类事物有多种形态(一个抽象类有多个子类，因而多态的概念最好依赖于继承)
+            定义：多态是一种使用对象的方式，子类重写父类的方法，调用不同子类对象的相同父类方法，可以产生不同的执行结果
+            好处：调用灵活，有了多态，更容易编写出通用的代码，做出通用的编程，以适应需求的不断变化
+            实现步骤：
+                    定义父类，并提供公共方法
+                    定义子类，并重写父类方法
+                    传递子类对象给调用者，可以看到不同子类执行效果不同
+                
+            事例：
+
+            ```py
+                #定义父类，提供公共方法：警犬和人
+                class Dog():
+                    def work(self):
+                        pass
+
+                # 定义子类，子类重写父类方法，定义2个类表示不同的警犬
+                class ArmyDog(Dog):
+                    def work(self):
+                        print('追击敌人')
+
+                class DrugDog(Dog):
+                    def work(self):
+                        print('追查毒品')
+
+                # 定义人类
+                class Person():
+                    def work_with_dog(self,dog):  #根据传入的dog参数不懂，让代码更加通用灵活
+                        dog.work()
+
+                ad = ArmyDog()
+                dd = DrugDog()
+
+                daqiu = Person()
+                daqiu.work_with_dog(ad)
+                daqiu.work_with_dog(dd)
+            ```
+
+        2：类属性和实例属性(和js里面的理解是一样的)
+            2-1：类属性
+                    2-1-1：概念：
+                            类属性就是类对象所拥有的属性，它被该类的所有实例对象所共有
+                            类属性可以使用类对象或实例对象访问
+                    事例：
+
+                    ```py
+                        class Dog():
+                            tooth = 100
+
+                        wangcai = Dog()
+                        xiaohei = Dog()
+                        print(Dog.tooth)        #类可以访问类属性  返回结果100
+                        print(wangcai.tooth)    #对象可以访问类属性  返回结果100
+                        print(xiaohei.tooth)    #对象可以访问类属性  返回结果100
+                    ```
+                    2-1-2：类属性优点：
+                                记录的某项数据始终保持一致时，则定义类属性
+                                实例属性要求每个对象为其单独开辟一份内存空间来记录数据，而类属性为全类所共有，仅占用一份内存，更加节省空间
+
+                    2-1-3：修改类属性
+                            概念：类属性只能通过类对象修改，不能通过实例对象修改，如果通过实例对象修改类属性，表示的是创建了一个实例属性
+                            用法 类名.类属性名 = 值
+                    
+        
+        3：类方法和静态方法
+            3-1：类方法
+                    3-1-1：概念：类方法需要用装饰器@classmethod来标识其为类方法，对于类方法，第一个参数必须是类对象，一般以cls作为第一个参数
+                    3-1-2：类方法使用场景：
+                                当类方法中需要使用类对象(如访问私有类属性等)时，定义类方法
+                                类方法一般和类属性配合使用
+
+                            事例：
+
+                            ```py
+                                class Dog():
+                                    __tooth = 10    #用__定义私有类属性
+
+                                    @classmethod
+                                    def get_tooth(cls): #cls参数为类对象
+                                        return cls.__tooth
+
+                                Dog.get_tooth()  #通过类对象调用类方法  可以返回返回结果10
+
+                                wangcai = Dog()
+                                result = wangcai.get_tooth()    #通过实例对象调用类方法
+                                print(result)   #10
+                            ```
+                            
+            3-2:静态方法
+                    概念：
+                        需要通过装饰器@staticmethod来进行修饰，静态方法既不需要传递类对象也不需要传递实例对象(意思是形参没有self/cls)
+                        静态方法也能够通过实例对象和类对象去访问
+
+                    静态方法使用场景：
+                        当方法中既不需要使用实例对象(如实例对象，实例属性)，也不需要使用类对象(如类属性，类方法，创建实例等)时，定义静态方法
+                        取消不需要的参数传递，有利于减少不必要的内存占用和性能消耗
+
+                    事例：
+
+                    ```py
+                        class Dog():
+                            @staticmethod
+                            def info_print():
+                                print('这是一个静态方法')
+
+                        wangcai = Dog()
+                        wangcai.info_print()    #通过实例对象调用静态方法
+                        Dog.info_print()        #通过类对象调用静态方法
+                    ```
+
+
+
 
 
 
