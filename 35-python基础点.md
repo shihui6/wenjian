@@ -2556,6 +2556,254 @@
 
 
 
+    **异常
+        概念：异常就是程序报错或者是bug
+        作用：执行某句可能发生错误的代码，万一发生错误，就执行另外一句没有错误的代码；让程序不报错，可以继续向下推进程序的执行，不影响整个程序的运行
+        1：异常的语法
+            语法：
+                try:
+                    可能发生错误的代码
+                except:
+                    如果出现异常执行的代码
+
+
+        2:捕获指定异常类型
+            异常类型概念：报错最后一行冒号前面的错误类型就是异常类型
+            语法：
+                try：
+                    可能发生错误的代码
+                except 异常类型：
+                    如果捕获该异常类型执行的代码
+            
+            注意点：
+                1：如果尝试执行的代码的异常类型和要捕获的异常类型不一致，则无法捕获异常
+                2：一般try下方只放一行尝试执行的代码
+            
+            事例：
+                ```py
+                    try:
+                        print(num)
+                    except NameError:
+                        print('有错误')
+                ```
+                
+        3：捕获多个指定异常类型
+            概念：当捕获多个异常时，可以把要捕获的异常类型的名字，放到except后，并使用元祖的方式进行书写
+            应用场景：如果尝试执行的代码中并不能断定它的异常类型是第一种还是第二种.....，所以可以用元祖的形式把可能的异常类型都写进去
+            语法：
+                try：
+                    可能发生错误的代码
+                except (异常类型1,异常类型2,异常类型3)：
+                    如果捕获该异常类型执行的代码
+
+        4：捕获异常描述信息
+            作用：可以捕获到报错代码的具体信息
+            语法：
+                try：
+                    可能发生错误的代码
+                except  (异常类型1,异常类型2,异常类型3,...) as result:
+                    print(result)
+
+        5:捕获所有异常
+            概念：Exception是所有程序异常类的父类
+            语法：
+                try:
+                    print(num)
+                except Exception as result:
+                    print(result)
+
+        6:异常的else
+            概念：else表示的是如果没有异常要执行的代码
+            语法：
+                try:
+                    print(num)
+                except Exception as result:
+                    print(result)
+                else:
+                    print('我是else，是没有异常的时候执行的代码')
+        
+        7：异常的finally
+            概念：finally表示的是无论是否异常都要执行的代码
+            事例：例如关闭文件
+                ```py
+                    try:
+                        f = open('1111.txt','r')
+                    except Exception as result:
+                        f = open('1111.txt','w')
+                    else:
+                        print('没有异常了，真开心')
+                    finally:
+                        print('关闭文件')
+                        f.close()
+                ```
+
+        8：异常传递
+            拓展：在cmd中通过Python环境运行py文件(和node环境下运行js文件是一个道理)
+            概念：异常是可以嵌套书写的
+            事例：
+                1：尝试只读方式打开test.txt文件，如果文件存在则读取文件内容，文件不存在则提示用户即可
+                2：读取内容要求：尝试循环读取内容，读取过程中如果检测到用户意外终止程序，则except捕获异常并提示用户
+
+                ```py
+                    import time
+                    try:
+                        f = open('test[备份].txt')
+                        try:
+                            while True:
+                                con = f.readline()
+                                if len(con) == 0:
+                                    break
+                                time.sleep(2)
+                                print(con)
+                        except:
+                            print('程序以外终止')
+                    except:
+                        print('该文件不存在')
+                ```
+                事例try...except嵌套的执行机制：从外层的try...except到内层的try..except
+
+        9：自定义异常
+            语法：raise + 异常类对象
+            作用:将不满足程序逻辑要求的代码，我们抛出这个异常类raise异常类对象
+            用法：
+                事例：密码长度不足，则报异常(用户输入密码，如果输入的长度不足3位，则报错，即抛出自定义异常，并捕获该异常)
+
+                ```py
+                    # 自定义异常类
+                    class ShortinputError(Exception):
+                        def __init__(self,length,min_len):
+                            self.length = length
+                            self.min_len = min_len
+                            # 设置抛出异常的描述信息
+                        def __str__(self):
+                            return f'你输入的长度是{self.length}，不能少于{self.min_len}'
+
+                    def main():
+                        try:
+                            con = input('请输入密码')
+                            if  len(con) < 3:
+                                raise ShortinputError(len(con),3)   #用raise抛出异常类对象
+                        except  Exception as result:        #捕获该异常
+                            print(result)
+                        else:
+                            print('密码已经输入完成')
+
+                    main()
+                ```
+
+    
+    **模块和包
+        1：模块 (和js里面的模块概念差不多)
+            1-1：概念：Python模块，是一个Python文件，以.py结尾，包含了Python对象定义和Python语句
+            1-2：作用：模块能定义函数，类和变量，模块里也能包含可执行的代码，当定义好模块之后，就可以在其他py文件里面使用了
+
+            1-3：导入模块
+                    导入模块的方式：
+                            1:import 模块名
+                                语法：
+                                    import 模块名   (推荐写法)
+                                    import 模块名1，模块名2.....
+                                    调用功能：
+                                        模块名.功能名()
+
+
+                            2:from 模块名 import 功能名
+                                    事例：
+                                        ```py
+                                            from math import sqrt
+                                            print(sqrt(9))  #输出 3.0
+                                        ```
+
+
+                            3:from 模块名 import *  (导入*表示导入某个模块的全部功能或者代码)
+                                    事例：
+                                        ```py
+                                            from math import *
+                                            print(sqrt(9)) #输出 3.0
+                                        ```
+
+
+                            4:as定义别名
+                                4-1：模块定义别名
+                                        import 模块名 as 别名
+                                4-2：功能定义别名
+                                        from 模块名 功能 as 别名
+                                
+                                事例：
+                                    ```py
+                                        # 模块别名
+                                        import time as tt
+                                        tt.sleep(2)
+                                        print('hello')
+
+                                        # 功能别名
+                                        from time import sleep as sl
+                                        sl(2)
+                                        print('hello')
+                                    ```
+
+            1-4:制作模块
+                概念：在Python中，每个Python文件都可以作为一个模块，模块的名字就是文件的名字。
+                注意点：自定义模块名必须要符合标识符命名规则
+                定义模块
+                    概念：新建一个Python文件，命名为my_module1.py，并定义testA函数
+
+                    事例：
+
+                    ```py
+                        # 在my_module1.py文件中
+                        def testA(a,b):
+                            print(a + b)
+                        
+                        #__name__是系统变量，是模块的标识符，值是：如果在自身模块中时，值是__main__，否则是当前的模块的名字
+                        if __name__ == '__main__':  
+                            testA(1,1)
+                    ```
+                    ```py
+                        # 在mydiao.py文件中引入my_module1.py文件中的代码，并调用testA方法
+                        import my_module1.py
+                        my_module1.testA(2,2)   #结果为4
+                    ```
+
+            1-5：模块定位顺序
+                1-5-1：Python解析器对模块位置的搜索顺序：
+                        1：当前目录
+                        2：如果不在当前目录，Python则搜索在shell变量PYTHONPATH的每个目录
+                        3：如果都找不到，Python会察看默认路径，UNIX下，默认路径一般为/usr/local/lib/python/
+                1-5-2：搜索顺序原理：Python解析器根据system模块的sys.path中的内容来进行模块搜索路径的逻辑顺序；该sys.path内容中包含当前目录，PYTHONPATH和由安装过程决定的默认目录
+
+                注意点：
+                    自己的文件名不要和已有模块名重复，否则导致模块功能无法使用
+                    使用from 模块名 import 功能的时候，如果功能名字重复，调用到的是最后定义或导入的功能
+
+            1-6:__all__ (和js里面的export功能差不多)
+                概念：模块中有__all__变量，当使用from XXX import *导入时，只能导入这个列表中的元素或功能函数，不在all列表中的哪怕用*全部导入都不能使用
+                事例：
+
+                    ```py
+                        # my_module1模块中的代码
+                        __all__ = ['testA'] 
+                        def testA():
+                            print('testA')
+
+                        def testB():
+                            print('testB')
+                    ```
+                    ```py
+                        from my_module1 import *
+                        testA() #输出结果 testA
+                        testB() #报错，因为testB不在my_module1模块的all列表内，所以不能被导入使用
+                    ```
+
+        2：包
+            概念：包将有联系的模块组织到一起，即放到同一个文件夹下，并且在这个文件夹创建的同时会自动生成一个名字为__init__.py文件(这个文件会控制包的导入行为)，那么这个文件夹就称之为包(文件夹的名字就是包名)
+
+
+
+
+                    
+
+
 
 
 
