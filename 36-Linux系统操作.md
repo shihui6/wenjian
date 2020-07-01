@@ -303,34 +303,44 @@
                             用法实例：
                                 get <文件名> 从root目录上，下载到本地的文档目录中
 
-                    
-        3：在Linux上安装JDK
-            步骤一：上传JDK到Linux的服务器
-                        上传JDK
-                        卸载open-JDK(已经安装过的JDK)
-                        查看jdk版本
-                            java-version
-                        查看安装的jdk信息
-                            rpm -qa | grep java 
-                        卸载jdk
-                            rpm -e --nodeps <jdk全名称信息>
-            步骤二：在Linux服务器上安装JDK
-                        通常将软件安装到 /usr/local
-                        直接解压就可以
-                            tar -zxvf jdk.tar.gz
-            步骤三：配置JDK的环境变量
-                        配置环境的目录在 /etc/profile
-                        打开环境配置目录 vim /etc/profile
-                        在环境配置目录末尾行添加
-                            JAVA_HOME=/user/local/jdk/jdk1.7.0_71 (此处是安装jdk的目录，也是添加环境变量最重要的操作)
-                            CLASSPATH=.:$JAVA_HOME/lib.tools.jar
-                            PATH=$JAVA_HOME/bin:$PATH
-                            export JAVA_HOME CLASSPATH PATH
-                        报错并退出
-                        使更改的配置立即生效 
-                            source /etc/profile  (source + 配置环境变量目录)
+    
+    **Linux上安装部署环境以及mysql数据库
+        1：在Linux上安装JDK
+            JRE的概念：
+                JRE是java运行的环境，包含了java虚拟机，java基础类库。是使用java语言编写的程序运行所需要的软件环境，是提供给想运行java程序的用户使用的。
+            JDK的概念：
+                JDK是java开发工具包，是程序员使用java语言编写java程序所需的开发工具包，是提供给程序员使用的。JDK包含了JRE，同时还包含了编译java源码的编译器javac，还包含了很多java程序调试和分析工具：jconsole,jvisualvm等工具软件，还包含了java程序编写所需要的文档和demo。
 
-        4：在Linux上安装Mysql
+            JDK和JRE的使用场景：
+                如果你需要运行java程序，只需要安装JRE就可以了。如果你需要编写java程序，需要安装JDK。
+
+            在Linux上安装JDK的步骤：
+                步骤一：上传JDK到Linux的服务器
+                            上传JDK
+                            卸载open-JDK(已经安装过的JDK)
+                            查看jdk版本
+                                java-version
+                            查看安装的jdk信息
+                                rpm -qa | grep java 
+                            卸载jdk
+                                rpm -e --nodeps <jdk全名称信息>
+                步骤二：在Linux服务器上安装JDK
+                            通常将软件安装到 /usr/local
+                            直接解压就可以
+                                tar -zxvf jdk.tar.gz
+                步骤三：配置JDK的环境变量
+                            配置环境的目录在 /etc/profile
+                            打开环境配置目录 vim /etc/profile
+                            在环境配置目录末尾行添加
+                                JAVA_HOME=/user/local/jdk/jdk1.7.0_71 (此处是安装jdk的目录，也是添加环境变量最重要的操作)
+                                CLASSPATH=.:$JAVA_HOME/lib.tools.jar
+                                PATH=$JAVA_HOME/bin:$PATH
+                                export JAVA_HOME CLASSPATH PATH
+                            报错并退出
+                            使更改的配置立即生效 
+                                source /etc/profile  (source + 配置环境变量目录)
+
+        2：在Linux上安装Mysql
             步骤：
                 通过上传工具上传Mysql的包
 
@@ -355,8 +365,8 @@
                     flush privileges    (授权之后需要刷新一下)
                     在Linux中很多软件的端口都被'防火墙'限制，我们需要将防火墙关闭
         
-        5：在Linux上安装tomcat
-            步骤：
+        3：在Linux上安装tomcat
+            1：步骤：
                 Tomcat上传到Linux上
 
                 将上传的tomcat解压
@@ -366,8 +376,30 @@
                 
                 查看tomcat是否安装成功，浏览器访问Linux的ip地址加默认端口号8080
 
-        6：在Linux上安装redis
-            步骤：
+            2：tomcat
+                1：概念：tomcat可以认为是HTTP服务器，但通常它仍然会和Nginx配合一起使用
+                概念理解：
+                    1：动静态资源分离，运用Nginx的反向代理功能分发请求；所有动态资源的请求交给tomcat，而静态资源的请求(例如：图片，视频，css，js文件等)则直接由Nginx配合返回给浏览器，这样能打打减轻tomcat的压力
+                        1：静态资源和动态资源的区别(通过静态资源和动态资源的执行机制进行区分)
+                            1：在静态web程序中，客户端使用web浏览器经过网络链接到服务器上，使用HTTP协议发送一个请求，告诉服务器我现在需要得到哪个页面，所有的请求交给web服务器，之后web服务器根据用户的需要，从文件系统取出内容。之后通过web服务器返回给客户端，客户端接收到内容之后经过浏览器渲染解析，得到显示效果
+
+                            2：在动态web中，程序依然使用客户端和服务端，客户端依然使用浏览器，通过网络连接到服务器，使用HTTP协议发送请求，现在的所有请求都先经过一个webServer来处理。如果客户端请求的是静态资源(*.htm等)，则将请求直接转交给web服务器，之后web服务器从文件系统中取出内容，发送回客户端浏览器进行解析执行；如果客户端请求的是动态资源(*.jsp,*asp,*.php等)，则先将请求转交给web container(web容器)，在web container中连接数据库，从数据库中取出数据等一系列操作后动态拼凑页面的展示内容，拼凑页面的展示内容后，把所有的展示内容交给web服务器，之后通过web服务器将内容发送回客户端浏览器进行解析执行
+
+                        
+                    2：负载均衡，当业务压力增大时，可能一个tomcat的实例不足以处理，那么这时可以启动多个tomcat实例进行水平扩展，而Nginx的负载均衡可以把请求通过算法分发到各个不同的实例进行处理
+
+                2：tomcat和客户端的关系
+                    客户端浏览器发送http请求->tomcat服务器->到达tomcat底层的serviet->执行serviet的方法处理请求，然后从数据库返回数据到tomcat服务,然后tomcat服务再将数据返回给客户端
+
+                        2-1：serviet和jsp的关系
+                            jsp的概念：JSP全名java Server Pages，java服务器页面，JSP是一种基于文本的程序，其特点就是HTML和java代码共同存在
+                                jsp的作用：JSP为了简化servlet的工作出现的替代品，servlet输出HTML非常困难，JSP就是代替Servlet输出HTml的
+                            
+                            servlet概念：servlet其实就是一个遵循Servlet开发的java类，servlet是由服务器调用的，运行在服务器端
+                                servlet的作用：可以实现数据的交互功能，动态提供数据
+
+        4：在Linux上安装redis
+            1：步骤：
                 安装gcc-c++环境(原因：redis是C语言开发的，安装redis需要先将官网下载的源码进行编译，编译依赖gcc环境)
                     yum install gcc-c++
                     输入y确认下载
@@ -385,20 +417,34 @@
                     执行安装命令
                         make PREFIX=/usr/local/redis install(解释：安装到/usr/local/redis下的目录；PREFIX指定安装路径)
                         make install 安装完成后，会在/usr/local/redis/bin目录下生成下面几个可执行文件，它们的作用分别是
-                        redis-server    (Redis服务器端启动程序)
-                        redis-cli       (Redis客户端操作工具，也可以用telnet根据其纯文本协议来操作)
-                        redis-benchmark (Redis性能测试工具)
-                        redis-check-aof (数据修复工具)
-                        redis-check-dump (检查导出工具)
+                                redis-server    (Redis服务器端启动程序)
+                                redis-cli       (Redis客户端操作工具，也可以用telnet根据其纯文本协议来操作)
+                                redis-benchmark (Redis性能测试工具)
+                                redis-check-aof (数据修复工具)
+                                redis-check-dump (检查导出工具)
 
                 配置redis
                     复制配置文件redis.conf配置文件到/usr/local/redis/bin目录
                     cd redis-3.0.4
                     cp redis.conf /usr/local/redis/bin
 
-                    运行命令
-                        ./redis-server redis.conf (当前目录下的server文件启动，需要跟上配置文件一起启动)
+                    启动redis环境的俩种方式：
+                        服务端运行命令
+                            ./redis-server redis.conf (当前目录下的server文件启动，需要跟上配置文件一起启动)
+                        
+                        客户端运行命令
+                            启动redis-cli文件(执行机制：启动redis-cli客户端之后会连接redis的服务端)
+            2：redis
+                概念：redis是完全开源免费的，遵守BSD协议，是一个高性能的键值数据库(非关系型数据库)。是NoSql数据库之一，也被人们称之为数据结构服务器
 
+
+
+
+        5：部署步骤：
+                通过堡垒机将文件上传到linux服务器上
+                将工具连接远程的Linux服务器
+                用工具在Linux中安装部署环境
+                用工具操作文件，在Linux中启动文件即完成部署
 
 
 
