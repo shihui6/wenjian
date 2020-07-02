@@ -395,7 +395,7 @@
                             jsp的概念：JSP全名java Server Pages，java服务器页面，JSP是一种基于文本的程序，其特点就是HTML和java代码共同存在
                                 jsp的作用：JSP为了简化servlet的工作出现的替代品，servlet输出HTML非常困难，JSP就是代替Servlet输出HTml的
                             
-                            servlet概念：servlet其实就是一个遵循Servlet开发的java类，servlet是由服务器调用的，运行在服务器端
+                            servlet概念：servlet其实就是一个遵循Servlet开发的java类，servlet是由服务器(例如tomcat服务器)调用的，运行在服务器端
                                 servlet的作用：可以实现数据的交互功能，动态提供数据
 
         4：在Linux上安装redis
