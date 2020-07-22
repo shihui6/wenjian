@@ -84,14 +84,14 @@
 
     
     ***基础语法
-        1：注释
+        **：注释
             1：单行注释：使用"//"开头，"//"后面的当行内容均为注释
 
             2：多行注释：以"/*"开头以"*/"结尾，在"/*"和"*/"之间的内容为注释，我们也可以使用多行注释作为行内注释。但是在使用时要注意，多行注释不能嵌套使用
 
             3：文档注释：以"/**"开头以"*/"结尾，注释中包含一些说明性的文字及一些javaDoc标签(后期写项目时，可以生成项目的API)
 
-        2：标识符
+        **：标识符
             概念：标识符是用来给变量，类，方法以及包进行命名的
 
             标识符遵守的规则：
@@ -104,7 +104,7 @@
                 表示类名的标识符：每个单词的首字母大写：如Man，GoodMan
                 表示方法和变量的标识符：第一个单词小写，从第二个单词开始首字母大写，我们称之为"驼峰原则",如eatFood()
 
-        3：变量
+        **：变量
             1：概念：变量本质上就是一个"可操作的存储空间"，空间位置是确定的，但是里面放置什么值不确定。我们可通过变量名来访问"对应的存储空间"，从而操作这个"存储空间"存储的值
 
             2：特点：
@@ -120,7 +120,7 @@
                 3：静态变量
                     概念：也叫类变量；使用static定义。从属于类，生命周期伴随类始终，从类加载到卸载
 
-        4：常量
+        **：常量
             概念：常量通常指的是一个固定的值
             用法：在java中，主要是利用关键字final来定义一个常量
                   定义常量时用大写字母和下划线
@@ -130,7 +130,7 @@
                         final String Name = "石惠"
                     ```
 
-        5：数据类型
+        **：数据类型
             1：基本数据类型：
                     1：数值型：
                         1：整数类型(byte,short,int,long)
@@ -159,35 +159,361 @@
                             float   4字节       表数范围    -3.403E38 ~ 3.403E38
                             double  8字节       表数范围    -1.798E308 ~ 1.798E308
 
-                            概念：float类型又被称为单精度类型，尾数可以精确到7位有效数字，在很多情况下，float类型的精度很难满足需求
+                            1:概念：float类型又被称为单精度类型，尾数可以精确到7位有效数字，在很多情况下，float类型的精度很难满足需求
                                   double表示这种类型的数值精度约是float类型的两倍，又被称作双精度类型，绝大部分应用程序都采用double类型
                                 注意点：浮点型常量默认类型也是double
 
-                            注意点：
+                            2:注意点：
                                 1:float类型的数值有一个后缀F，没有后缀F的浮点数值默认为double类型。也可以在浮点数值后添加后缀D，以明确其为double类型
+
                                 2:浮点型是不精确的，不能比较，比较的返回false；要使用任意精度的整数运算用BigInteger。实现任意精度的浮点运算用BigDecimal
 
                                 事例1：float类型的数值要添加后缀F的注意点
+
                                 ```java
                                     float f = 3.14F;
                                     double d1 = 3.14;
                                     double d1 = 3.14D;
                                 ```
                                 事例2：浮点型不精确
+
                                 ```java
                                     float f = 0.1f;
                                     double d = 1.0/10;
                                     System.out.println(f==d) //输出结果为false
                                 ```
 
-
-
                     2：字符型(char)
+                        char    2个字节 
+
+                        概念：char类型用来表示在Unicode编码表中的字符。Unicode编码被设计用来处理各种语言的文字，它占2个字节，可允许有65536(包含了所有的文字和字母)
+
+                        用法：
+                            1：在java中使用单引号来表示字符常量。例如'A'是一个字符，它与"A"是不同的，"A"表示含有一个字符的字符串
+                            2：Unicode具有从0到65535之间的编码，他们通常用从'\u0000'到'\uFFFF'之间的十六进制值来表示(前缀为u表示Unicode)
+                            3：java语言中允许使用转义字符'\'，来将其后的字符转变为其他的含义。通常的转义字符及其含义和转义对应的Unicode值都一一对应
+                        事例：
+
+                            ```java
+                                public class pr1 {
+                                    public static void main(String[] args){
+                                        char a = 'T';
+                                        char b = '上';
+                                        String c = "今天天气真好";
+                                        System.out.println(b);
+                                        System.out.println(a);
+                                        System.out.println(c);
+                                        System.out.println(""+'a'+'\n'+'b');
+                                    }
+                                }
+
+                                /*输出结果
+                                    上
+                                    T
+                                    今天天气真好
+                                    a
+                                    b
+                                */
+                            ```
+
                     3：布尔型(boolean)
+                        概念：boolean类型有两个值，true和false，在内存中占一位(不是一个字节)，不可以使用0或非0的整数代替true和false，这点和js语言不同，用的时候必须用true和false来表示布尔型
+
+                        事例：
+
+                            ```java
+                                public class pr1 {
+                                    public static void main(String[] args){
+                                        //测试布尔值
+                                        boolean man = true;
+                                        if(man){	//不推荐man==true
+                                            System.out.println("男性");
+                                        }
+                                    }
+                                }
+                            ```
             2：引用数据类型：
                     类(class)
                     接口(interface)
                     数组
+
+        **：运算符
+            1：算术运算符
+                概念：算术运算符中+,-,*,/,%属于二元运算符，二元运算符指的是需要两个操作数才能完成运算的运算符。其中的%是取模运算符，就是我们常说的求余数操作
+                1：二元运算符的运算规则：
+                    整数运算：
+                        1：如果两个操作数有一个为Long，则结果为Long。
+                        2：没有Long时，结果为int。即使操作数全为short，byte，结果也是int。
+                    浮点运算：
+                        1：如果两个操作数有一个为double，则结果为double。
+                        2：只有两个操作数都是float，则结才为float。
+                    取模运算：
+                        1：其操作数可以为浮点数，一般使用整数，结果是"余数"，"余数"符号和左边操作数相同
+                        实例：
+                            ```java
+                                7%3=1
+                                -7%3=-1
+                                7%-3=1
+                            ```
+
+                2：一运算符 ++与--
+                    实例：
+
+                        ```java
+                            public class mo {
+                                public static void main(String[] args){
+                                    //测试自增和自减
+                                    int a  = 3;
+                                    int b = a++;  //执行完后，b=3.先给b赋值，a再自增
+                                    System.out.println(b+a);
+                                    
+                                    a  = 3;
+                                    int  c= ++a;  //执行完后c=5，原因：a先自增，再给c赋值 
+                                    System.out.println(b+a);
+                                }
+                            }
+                        ```
+
+            2：赋值运算符及扩展运算符
+                概念：+=，-=，*=，/=，%=
+
+            3：关系运算符
+                概念：
+                    关系运算符用来进行比较运算，关系运算符的结果是布尔值:true/false
+                    ==,!=,>,<,>=,<=
+
+            4：逻辑运算符
+                概念：逻辑运算的操作数和运算结果都是boolean值
+                        逻辑与      &       两个操作数为true，结果才是true，否则是false
+                        逻辑或      |       两个操作数有一个是true，结果就是true
+                        短路与      &&      只要有一个为false，则直接返回false
+                        短路或      ||      只要有一个为true，则直接返回true
+                        逻辑非      !       取反：!false为true，!true为false
+                        逻辑异或    ^       相同为false，不同为true
+
+                    注意点：短路与和逻辑与的区别，短路与第一个操作数为false，则不在计算后面的操作数了，直接返回false
+                    实例：
+
+                    ```java
+                        public class luoji {
+                            public static void main(String[] args){
+                                boolean b1 = true;
+                                boolean b2 = false;
+                                System.out.println(b1&b2);  //false
+                                System.out.println(b1|b2);  //true
+                                System.out.println(b1^b2);  //true
+                                boolean b3 = 1>2&&2>(3/0);  
+                                System.out.println(b3);     //false 
+                            }
+                        }
+                    ```
+
+            5：位运算符
+                概念：位运算指的是进行二进制的运算
+                    ~       取反
+                    &       按位与
+                    |       按位或
+                    ^       按位异或
+                    <<      左移运算符，左移一位相当于乘2
+                    >>      右移运算符，右移一位相当于除2取商
+
+                    实例：
+
+                        ```java
+                            public class opera4 {
+                                public static void main(String[] args){
+                                    int a = 3;
+                                    int b = 4;
+                                    System.out.println(a&b);    //0
+                                    System.out.println(a|b);    //7
+                                    System.out.println(a^b);    //7
+                                    System.out.println(~a);     //-4
+                                    
+                                    //移位运算
+                                    int c = 3 <<2;
+                                    int d = 3 >> 2;
+                                    System.out.println(c);      //12
+                                    System.out.println(d);      //0
+                                }
+                            }
+                        ```
+
+            6：条件运算符(和js里面的三元运算符差不多)
+                语法格式：x?y:z
+                    语法解释：其中x为boolean类型表达式，先计算x的值，若为true，则整个运算的结果为表达式y的值，否则整个运算结果为表达式z的值
+
+                    事例：
+
+                        ```java
+                            public class opera4 {
+                                public static void main(String[] args){
+                                    //条件运算符
+                                    int score = 80;
+                                    int x = -100;
+                                    String type = score < 60?"不及格":"及格";
+                                    System.out.println(type);               //输出及格
+                                    System.out.println(x>0?1:(x==0?0:-1));  //输出-1
+                                }
+                            }
+                        ```
+
+            7：字符串连接符
+                概念："+"号，就是字符串连接符，运算符两侧的操作数中只要有一个是字符串类型，系统会自动将另一个操作数转换为字符串然后进行连接
+                实例：
+
+                    ```java
+                        public class opera4 {
+                            public static void main(String[] args){
+                                String c = "3";
+                                int a = 3;
+                                int b = 4;
+                                char d = 'a';
+                                System.out.println(c + a + b);//输出334
+                                System.out.println(a + b + c);//输出73，执行机制为：a和b先进行加法运算为7，再和字符串c进行拼接，
+                                System.out.println(d + 4);	//输出101，这边d在Unicode是97，97+4 =101
+                            }
+                        }
+                    ```
+
+            8：运算符的优先级
+                概念：  括号运算符，一元运算符，位逻辑运算符，递增与递减运算符，。。。。。。
+                注意点：逻辑非>逻辑与>逻辑或
+
+            
+        **类型转换
+            1：自动类型转换
+                    概念：自动类型转换指的是容量小的数据类型可以自动转换为容量大的数据类型
+                    事例：
+
+                        ```java
+                            public class opera4 {
+                                public static void main(String[] args){
+                                    int a = 324;
+                                    long b = a;	//a可以赋值给b，说明a可以自动转换成long类型
+                                    double d = b;//long类型可以转换为double类型，但存在精度确实
+                                    //a = b;long类型转换为int类型会报错，不能从容量大的类型转换为容量小的类型
+                                }
+                            }
+                        ```
+            2：强制类型转换
+                概念：强制类型转换，又被称为造型，用于显示的转换一个数值的类型。在有可能丢失信息的情况下进行的转换是通过造型来完成的，但可能造成精度降低或溢出
+
+                语法：(type)var
+                    语法解释：运算符"()"中的type表示将值var想要转换成的目标数据类型
+
+                    实例：
+
+                    ```java
+                        public class lleiee {
+                            public static void main(String[] args){
+                                double x = 3.12;
+                                int b = (int)x;
+                                System.out.println(b); //输出3
+                            }
+                        }
+                    ```           
+
+            3：类型转换注意点
+                操作比较大的数时，要留意是否溢出
+                命名时不要用小写的l，要用大写的L
+
+                实例：
+
+                    ```java
+                        public class lleiee {
+                            public static void main(String[] args){
+                                int money = 1000000000;
+                                int years = 20;
+                                int totaone = money*years;//返回的totaone仍然是负数，超过了int的范围
+                                System.out.println(totaone);
+                                long total = money*((long)years);
+                                //返回的total正确，因为先将一个因子变成long，整个表达式发生提升。全部用long来计算
+                                System.out.println(total);
+                                long total2 = money*30L;
+                                System.out.println(total2);
+                            }
+                        }
+                    ```
+
+
+        **控制语句
+            概念：流程控制语句是用来控制程序中各语句执行顺序的语句
+
+            1：顺序结构
+
+            2：选择结构(和js里面的差不多)
+                概念："如果...，则..."的逻辑
+                1：if单选择结构
+                    语法：
+                        if(布尔表达式){
+                            语句块
+                        }
+                    注意点：可以不加大括号，但是如果不加大括号只执行第一句代码；
+
+                2：if-else双选择结构
+                    语法：
+                        if(布尔表达式){
+                            语句块1
+                        }else{
+                            语句块2
+                        }
+
+                3：if-else if-else多选择结构
+                    语法：
+                        if(布尔表达式){
+                            语句块1
+                        }else if(布尔表达式){
+                            语句块2
+                        }else{
+                            语句块3
+                        }
+
+                4：switch结构
+                    语法：
+                        switch(表达式){
+                            case 值1:
+                                语句序列1;
+                                break;
+                            case 值2:
+                                语句序列2;
+                                break;
+                            ........
+                            ........
+                            default:
+                                默认语句；
+                                break;
+                        }
+                        注意点：jdk1.7版本以后case值可以是字符串了，版本以前不可以使用字符串，必须是整数(long类型除外)或者枚举
+
+            3：循环结构
+                概念："如果...,则再继续"的逻辑
+
+                1：while循环
+                    while(布尔值表达式){
+                        循环体;
+                    }
+
+                2：do...while循环
+                    do{
+                        循环体;
+                    }while(布尔表达式)
+                    
+                3：for循环
+                    语法：
+                        for(初始化,条件判断,i++){
+                            循环体;
+                        }
+                    for循环执行机制：
+                                1:执行初始化语句int i=1;
+                                2:判断条件
+                                3：执行循环体
+                                4：步进迭代i++;
+                                5:回到第二步继续判断；
+                    注意点：初始化变量作用域只能在for循环体内被访问到，在外部不能被访问(类似js里面的let声明)
+
+
+                
+
 
 
             
