@@ -587,45 +587,45 @@
                         在要求高性能的情况下尽量避免使用递归，递归调用既花时间又耗内存
                 
 
-        **对象和类
-            面向对象和面向过程的区别
+        **对象和类  (类和对象的概念和js里面的是类似的)
+            1：面向对象和面向过程的区别
                 1：都是解决问题的思维方式，都是代码组织的方式
                 2：解决简单问题可以使用面向过程
                 3：解决复杂问题：宏观上使用面向对象把握，微观处理上仍然是面向过程
 
-            类和对象的概念和js里面的是类似的
 
-            注意点：一个java文件可以有很多class类，但是只能有一个public修饰类
 
-            实例：
+            2：注意点：一个java文件可以有很多class类，但是只能有一个public修饰类
 
-                ```java
-                    class Computer {
-                        String brand;
-                    }
-                    public class SxtStu {
-                        int id;
-                        String sname;
-                        int age;
-                        Computer comp;
-                        void study(){
-                            System.out.println("我正在学习，使用的电脑是"+comp.brand);
+                实例：
+
+                    ```java
+                        class Computer {
+                            String brand;
                         }
-                        SxtStu(){} //这是构造函数
+                        public class SxtStu {
+                            int id;
+                            String sname;
+                            int age;
+                            Computer comp;
+                            void study(){
+                                System.out.println("我正在学习，使用的电脑是"+comp.brand);
+                            }
+                            SxtStu(){} //这是构造函数
 
-                        public static void main(String[] args){
-                            SxtStu stu1 = new SxtStu();  //stu1的类型是引用类型SxtStu
-                            stu1.sname = "石惠";
-                            Computer comp1 = new Computer();
-                            comp1.brand = "联想";
-                            stu1.comp = comp1;
-                            stu1.study();   //输出结果：我正在学习，使用的电脑是联想
+                            public static void main(String[] args){
+                                SxtStu stu1 = new SxtStu();  //stu1的类型是引用类型SxtStu
+                                stu1.sname = "石惠";
+                                Computer comp1 = new Computer();
+                                comp1.brand = "联想";
+                                stu1.comp = comp1;
+                                stu1.study();   //输出结果：我正在学习，使用的电脑是联想
+                            }
                         }
-                    }
-                ```
+                    ```
 
-            内存分析
-                概念：java虚拟机的内存可分为三个区域：栈stack，堆heap，方法区method area
+            3：内存分析    
+                概念：java虚拟机的内存可分为三个区域：栈stack，堆heap，方法区(静态区)method area   (记住那张图)
 
                 栈的特点：
                     1：栈描述的是方法执行的内存模型。每个方法被调用都会创建一个栈帧(存储局部变量，操作数，方法出口等)
@@ -644,6 +644,196 @@
                     1：JVM只有一个方法区，被所有线程共享
                     2：方法区实际也是堆，只是用于存储类，常量相关的信息
                     3：用来存放程序中永远是不变或唯一的内容。(类信息 class对象，静态变量，字符串常量等)
+
+            
+            4：构造器
+                4-1：概念：构造器也叫构造方法(constructor),用于对象的初始化
+
+                4-2：要点：
+                    1：通过new关键字调用
+                    2：构造器虽然有返回值，但是不能定义返回值类型(返回值的类型肯定是本类)，不能在构造器里使用return返回某个值
+                    3：如果我们没有定义构造器，则编译器会自动定义一个无参的构造函数，如果已定义则编译器不会自动添加
+                    4：构造器的方法名必须和类名一致
+
+                    事例：
+
+                        ```java
+                            class Point{
+                                double x,y;
+                                public Point(double _x,double _y){
+                                    this.x = _x;
+                                    this.y = _y;
+                                }
+                                
+                                public double getDistance(Point p){
+                                    return Math.sqrt(x-p.x)*(x-p.x)+(y-p.y)*(y-p.y);
+                                }
+                            }
+
+                            public class Gouzao {
+                                
+                                public static void main(String[] args){
+                                    Point p = new Point(1.0,2.0);
+                                    Point origin = new Point(0,0);
+                                    System.out.println();
+                                    System.out.println(p.getDistance(origin));
+                                    
+                                }
+                            }
+                        ```
+
+                4-3：构造方法的重载
+                    概念：构造方法的重载和方法的重载是一样的；都是方法名称相同，形参列表不同
+
+                        事例：
+
+                            ```java
+                                public class Chongzai {
+                                    int id;
+                                    String name;
+                                    String pwd;
+                                    
+                                    public Chongzai(){
+                                        
+                                    }
+                                    public Chongzai(int id,String name){
+                                        this.id = id;
+                                        this.name = name;
+                                    }
+                                    public Chongzai(int id,String name,String pwd){
+                                        this.id = id;
+                                        this.name = name;
+                                        this.pwd = pwd;
+                                    }
+                                    public static void main(String[] args){
+                                        Chongzai u1 = new Chongzai();
+                                        Chongzai u2 = new Chongzai(101,"石惠");
+                                        Chongzai u3 = new Chongzai(101,"小石","12331321");
+                                    }
+                                }
+                            ```
+
+
+        **对象
+            1：对象创建的过程
+                1：分配对象空间，并将对象成员变量初始化为0或空
+                2：执行属性值的显式初始化
+                3：执行构造方法
+                4：返回对象的地址给相关的变量
+
+            2：this
+                概念：this的本质就是"创建好的对象的地址"由于在构造方法调用前，对象已经创建。因此，在构造方法中也可以使用this代表"当前对象"
+
+                用法：
+                    1：在程序中使用this来指明当前对象：普通方法中，this总是指向调用该方法的对象。构造方法中，this总是指向正要初始化的对象
+                    2：使用this关键字调用重载的构造方法，避免相同的初始化代码。但只能在构造方法中用，并且必须位于构造方法的第一句
+                    3：this不能用于static方法中
+
+                    实例：
+
+                        ```java
+                            public class User {
+                                int a,b,c;
+                                
+                                User(int a,int b){
+                                    this.a =a;
+                                    this.b =b;
+                                }
+                                
+                                User(int a,int b,int c){
+                                    this(a,b);      
+                                                    //this调用重载的构造方法，省去了相同的初始化代码，但只能在构造方法中这样用，且必须放在构造方法的第一句
+                                    this.c = c;
+                                }
+                                
+                                void eat(){
+                                    System.out.println("今天天气真好，出去吃饭");
+                                }
+                                
+                                public static void main(String[] args){
+                                    User meat = new User(2,3);
+                                    meat.eat();
+                                }
+                                
+                            }
+                        ```
+
+            3:static
+                概念：
+                    在类中，用static声明的成员变量为静态成员变量，也称为类变量。生命周期和类相同，只对类作用
+                    static修饰的成员变量和方法，从属于类，普通变量和方法从属于对象
+                
+                注意点：
+                    静态方法和属性可以在非静态方法里面用
+                    静态方法里面不可以用非静态属性和方法
+
+                
+
+
+        **垃圾回收机制
+            1：内存管理
+                java的内存管理很大程度指的就是对象的管理，其中包括对象空间的分配和释放
+                对象空间的分配：使用new关键字创建对象即可
+                对象空间的释放：将对象赋值null即可。垃圾回收器将负责回收所有"不可达"对象的内存空间
+            
+            2：垃圾回收过程
+                任何一种垃圾回收算法一般要做两件基本事情：
+                    1：发现无用的对象
+                    2：回收无用对象占用的内存空间
+
+            3：垃圾回收相关算法
+                1：引用计数法
+                    概念：堆中每个对象都有一个引用计数。被引用一次，计数加1，被引用变量值变为null，则计数减1，查到计数为0，则表示变成无用对象。
+                    优点：算法简单
+                    缺点："循环引用的无用对象"无法被识别
+                2：引用可达发(根搜索算法)
+                    概念：程序把所有的引用关系看作一张图，从一个节点GC ROOT开始，寻找对应的引用节点，找到这个节点以后，继续寻找这个节点的引用节点，当所有的引用节点寻找完毕之后，剩余的节点则被认为是没有被引用到的节点，即无用节点，则会垃圾回收机制被处理掉
+
+            4：通用的分代垃圾回收机制
+                概念：分代垃圾回收机制，是基于这样的一个事实：不同的对象生命周期是不一样的。因此，不同生命周期的对象可以采取不同的回收算法，以便提高回收效率。我们将对象分为三种状态：年轻代，年老代，持久代。JVM将堆内存划分为Eden，Survivor和Tenured/Old空间
+
+                    1：年轻代
+                        所有新生成的对象首先都是方在Eden区
+                    2：年老代
+                        在年轻代中经历了N(默认15)次垃圾回收后仍然存活的对象，就会被放到年老代中。因此可以认为年老代中存放的都是一些生命周期较长的对象。年老代对象越来越多，我们就需要启动Major GC和Full Gc(全量回收)，来一次大扫除，全面清理年轻代区域和年老代区域
+                    3：持久代
+                        用于存放静态文件，如java类，方法等。持久代对应垃圾回收没有显著影响
+
+                    4：垃圾回收过程
+                        1：新创建的对象，会存储在Eden中
+                        2：当Eden满了(达到一定比例)不能创建新对象，则触发垃圾回收(Minor GC)，将无用对象清理掉，然后剩余对象复制到某个Survivor中，如S1，同时清空Eden区
+                        3：当Eden区再次满了，会将S1中的不能清空的对象存到另外一个Survivor中，如S2，同时将Eden区中的不能清空的对象，也复制到S1中，保证Eden和S1，均被清空
+                        4：重复多次(默认15次)Survivor中没有被清理的对象，则会复制到年老代Old(Tenured)中
+                        5：当Old区满了，则会触发一个一次完整地垃圾回收机制(FullGC)，之前新生代的垃圾回收称为(minnorGC)
+
+                            说明：
+                                Minor GC：用于清理年轻代取余。Eden区满了就会触发一次Minor GC。清理无用对象，将有用对象复制到"Survivor1","Survivor2"区中(这两个区，大小空间也相同，同一时刻Survivor1和Survivor2只有一个在用，一个为空)
+
+                                Major GC：用于清理老年代区域
+ 
+                                Full GC：用于清理年轻代，年老代区域。成本较高，会对系统性能产生影响
+
+                    5：JVM调优的过程中，很大一部分工作就是对于Full GC的调节。有如下原因可能导致Full GC
+                            1：年老代(Tenured)被写满
+                            2：持久代(Perm)被写满
+                            3：System.gc()被显式调用(这里在程序中写System.gc()表示不是调用只是建议GC启动，不是调用GC)
+                            4：上一次Gc之后Heap的各域分配策略动态变化
+
+
+            5：开发中容易造成内存泄露的操作
+                1：创建大量无用对象
+                    比如：我们在需要大量拼接字符串时，使用了String而不是StringBuilder
+                2：静态集合类的使用
+                    像HashMap，Vector，List等的使用最容易出现内存泄露，这些静态变量的生命周期和应用程序一致，所有的对象Object也不能被释放
+                3：各种连接对象(IO流对象，数据库连接对象，网络连接对象)未关闭
+                    IO流对象，数据库连接对象，网络连接对象等连接对象属于物理连接，和硬盘或者网络连接，不使用的时候一定要关闭
+                4：监听器的使用
+                    释放对象时，没有删除相应的监听器
+
+
+
+
+
 
                 
 
