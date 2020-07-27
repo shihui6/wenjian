@@ -770,6 +770,49 @@
                     静态方法里面不可以用非静态属性和方法
 
                 
+            4：静态初始化块
+                概念：构造方法用于对象的初始化；静态初始化块用于类的初始化操作，在静态初始化块中不能直接访问非static成员
+
+                静态初始化块执行顺序：
+                    1：上溯到Object类，先执行Object的静态初始化块，再向下执行子类的静态初始化块，直到我们的类的静态初始化块为止
+                    2：构造方法执行顺序和上面顺序一样
+
+                注意点：
+                    在类的初始化里不能使用对象的属性
+                    先加载静态初始化类再加载构造器
+                原理：编译器编译的时候，首先是初始化类，通过类再初始化对象，先有类后有对象。
+                
+                    事例：
+
+                    ```java
+                        public class Jingtai {
+                            int id;
+                            String name;
+                            String pwd;
+                            static String company;
+                            static {
+                                System.out.println("执行类的初始化工作");
+                                company = "石氏集团";
+                                printCompany();
+                            }
+                            public static void printCompany(){
+                                System.out.println(company);
+                            }
+                            public static void main(String[] args){
+                                
+                            }
+                        }
+                    ```
+
+            5：参数传值机制
+                概念：java方法中所有参数都是"值传递"，也就是"传递的是值的副本"。也就是说，我们得到的是"原参数的复印件，而不是原件"。因此，复印件改变不会影响原件
+
+                引用类型参数传值
+                    传递的是值的副本。但是引用类型指的是"对象的地址"。因此，副本和原参数都指向了同一个"地址"，改变"副本指向地址对象的值，也意味着原参数指向对象的值也发生了改变"
+
+            
+                
+
 
 
         **垃圾回收机制
@@ -822,7 +865,7 @@
                             4：上一次Gc之后Heap的各域分配策略动态变化
 
 
-            5：开发中容易造成内存泄露的操作
+            5：开发中容易造成内存泄露的操作：
                 1：创建大量无用对象
                     比如：我们在需要大量拼接字符串时，使用了String而不是StringBuilder
                 2：静态集合类的使用
@@ -831,6 +874,262 @@
                     IO流对象，数据库连接对象，网络连接对象等连接对象属于物理连接，和硬盘或者网络连接，不使用的时候一定要关闭
                 4：监听器的使用
                     释放对象时，没有删除相应的监听器
+
+
+        **包(package)
+            1：概念：包机制是java中管理类的重要手段。开发中，我们会遇到大量同名的类，通过包我们很容易解决类重名的问题，也可以实现对类的有效管理。包对于类，相当于文件夹对于文件的作用。
+
+            2：package作用：
+                通过package实现对类的管理
+
+            3：package的使用有两个要点：
+                1：通常是类的第一句非注释性语句
+                2：包名：域名倒着写即可，再加上模块名，便于内部管理类
+
+            4：JDK中的主要的包：
+                java中的常用包
+                    java.lang       包含一些java语言的核心类，如String，Math，Integer，System和Thread，提供常用功能
+                    java.awt        包含了构成抽象窗口工具集(abstract window toolkits)的多个类，这些类被用来构建和管理应用程序的图形用户界面
+                    java.net        包含执行与网络相关的操作的类
+                    java.io         包含能提供多种输入/输出功能的类
+                    java.util       包含一些实用工具类，如定义系统特性，使用与日期日历相关的函数
+
+                    其中java.lang包是不需要import引入的，直接可以用
+
+                事例：
+
+                    ```java
+                        package cn.sxt.oo;  //是类的第一句非注释性的语句
+
+                        public class User {
+
+                        }
+                    ```
+                        事例解释：最终会把User类打包到cn.sxt.oo这个包里面
+
+            5：import详解
+                1：作用：导入包的作用
+                2：注意点：在同一个包里面的类，不需要通过import引入，直接可以使用
+                3：用法：
+                    事例：
+
+                    ```java
+                        package cn.hui; //package cn.hui 的作用是 这个java文件里面的类，最后会放到cn.shi的这个包里
+                        // 第一种引入包的方式
+                        import cn.shi.User;
+                        public class Data {
+                            public static void main(String[] args){
+                            // 第二种引入包的方式
+                            // cn.shi.User user = new cn.shi.User();
+                            //user.say();
+                            }
+                        }
+                    ```
+                
+                4：静态导入
+                    概念：静态导入是在JDK1.5新增加的功能，其作用是用于导入指定类的静态属性，这样我们可以直接使用静态属性
+                    事例：
+
+                    ```java
+                        package cn.hui;
+                        //静态导入的方式
+                        import static java.lang.Math.*;
+                        public class Test {
+                            public static void main(String[] args){
+                                System.out.println(PI);
+                            }
+                        }
+                    ```
+
+
+        **继承
+            1:概念：
+                继承让我们更加容易实现类的扩展。实现代码的重用，不用再重新发明轮子
+                从英文字面理解，extends的意思是"扩展"。子类是父类的扩展。(子类继承父类的东西，但是不是所有的东西都可以用)
+
+            2:要点：
+                1：父类也称作超类，基类，派生类。
+                2：java中只有单继承，没有像C++那样的多继承。多继承会引起混乱，使得继承链过于复杂，系统难于维护
+                3：java中类没有多继承，接口有多继承
+                4：子类继承父类，可以得到父类的全部属性和方法(除了父类的构造方法)，但不见得可以直接访问(比如，父类私有的属性和方法)
+                5：如果定义一个类，没有调用extends，则它的父类默认是：java.lang.Object
+
+            快捷键：可以使用ctrl+T方便的查看类的继承层次结构
+
+                实例：
+
+                    ```java
+                        public class extend {
+                            public static void main(String[] args){
+                                Student stu = new Student("shihui",18,"软件工程");
+                                stu.study();
+                                stu.rest();
+                            }
+                        }
+
+                        class Person {
+                            String name;
+                            int height;
+                            public void rest(){
+                                System.out.println("休息一会儿");
+                            }
+                        }
+
+                        class Student extends Person {
+                            String major;
+                            public void study(){
+                                System.out.println("学习两小时");
+                            }
+                            public Student(String name,int height,String major){
+                                this.name = name;
+                                this.height = height;
+                                this.major = major;
+                            }
+                            public Student(){
+                                
+                            }
+                        }
+                    ```
+
+        
+            3:instanceof运算符
+                概念：instanceof是二元运算符，左边是对象，右边是类；当对象是右边类或子类所创建对象时，返回true；否则返回false
+                作用：判断对象是不是此类的类型
+
+                实例：
+
+                    ```java
+                        public class extend {
+                            public static void main(String[] args){
+                                Student stu = new Student("shihui",18,"软件工程");
+                                stu.study();
+                                stu.rest();
+                                System.out.println(stu instanceof Person);      //返回 true 说明：stu实例对象的类型是 Person
+                                System.out.println(stu instanceof Student);     //返回 true 说明：stu实例对象的类型是 Person
+                            }
+                        }
+
+                        class Person {
+                            String name;
+                            int height;
+                            public void rest(){
+                                System.out.println("休息一会儿");
+                            }
+                        }
+
+                        class Student extends Person {
+                            String major;
+                            public void study(){
+                                System.out.println("学习两小时");
+                            }
+                            public Student(String name,int height,String major){
+                                this.name = name;
+                                this.height = height;
+                                this.major = major;
+                            }
+                            public Student(){
+                                
+                            }
+                        }
+                    ```
+
+        **对象
+            1：方法的重写override
+                1：概念：子类重写父类的方法，
+                2：方法重写需要符合下面三个要点：
+                    1："=="：方法名，形参列表相同
+                    2："<="：返回值类型和声明异常类型，子类小于等于父类
+                            事例：
+
+                                ```java
+                                    public class extend {
+                                        public static void main(String[] args){
+                                            Horse hose = new Horse();
+                                            hose.run();
+                                            hose.whoIs().study();   
+                                        }
+                                    }
+
+                                    class Person {
+                                    }
+                                    class Student extends Person {
+                                        public void study(){
+                                            System.out.println("学习两小时");
+                                        }
+                                    }
+                                    class Veche{
+                                        public void run(){
+                                            System.out.println("跑。。。。");
+                                        }
+                                        public Person whoIs(){
+                                            return new Person();
+                                        }
+                                    }
+                                    class Horse extends Veche {
+                                        public void run(){
+                                            System.out.println("得加。。。");
+                                        }
+                                        public Student whoIs(){     //Horse重写父类Veche的whoIs方法，返回值类型必须是小于等于父类的类型
+                                            return new Student(); 
+                                        }
+                                    }
+                                ```
+                    3：">="：访问权限，子类大于父类
+
+            
+            2：==和equals方法
+                1：==：
+                    概念：代表比较双方是否相同。如果是基本类型则表示值相等，如果是引用类型则表示地址相等即是同一个对象
+                
+                2：equals
+                    概念：Object类中定义有:public boolean equals(Object obj)方法，提供定义"对象内容相等"的逻辑
+
+                    事例：
+
+                        ```java
+                            public class Tone {
+                                public static void main(String[] args){
+                                    Stud stu = new Stud(18,"shihui");
+                                    Stud stu1 = new Stud(18,"wodetian");
+                                    System.out.println(stu.equals(stu1)); //返回true
+                                }
+                            }
+                            class Stud {
+                                int id;
+                                String name;
+                                public Stud(int id,String name){
+                                    this.id = id;
+                                    this.name = name;
+                                }
+                                // 重写Object的equals方法
+                                public boolean equals(Object obj){ 
+                                    if(this == obj){
+                                        return false;
+                                    }
+                                    if(obj == null){
+                                        return false;
+                                    }
+                                    Stud other = (Stud) obj;
+                                    if(id != other.id){
+                                        return true;
+                                    }
+                                    return true;
+                                }
+                            }
+                        ```
+
+            3：super
+                概念：super是直接父类对象的引用。可以通过super来访问父类中被子类覆盖的方法或属性
+
+                构造方法调用顺序：
+                    构造方法第一句总是：super(...)来调用父类对应的构造方法。所以，流程就是：先向上追溯到Object，然后再依次向下执行类的初始化块和构造方法，直到当前子类为止
+
+
+
+
+
+
+
 
 
 
