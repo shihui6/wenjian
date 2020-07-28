@@ -999,7 +999,7 @@
                 实例：
 
                     ```java
-                        public class extend {
+                        public class Users {
                             public static void main(String[] args){
                                 Student stu = new Student("shihui",18,"软件工程");
                                 stu.study();
@@ -1124,7 +1124,230 @@
                 构造方法调用顺序：
                     构造方法第一句总是：super(...)来调用父类对应的构造方法。所以，流程就是：先向上追溯到Object，然后再依次向下执行类的初始化块和构造方法，直到当前子类为止
 
+                    事例：
 
+                        ```java
+                            public class Jcheng {
+                                public static void main(String[] args){
+                                    new Child().f();
+                                }
+                            }
+                            class Father {
+                                public int value;
+                                public void f(){
+                                    value = 100;
+                                    System.out.println(value);
+                                }
+                            }
+                            class Child extends Father {
+                                public int value;
+                                public void f(){
+                                    super.f();          //调用父类对象的普通方法
+                                    value = 200;
+                                    System.out.println("child里面的"+value);
+                                    System.out.println(value);
+                                    System.out.println(super.value);    //调用父类对象的成员变量
+                                }
+                            }
+                        ```
+
+            4：多态
+                概念：多态指的是同一个方法调用，由于对象不同可能会有不同的行为。现实生活中，同一个方法，具体实现会完全不同
+
+                多态的要点：
+                    1：多态是方法的多态，不是属性的多态(多态与属性无关)
+                    2：多态的存在要有3个必要条件：继承，方法重写，父类引用指向子类对象
+                    3：父类引用指向子类对象后，用该父类引用调用子类重写的方法，此时多态就出现了
+
+                    实例：
+
+                        ```java
+                            public class Duo {
+                                public static void main(String[] args){
+                                    Animal a = new Animal();
+                                    animalCry(a);
+                                    Dog d = new Dog();
+                                    animalCry(d);
+                                }
+                                static void animalCry(Animal a){        //父类引用类型指向子类对象
+                                    a.shout();
+                                }
+                            }
+                            class Animal {
+                                public void shout(){
+                                    System.out.println("叫了一声");
+                                }
+                            }
+                            class Dog extends Animal{           //继承，方法重写
+                                public void shout(){
+                                    System.out.println("汪汪汪");
+                                }
+                            }
+                            class Cat extends Animal{
+                                public void shout(){
+                                    System.out.println("喵喵喵");
+                                }
+                            }
+                        ```
+
+
+            5：对象的转型
+                概念：
+                    1：父类引用指向子类对象，我们称这个过程为向上转型，属于自动类型转换
+                    2：向上转型后的父类引用变量只能调用它编译类型的方法，不能调用运行时类型的方法。这时，我们就需要进行类型的强制转换，我们称之为向下转型
+
+                    实例：
+
+                        ```java
+                            public class Duo {
+                                public static void main(String[] args){
+                                    Animal a = new Dog();	//自动向上转型
+                                    a.shout();
+                                    Dog d = (Dog)a;		//强制转型
+                                    d.seeDoor();	
+                                }
+                            }
+                            class Animal {
+                                public void shout(){
+                                    System.out.println("叫了一声");
+                                }
+                            }
+                            class Dog extends Animal{
+                                public void shout(){
+                                    System.out.println("汪汪汪");
+                                }
+                                public void seeDoor(){
+                                    System.out.println("看门。。");
+                                }
+                            }
+                        ```
+
+            6：final关键字
+                作用：
+                    1：修饰变量：被他修饰的变量不可改变。一旦赋了初值，就不能被重新赋值
+                        final int Max_speed = 120
+                    2：修饰方法：该方法不可被子类重写。但是可以被重载
+                        final void study(){}
+                    3：修饰类：修饰的类不能被继承。比如Math，String
+                        final class A {}
+
+        **封装
+            1：封装的具体优点：
+                1：提高代码的安全性
+                2：提高代码的复用性
+                3："高内聚"：封装细节，便于修改内部代码，提高可维护性
+                4："低耦合"：简化外部调用，便于调用者使用，便于扩展和写作
+
+            2：访问控制符：
+                private         表示私有，只有自己类能访问
+                default         表示没有修饰符修饰，只有同一个包的类能访问
+                protected       表示可以被同一个包的类以及其它包中的子类访问
+                                    (解释：其它包中的子类是指：在其它包中创建该类的子类，可以使用该类的内部的protected控制的属性或方法)
+                public          表示可以被该项目的所有包中的所有类访问
+
+            3：封装时类的属性的处理(类的访问控制符的使用)
+                1:一般使用private访问权限
+                2：提供相应的get/set方法来访问相关属性，这些方法通常是public修饰的，以提供对属性的赋值与读取操作
+                3：一些只用于本类的辅助性方法可以用private修饰，希望其他类调用的方法用public修饰
+
+
+        **数组
+            1:概念：
+                数组是相同类型数据的有序集合。数组描述的是相同类型的若干数据，按照一定的先后次序排列组合而成。其中，每个数据称作一个元素，每个元素可以通过一个索引(小标)来访问
+
+                数组属于引用类型，数组也是对象，数组中的每个元素相当于该对象的成员变量
+
+            2:特点：
+                1：长度是确定的。数组一旦被创建，它的大小就是不可以改变的
+                2：其元素必须是相同类型，不允许出现混合类型
+                3：数组类型可以是任何数据类型，包括基本数据类型和引用数据类型
+
+            3:数组声明方式有两种
+                1： type[] arr_name;(推荐使用这种方式)
+                2： type   arr_name[];
+                实例：  
+
+                ```java
+                    int[] arr01;
+                    String[] arr02;
+                ```
+
+                注意点：
+                    1：声明的时候并没有实例化任何对象，只有在实例化数组对象时，JVM才分配空间，这时才与长度有关
+                    2：声明一个数组的时候并没有数组真正被创建
+                    3：构造一个数组，必须指定长度
+
+
+            4:初始化方式
+                1：静态初始化
+                    解释：初始化的时候直接赋值
+                    实例：
+                        ```java
+                            int[] a = {1,2,3};
+                            User[] b = {new User(12,"是"),new User(11,"会")};
+                        ```
+                2：动态初始化
+                    解释：先分配空间(数组长度)，然后一个个给数组进行赋值
+                    事例：
+                        ```java
+                            int[] a = new int[2];
+                            a1[0] = 1;
+                            a1[1] = 2
+                        ```
+                3：默认初始化
+                    解释：初始化数组长度之后，默认给数组的元素进行赋值。赋值的规则和成员变量默认规则一致
+                    事例：
+                        ```java
+                            int[] a1 = new int[2]; //默认给数组a1赋值0
+                        ```
+
+                    
+            5:用法：
+                实例：
+
+                    ```java
+                        public class Shuzu {
+                            public static void main(String[] args){
+                                int[] arr01 = new int[10];	//数组内每个元素的类型是int
+                                String[] arr02 = new String[5];	//数组内每个元素的类型为 String
+                                User[] arr03 =new User[3]; 
+                                //为User类型指的是，数组内部元素为对象的引用类型，存的是对象的地址，且应用类型为User
+                                for(int i =0;i <10;i++){
+                                    arr01[i] = 10*i;
+                                }
+                                for(int i =0;i<10;i++){
+                                    System.out.println(arr01[i]);
+                                }
+                                
+                                arr03[0] = new User(10,"石惠");
+                                arr03[1] = new User(11,"石惠h");
+                                arr03[2] = new User(12,"石惠shihui");
+                                for(int i=0;i<3;i++){
+                                    System.out.println(arr03[i].getName());
+                                }
+                            }
+                        }
+                        class User{
+                            private String name;
+                            public User(int id,String name){
+                                this.name = name;
+                            }
+                            public String getName(){
+                                return this.name;
+                            }
+                        }
+                    ```
+
+            
+            6：for-each循环
+                概念：增强for循环for-each是JDK1.5新增的功能，专门用于读取数组或集合中所有的元素，即对数组进行遍历
+                事例：
+
+                    ```java
+                        for(int m:a){} //意思是循环a数组，把每个元素取出来之后放到m变量里面
+                    ```
+            
+            
 
 
 
