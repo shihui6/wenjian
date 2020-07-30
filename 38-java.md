@@ -1231,6 +1231,140 @@
                     3：修饰类：修饰的类不能被继承。比如Math，String
                         final class A {}
 
+            
+            7：抽象方法和抽象类
+                抽象方法
+                    概念：使用abstract修饰的方法，没有方法体，只有声明。定义的是一种"规范"，就是告诉子类必须要给抽象方法提供具体实现
+                
+                抽象类
+                    概念：包含抽象方法的类就是抽象类。通过abstract方法定义规范，然后要求子类必须定义具体实现。通过抽象类，我们就可以做到严格限制子类的设计，是子类之间更加通用
+
+                    抽象类特点：
+                        1：有抽象方法的类只能定义成抽象类
+                        2：抽象类不能实例化，即不能用new来实例化抽象类
+                        3：抽象类可以包含属性，方法，构造方法。但是构造方法不能用来new实例，只能用来被子类调用
+                        4：抽象类只能用来被继承
+                        5：抽象方法必须被子类实现
+
+                    实例：
+
+                        ```java
+                            public abstract class Animal {
+                                //抽象方法的特点：没有实现，子类必须实现
+                                abstract public	void shout(); 
+                                public void run(){
+                                    System.out.println("快跑");
+                                }
+                                public static void main(String[] args){
+                                    Animal d = new Dog();
+                                    d.shout();
+                                    d.run();
+                                }
+                            }
+                            class Dog extends Animal{
+                                @Override
+                                public void shout() {
+                                    System.out.println("汪汪汪");
+                                }
+                            }
+                        ```
+
+            8:接口
+                1：概念：
+                    1：接口只定以规范，全面地实现了：规范和具体实现分离
+                    2：抽象类还提供某些具体实现，接口不提供任何实现，接口中所有方法都是抽象方法。接口是完全面向规范，规定了一批类具有的公共方法规范
+                    3：接口是契约是规范，必须遵守
+
+                2：声明格式
+                    [访问修饰符] interface 接口名 [extends 父接口1，父接口2...] {
+                        常量定义;
+                        方法定义;
+                    }
+
+                3：定义接口的详细说明：
+                    1：访问修饰符：只能是public或默认
+                    2：接口名：和类名采用相同命名机制
+                    3：extends：接口可以多继承
+                    4：常量：接口中的属性只能是常量，总是：public static final修饰。不写也是
+                    5：方法：接口中的方法只能是：public abstract。省略的话，也是public abstract
+
+                4：要点：
+                    1：子类通过implements来实现接口中的规范
+                    2：接口不能创建实例，但是可用于声明引用变量类型
+                    3：一个类实现了接口，必须实现接口中所有的方法，并且这些方法只能是public的
+                    4：JDK1.7之前，接口只能包含静态常量，抽象方法，不能有普通属性，构造方法，普通方法
+                    5：JDK1.8后，接口中包含普通的静态方法
+
+                    实例：
+
+                        ```java
+                            public class Shixian {
+                                public static void main(String[] args){
+                                    Volant f = new Angel(); 
+                                    //要是把f实例对象的类型写成Volant，编译器就会把f当成volant，而volant里面只有一个方法，所以在这里只能调用flay方法，虽然在Angel里面有Helpother方法，但是编译器并不知道。而f里面有关于接口Volant关于fly方法的实现，所以会调用Angel里面的fly方法。类似于子类继承父类，子类重写父类的方法，调用时会调用子类的方法。若调用的方法只有父类里有，则就会调用父类里的方法
+                                    f.fly();
+                                }
+                            }
+                            interface Volant {
+                                void fly();
+                                int FLY_HEIGHT = 1000;
+                            }
+                            interface Honest {
+                                void Helpother();
+                            }
+                            class Angel implements Volant,Honest{
+                                @Override
+                                public void Helpother() {
+                                    // TODO Auto-generated method stub
+                                    System.out.println("帮助别人");
+                                }
+                                @Override
+                                public void fly() {
+                                    // TODO Auto-generated method stub
+                                    System.out.println("飞起来了");
+                                }
+                            }
+                            class GoodMan implements Honest {
+                                @Override
+                                public void Helpother() {
+                                    // TODO Auto-generated method stub
+                                    System.out.println("好人帮助别人");
+                                }
+                            }
+                        ```
+
+                5：接口的多继承
+                    概念：接口完全支持多继承。和类的继承类似，子接口扩展某个父接口，将会获得父接口中所定义的一切
+                    用法：
+                        事例：
+
+                            ```java
+                                interface A{
+                                    void testa();
+                                }
+                                interface B{
+                                    void testb();
+                                }
+                                interface C extends A,B{
+                                    void testc();
+                                }
+
+                                class myDuo implements C {
+                                    @Override
+                                    public void testa() {
+                                        // TODO Auto-generated method stub
+                                    }
+                                    @Override
+                                    public void testb() {
+                                        // TODO Auto-generated method stub
+                                    }
+                                    @Override
+                                    public void testc() {
+                                        // TODO Auto-generated method stub
+                                    }
+                                }
+                            ```
+
         **封装
             1：封装的具体优点：
                 1：提高代码的安全性
@@ -1347,7 +1481,324 @@
                         for(int m:a){} //意思是循环a数组，把每个元素取出来之后放到m变量里面
                     ```
             
+            7：数组的拷贝
+                1:概念：System类里也包含了一个static void arraycopy(object src,int srcpos,object dest,int destpos,int length)方法，改方法可以将src数组里的元素值付给dest数组的元素，其中srcpos指定从src数组的第几个元素开始赋值，length参数指定将src数组的多少个元素赋给dest数组的元素
+
+                2:用法
+                    事例：将s1的数组拷贝到s2里面
+
+                        ```java
+                            public static void testBasic1(){
+                                String[] s1 = {"aa","bb","cc","dd","ee"};
+                                String[] s2 = new String[10];
+                                System.arraycopy(s1, 2, s2, 6, 3);
+                                for(int i=0;i<s2.length;i++){
+                                    System.out.println(i+"数组"+s2[i]);
+                                }
+                            }
+                        ```
+
+                    事例：从数组中删除某个元素(本质上还是数组的拷贝)
+
+                        ```java
+                            public static void testBasic2(){
+                                    String[] s1 = {"aa","bb","cc","dd","ee"};
+                                    String[] s2 = new String[5];
+                                    System.arraycopy(s1, 3, s1, 2, 2);
+                                    s1[s1.length-1] = null;
+                                    for(int i=0;i<s1.length;i++){
+                                        System.out.println(s1[i]);
+                                    }
+                                }
+                        ```
+
+                    事例：数组的扩容(本质上是：先定义一个更大的数组，然后将原数组内容原封不动拷贝到新数组中)
+
+                        ```java
+                            public static void extendRange(){
+                                    String[] s1 = {"aa","bb","cc","dd"};
+                                    String[] s2 = new String[s1.length+10];
+                                    System.arraycopy(s1, 0, s2, 0, s1.length);
+                                    for(String item:s2){
+                                        System.out.println(item);
+                                    }
+                                }
+                        ```
             
+            8:java.util.Array类
+                概念：JDK提供的java.util.Arrays类，包含了常用的数组操作，方便我们日常开发。Arrays类包含了：排序，查找，填充，打印内容等常见的操作
+
+                用法：
+                    事例：
+
+                        ```java
+                            public static void testArr(){
+                                    int[] a = {10,11,22,44,14,12,55};
+                                    System.out.println(Arrays.toString(a));//描述数组内容的字符串，不用此方法则返回对数组内存地址的引用
+                                    Arrays.sort(a);	//排序
+                                    System.out.println(Arrays.toString(a));
+                                    System.out.println(Arrays.binarySearch(a,44));//查找指定的元素,查找不到返回负数
+                                }
+                        ```
+
+
+            9：多维数组
+                概念：多维数组可以看成以数组为元素的数组。可以有二维，三维，甚至更多维数组，但是实际上开发中用的非常少。最多到二维数组(学习容器后，我们一般使用容器，二维数组用的都很少)
+
+                用法：
+                    实例：
+
+                    ```java
+                        public static void main(String[] args){
+                                int[][] a = new int[3][];	//创建多维数组
+                                a[0] = new int[]{02,30};	//给数组的第一项里面添加一个数组
+                                a[1] = new int[]{10,30,80};
+                                a[2] = new int[]{50,60};
+                                for(int[] temp:a){
+                                    System.out.println(Arrays.toString(temp));
+                                }
+                            }
+                    ```
+
+            10：冒泡排序算法
+                概念：冒泡排序重复访问要排序的数列，一次比价两个元素，如果他们的顺序错误就把他们交换过来，这样越大的元素会经过交换慢慢到数列的顶端
+
+                冒泡排序算法的执行机制：
+                    1：比较相邻的元素。如果第一个比第二个大，就交换他们两
+                    2：对每一对相邻元素作同样的工作，从开始第一对到结尾的最后一对。在这一点，最后的元素应该会是最大的数
+                    3：针对所有的元素重复以上的步骤，除了最后一个
+                    4：持续每次对越来越少的元素重复上面步骤，知道没有任何一对数字需要比较
+
+                用法：
+                    实例：
+
+                        ```java
+                            public static void main(String[] args){
+                                    int[] values = {3,1,2,6,5,4,7,9,8,0};
+                                    int temp = 0;
+                                    for(int i=0;i<values.length-1;i++){
+                                        for(int j =0;j<values.length-1-i;j++){
+                                            if(values[j] > values[j+1]){
+                                                temp = values[j];
+                                                values[j] = values[j+1];
+                                                values[j+1] = temp;
+                                            }
+                                        }
+                                    }
+                                    System.out.println(Arrays.toString(values));
+                                }
+                        ```
+
+            11：二分法查找
+                二分法执行机制：
+                    1：二分法查找，基本思想是数组中的元素从小到大有序的存放在数组中，首先将给定值key与数组中间位置上元素的key进行比较，如果相等，则检索成功
+                    2：否则，若key小，则在数组前半部分继续进行二分法检索
+                    3：若key大，则在数组后半部分中继续进行二分法检索；
+                    4：这样，经过一次比较就缩小一半的检索区间，如此进行下去，知道检索成功或检索失败
+
+                用法：
+                    实例：
+
+                        ```java
+                            public static int myBubble(int[] arr,int value){
+                                    int low = 0;
+                                    int high = arr.length-1;
+                                    while(low <=high){
+                                        int mid = (low+high)/2;
+                                        if(value == arr[mid]){
+                                            return mid;
+                                        }
+                                        if(value > arr[mid]){
+                                            low = mid +1;
+                                        }
+                                        if(value < arr[mid]){
+                                            high = mid -1;
+                                        }
+                                    }
+                                    return -1;
+                                }
+                        ```
+
+
+
+
+        **类
+            1：内部类  
+                1:在java中内部类主要分为成员内部类(非静态内部类，静态内部类)，匿名内部类，局部内部类
+
+                2:注意点：
+                    成员内部类可以使用private,default,protected,public任意进行修饰
+                    编译生成的内部类文件 外部类$内部类.class
+                
+                3:非静态内部类注意点：
+                    1：非静态内部类必须寄存在一个外部类对象里。因此，如果有一个非静态内部类对象那么一定存在对应的外部类对象。非静态内部类对象单独属于外部类的某个对象
+                    2：非静态内部类可以直接访问外部类的成员，但是外部类不能直接访问非静态内部类成员
+                    3：非静态内部类不能有静态方法，静态属性和静态初始化块
+                    4：外部类的静态方法，静态代码块不能访问非静态内部类，包括不能使用非静态内部类定义变量，创建实例
+
+                    实例：
+
+                        ```java
+                            public class TestInnerclass {
+                                public static void main(String[] args){
+                                    //创建内部类对象
+                                    //原因：普通的非静态内部类对象依托于外部类的对象，所以创建内部类对象，要先创建外部类对象。如下
+                                    Outer.Inner inner = new Outer().new Inner();
+                                    inner.show();
+                                }
+                            }
+                            class Outer{
+                                private int age = 10;
+                                public void testOuter(){}
+                                
+                                class Inner {
+                                    int age = 20;
+                                    public void show(){
+                                        int age = 30;
+                                        //内部类访问外部类的属性的方法
+                                        System.out.println("外部类的成员变量:"+Outer.this.age);
+                                        System.out.println("内部类的成员变量:"+this.age);
+                                        System.out.println("字节的变量:"+age);
+                                    }
+                                }
+                            }
+                        ```
+
+                4:静态内部类
+                    定义方式
+                        static class ClassName {}
+                    使用要点：
+                        1：当一个静态内部类对象存在，并不一定存在对应的外部类对象。因此，静态内部类的实例方法不能直接访问外部类的实例方法
+                        2：静态内部类看做外部类的一个静态成员。因此，外部类的方法中可以通过："静态内部类.名字"的方式访问静态内部类的静态成员，通过new静态内部类()访问静态内部类的实例
+
+                        实例：
+
+                            ```java
+                                public class TestStaticinner {
+                                    public static void main(String[] args){
+                                        //静态内部类创建对象的方式
+                                        Outer2.Inner2 inner = new Outer2.Inner2();
+                                    }
+                                }
+                                class Outer2{
+                                    static class Inner2{
+                                        
+                                    }
+                                }
+                            ```
+                    
+                
+                5:匿名内部类
+                    概念：适合哪种只需要使用一次的类。比如，键盘监听操作等等
+
+                    语法：
+                        new 父类构造器(实参类表) \实现接口() {}
+
+                        实例：
+
+                            ```java
+                                public class TestNiming {
+                                    public static void test01(AA a){
+                                        a.aa();
+                                    }
+                                    public static void main(String[] args){
+                                        TestNiming.test01(new AA(){//使用匿名内部类实现类体，实现接口
+                                            @Override
+                                            public void aa() {
+                                                // TODO Auto-generated method stub
+                                                System.out.println("匿名函数被调用");
+                                            }
+                                        });
+                                    }
+                                }
+                                interface AA {
+                                    void aa();
+                                }
+                            ```
+
+                6:局部内部类
+                    概念：类方法中的类
+
+        
+        **String类和常量池 
+            1：概念：
+                1：String类又称不可变字符序列
+                2：java字符串就是Unicode字符序列，例如字符串"java"就是4个Unicode字符"j","a","v","a"组成的
+                3：java没有内置的字符串类型，而是在标准的java类库中提供了一个预定义的类String，每个用双引号括起来的字符串都是String类的一个实例
+
+            2；全局字符串常量池
+                全局字符串常量池中存放的内容是类加载完成后存放到String Pool中的，在每个VM中只有一份，存放的是字符串常量的引用值(在堆中生成字符串对象实例)
+
+            3：class文件常量池
+                class常量池是在编译的时候每个class都有的，在编译阶段，存放的是常量(文本字符串，final常量等)和符号引用
+
+            4：运行时常量池
+                运行时常量池是在类加载完成之后，将每个class常量池中的符号引用值存放到运行时常量池中，也就是说，每个class都有一个运行时常量池，类在解析之后，将符号引用替换成直接引用，与全局常量池中的引用保持一致
+            
+                实例：
+
+                    ```java
+                        String str1 = "gaoqi";
+                        String str2 = "gaoqi";
+                        String str3 = new String("gaoqi");
+                        System.out.println(str1 == str3)//返回false，str1引用指向"gaoqi"字符串常量池，str3指向新建的对象，两个地址不一样所以false
+                        System.out.println(str1.equals(str3)) //返回true,因为equals直接比较内容
+                    ```
+
+            5：String的API
+                    事例：
+
+                        ```java
+                            String s2 = " How are you! ";
+                            String s3 = "shihui"
+                            s = s2.trim();  //trim方法去除字符串守卫的空格。
+                            s = s2.toLowerCase(); //toLowerCase转小写
+                            s = s2.toUpperCase(); //toUpperCase转大写
+                            s = s2.subString(4,7); //subString提取字符串：下标[4,7)不包括7
+                            s = s2.startsWith("How"); //startsWith是否以How开头
+                            s = s2.endsWith("How"); //endsWith是否以you结尾
+                            s = s2.charAt(6); //charAt提取下标为6的字符
+                            s = s2.length(); //length字符串长度
+                            s = s2.equals(s3); //equals比较两个字符串是否相等
+                            s = s2.equalsIgnoreCase(s3); //equalsIgnoreCase比较两个字符串是否相等(忽略大小写)
+                            s = s2.indexOf("you"); //indexOf字符串s1中是否包含you
+                            s = s2.replace('','&'); //replace将s2中的空格替换成&
+                        ```
+
+
+
+        **包装类
+            概念：java是面向对象的语言，但并不是"纯面向对象"的，因为我们经常用到的基本数据类型就不是对象。但是我们在实际应用中经常需要将基本数据类型转化成对象，以便于操作。比如：将基本数据类型存储到Object[]数组或集合中的操作等等
+
+            包装类均位于java.lang包，八种包装类和基本类型的对应关系如下：
+                            基本数据类型        包装类
+                                byte            Byte
+                                boolean         Boolean
+                                short           Short
+                                char            Charcter
+                                int             Integer
+                                long            Long
+                                float           Float
+                                double          Double
+
+            
+
+
+
+            
+
+
+        
+
+
+        
+
+                
+            
+                    
+
+                
+
 
 
 
