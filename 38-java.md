@@ -390,7 +390,7 @@
                                 public static void main(String[] args){
                                     int a = 324;
                                     long b = a;	//a可以赋值给b，说明a可以自动转换成long类型
-                                    double d = b;//long类型可以转换为double类型，但存在精度确实
+                                    double d = b;//long类型可以转换为double类型，但存在精度问题
                                     //a = b;long类型转换为int类型会报错，不能从容量大的类型转换为容量小的类型
                                 }
                             }
@@ -1780,6 +1780,54 @@
                                 long            Long
                                 float           Float
                                 double          Double
+
+                用法：
+                    实例：
+
+                    ```java
+                        public static void main(String[] args){
+                                //基本数据类型转成包装类对象
+                                Integer a = new Integer(3);
+                                Integer b = Integer.valueOf(30);
+                                //把包装类对象转成基本数据
+                                int c = b.intValue();
+                                double d = b.doubleValue();
+                                //把字符串转成包装类对象
+                                Integer e = new Integer("99999");
+                                Integer f = Integer.parseInt("999888");
+                                //把包装类对象转成字符串
+                                String str = f.toString();
+                                //常见的常量
+                                System.out.println("int类型最大的整数"+Integer.MAX_VALUE);
+                            }
+                    ```
+
+            2:自动装箱和拆箱
+                1：自动装箱
+                    概念：基本类型的数据处于需要对象的环境中时，会自动转为"对象"
+                    实例：我们以Integer为例：在JDK1.5以前，这样的代码Integer i=5是错误的，必须要通过Integer i=new Integer(5)这样的语句来实现基本数据类型转换成包装类的过程；而在JDK1.5以后，java提供了自动装箱的功能，因此只需要Integer i=5这样的语句就能实现基本数据类型转换成包装类，这是因为JVM为我们执行了Integer.valueOf(5)这样的操作，这就是java的自动装箱
+
+                2：自动拆箱
+                    概念：每当需要一个值时，对象会自动转成基本数据类型，没必要再去显示调用intValue()
+                    实现原理和自动拆箱的一样的，通过编译器进行转换(或者说是JVM执行了转换操作)
+
+            3:包装类自动缓存
+                用法
+                    实例：
+
+                    ```java
+                        //缓存[-128,127]之间的数字，实际就是系统初始的时候，创建了[-128,127]之间的一个缓存数组
+                        Integer in1 = 123;
+                        Integer in2 = 123;
+                        System.out.println(in1 == in2);		//true 因为123在缓存范围内
+                        System.out.println(in1.equals(in2) );
+                        Integer in3 = 1234;
+                        Integer in4 = 1234;
+                        System.out.println(in3 == in4);	//false 因为1234不在缓存范围内
+                        System.out.println(in3.equals(in4));
+                    ```
+                    实例自动缓存原理：当我么你调用valueOf()的时候，首先检查是否在[-128,127]之间，如果在这个范围内则直接从缓存数组中拿出已经建好的对象如果不在这个范围，则创建新的Integer对象
+
 
             
 
