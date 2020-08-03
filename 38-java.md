@@ -1765,6 +1765,60 @@
                             s = s2.replace('','&'); //replace将s2中的空格替换成&
                         ```
 
+            6：StringBuilder和StringBuffer
+                概念：
+                    StringBuilder和StringBuffer是可变字符序列(在堆中的原来的对象空间里修改)，而String类是不可变字符序列(堆中原来的对象中修改不了，修改完之后，赋值给新创建的对象)
+
+                    StringBuilder线程不安全，效率高(一般使用它)；StringBuffer线程安全，效率低
+
+                用法：
+                    事例：简单的使用
+
+                    ```java
+                        public static void main(String[] args){
+                                StringBuilder sb = new StringBuilder("abcdefg");
+                                System.out.println(Integer.toHexString(sb.hashCode())); //15db9742
+                                System.out.println(sb); //abcdefg
+                                sb.setCharAt(2,'M');
+                                System.out.println(Integer.toHexString(sb.hashCode())); //15db9742
+                                System.out.println(sb); //abMdefg
+                            }
+                    ```
+                        事例说明：说明了，StringBuilder是可变字符序列，修改的是字符本身
+
+                
+                使用不可变字符序列和可变字符序列使用时的性能测试
+                    事例：
+
+                    ```java
+                        public static void main(String[] args){
+                                //使用String进行字符串拼接
+                                String str1 = "";
+                                //本质上使用StringBuilder拼接，但是每次循环都会生成一个StringBuilder对象
+                                long num1 = Runtime.getRuntime().freeMemory();//获取系统剩余内存空间
+                                long time1 = System.currentTimeMillis(); //获取系统的当前时间
+                                for(int i=0;i<5000;i++){
+                                    str1 = str1 + i;
+                                }
+                                long num2 = Runtime.getRuntime().freeMemory();
+                                long time2 = System.currentTimeMillis();
+                                System.out.println("String占用内存"+ (num2-num1));      //String占用内存12406960
+                                System.out.println("String占用时间"+ (time2-time1));    //String占用时间81毫秒
+                                
+                                StringBuilder sb1 = new StringBuilder("");
+                                long num3 = Runtime.getRuntime().freeMemory();
+                                long time3 = System.currentTimeMillis();
+                                for(int i=0;i<5000;i++){
+                                    sb1.append(i);
+                                }
+                                long num4 = Runtime.getRuntime().freeMemory();
+                                long time4 = System.currentTimeMillis();
+                                System.out.println("StringBuilder占用内存"+ (num4-num3));      //Stringbuilder占用内存0
+                                System.out.println("StringBuilder占用时间"+ (time4-time3));     //StringBUilder占用时间1毫秒
+                            }
+                    ```
+                        测试结果：结果为Stringbuilder可变字符序列的性能比不可变字符的性能高很多。
+
 
 
         **包装类
@@ -1829,7 +1883,125 @@
                     实例自动缓存原理：当我么你调用valueOf()的时候，首先检查是否在[-128,127]之间，如果在这个范围内则直接从缓存数组中拿出已经建好的对象如果不在这个范围，则创建新的Integer对象
 
 
+        **时间相关类
+            1：DateFormate类的作用：
+                把时间对象转化成指定格式的字符串。反之，把指定格式的字符串转化成时间对象
+                DateFormate是一个抽象类，一般使用它的子类SimpleDateFormate类来实现
+
+                用法：
+                    事例：测试时间对象和字符串之间的互相转换
+
+                    ```java
+                        public static void main(String[] args) throws ParseException{
+                                Date d = new Date();
+                                System.out.println(d);
+                                System.out.println(d.getTime());	//转成毫秒
+                                
+                                //遇到日期处理，使用Canlendar类
+                                
+                                //把时间对象按照指定的格式，转成相应格式的字符串
+                                DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                                String str = df.format(d.getTime());
+                                System.out.println(str);	//2020-08-03 02:22:38
+                                
+                                //把指定格式的字符串按照"格式字符串指定的格式"转成相应的时间对象
+                                DateFormat df2 = new SimpleDateFormat("yyyy年MM月dd日 hh时mm分ss秒");
+                                Date date = df2.parse("1983年05月10日 10时45分59秒");
+                                System.out.println(date);	//Tue May 10 10:45:59 CST 1983
+                                
+                                //测试其他的格式字符：比如：利用D，获得本时间对象是所处年份的第几天
+                                DateFormat df3 = new SimpleDateFormat("D");
+                                String str3 = df3.format(new Date());
+                                System.out.println(str3);
+                            }
+                    ```
             
+            2：Canlendar日历类
+                概念：
+                    Canlendar类是一个抽象类，为我们提供了关于日期计算的相关功能，比如：年，月，日，时，分，秒的展示和计算
+                    GregorianCalendar是Calendar的一个具体子类，提供了世界上大多数国家/地区使用的标准日历系统
+
+                用法：
+                    事例
+
+                    ```java
+                        public static void main(String[] args){
+                                //获取日期的相关元素
+                                Calendar calendar = new GregorianCalendar(2020,7,3,22,10,50);
+                                int year = calendar.get(Calendar.YEAR);
+                                int month = calendar.get(Calendar.MONTH);
+                                int day = calendar.get(Calendar.DATE); //几号
+                                int weekday = calendar.get(Calendar.DAY_OF_WEEK);//星期几，1：星期日，2：星期一。。。7星期六
+                                System.out.println(year);	
+                                System.out.println(month);	//0-11表示对应的月份
+                                System.out.println(weekday);//表示星期几
+                                System.out.println(day);
+                                
+                                
+                                //设置日期的相关元素
+                                Calendar c2 = new GregorianCalendar();//不传参数，默认设置当前日期
+                                c2.set(Calendar.YEAR, 2090);
+                                System.out.println(c2); //输出c2的日历的有关的对象的信息
+                                
+                                //日期的计算
+                                Calendar c3 = new GregorianCalendar();
+                                c3.add(Calendar.DATE, 100);	//往后一百天
+                                c3.add(Calendar.YEAR, 100); //往后一百年
+                                System.out.println(c3);
+                                
+                                //日期对象和时间对象的转化
+                                Date d4 = c3.getTime();
+                                Calendar c4 = new GregorianCalendar();
+                                c4.setTime(new Date());
+                                System.out.println(c4);
+                                
+                                printCalendar(c4);
+                            }
+                            
+                            //疯转方法转换：将日期转成要想的时间格式
+                            public static void printCalendar(Calendar c){
+                                //打印：1918年10月10日 11:23:45 周三
+                                int year = c.get(Calendar.YEAR);
+                                int month = c.get(Calendar.MONTH)+1;
+                                int date = c.get(Calendar.DAY_OF_MONTH);    //当月的第几天
+                                int dayweek = c.get(Calendar.DAY_OF_WEEK)-1;//当月周几
+                                String dayweek2 = dayweek==0?"日":dayweek+"";
+                                
+                                int hour = c.get(Calendar.HOUR);
+                                int minute = c.get(Calendar.MINUTE);
+                                int second = c.get(Calendar.SECOND);
+                                
+                                System.out.println(year+"年"+month+"月"+date+"日");
+                            }
+                    ```
+
+
+        **File类
+            概念：java.io.File类：代表文件和目录。在开发中，读取文件，生成文件，删除文件，修改文件的属性时经常会用到
+            用法：
+                事例：
+
+                ```java
+                    public static void main(String[] args) throws IOException{
+                            File f = new File("dd.txt");
+                            f.createNewFile();
+                            System.out.println(System.getProperty("user.dir"));//当前所在的绝对路径
+                            System.out.println("File是否存在"+f.exists());//File是否存在true
+                            System.out.println("File是否是目录"+f.isDirectory());//File是否是目录false
+                            System.out.println("File是否是文件"+f.isFile());//File是否是文件true
+                            System.out.println("File最后修改时间"+new Date(f.lastModified()));//File最后修改时间Mon Aug 03 16:44:09 CST 2020
+                            System.out.println("File的大小"+f.length());//File的大小0
+                            System.out.println("File的文件名"+f.getName());//File的文件名dd.txt
+                            System.out.println("File的目录路径"+f.getAbsolutePath());//File的目录路径C:\javalianxi\Duixiang\dd.txt
+
+
+                            File f2 = new File("c:/学习/话语/大陆");
+                            //boolean flag = f2.mkdir();//目录结构中只要有一个不存在，则不会创建整个目录树
+                            boolean flag = f2.mkdirs();//目录结构中有一个不存在也没关系；创建整个目录树
+                            System.out.println(flag);
+                        }
+                ```
+
 
 
 
