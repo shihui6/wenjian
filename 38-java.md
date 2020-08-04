@@ -2002,6 +2002,290 @@
                         }
                 ```
 
+                实例：递归遍历目录结构和树状展现
+
+                    ```java
+                        public static void main(String[] args){
+                                //使用递归算法打印目录树
+                                File f = new File("C:\\M-mind\\x-mind");
+                                printFile(f,0);
+                                
+                            }
+                            static void printFile(File file,int level){
+                                for(int i=0;i<level;i++){
+                                    System.out.print("-");
+                                }
+                                System.out.println(file.getName());//打印文件名字
+                                if(file.isDirectory()){//判断是否是目录
+                                    File[] files = file.listFiles();//返回目录下面所有的子目录和子文件
+                                    for(File temp:files){
+                                        printFile(temp,level+1);
+                                    }
+                                }
+                            }
+                    ```
+
+
+        **枚举类型
+            枚举应用场景：
+                有必要定义一组常量的时候，可以使用枚举
+                不要使用枚举的高级特性，枚举就是用来方便的，不要搞的太复杂
+            语法格式：
+                enum 枚举名{
+                    枚举体 (常量列表)
+                }
+            实例：
+                ```java
+                    enum Season{
+                        SPRING,SUMMER,AUTUMN,WINDER
+                    }
+                ```
+                实例说明：所有的枚举类型隐性地继承自java.lang.Enum。枚举实质上还是类，而每个被枚举的成员实质就是一个枚举类型的实例，他们默认都是public static final修饰的。可以直接通过枚举类型名使用它们
+
+            实例：
+
+                ```java
+                    public static void main(String[] args){
+                            System.out.println(Season.SPRING);
+                            Season e = Season.AUTUMN;
+                            switch(e){
+                                case WINDER:
+                                    System.out.println("休息的季节");
+                                    break;
+                                case SPRING:
+                                    System.out.println("播种的季节");
+                                    break;
+                                case SUMMER:
+                                    System.out.println("大太阳的季节");
+                                    break;
+                                case AUTUMN:
+                                    System.out.println("收获的季节");
+                                    break;
+                            }
+                        }
+                        enum Season{
+                            SPRING,SUMMER,AUTUMN,WINDER
+                        }
+                        enum Week{
+                            SUNDAY,WENSDAY,TESDAY,FRIDAY,SARTDAY
+                        }
+                ```
+
+
+        **异常
+            概念：软件程序运行过程中，非常可能遇到刚刚提到的这些问题，我们称之为异常，英文是：Exception,意思是例外
+            异常机制本质：就是当程序出现错误，程序安全退出机制
+            java是采用面向对象的方式来处理异常的。处理过程：
+                1：抛出异常：在执行一个方法时，如果发生异常，则这个方法生成代表该异常的一个对象，停止当前执行路径，并把异常对象提交给JRE
+                2：捕获异常：JRE得到该异常后，寻找相应的代码来处理该异常。JRE在方法的调用栈中查找，从生成异常的方法开始回溯，直到找到相应的异常处理代码为止
+            
+            异常分类：
+                不同的类型的异常分别用不同的java类表示，所有异常的根类为java.lang.Throwable，Throwable下面又派生出了两个子类：Error和Exception。
+                运行时异常和已检查异常
+
+            1：运行时异常(RuntimeException)
+                概念：以下都是运行时异常情况，编译时可以通过的异常，不会抛出异常
+
+                    ```java
+                        int a = o;
+                        System.out.println(1/a);//这个地方会抛出RuntimeException运行时异常
+                    ```
+                    1:NullPointerExceptioin空指针异常
+                        解决空指针异常，通常是增加非空判断
+
+                            ```java
+                                String str = null;
+                                str.length(); //会报NullPointerExceptioin空指针异常
+                                if(str !=null){//处理NullPointerExceptioin空指针异常的方式
+                                    System.out.println(str.length());
+                                }
+                            ```
+                    2:ClassCastException异常
+
+                            ```java
+                                Animal d = new Dog();
+                                Cat c = (Cat)d; //报ClassCastException异常,因为Dog不可以转换成Cat
+                                //处理ClassCastException异常的方式
+                                if(d instanceof Cat){
+                                    Cat d = (Cat)d;
+                                }
+                                class Animal {}
+                                class Dog extends Animal{}
+                                class Cat extends Animal{}
+                            ```
+                    3:ArrayIndexOutOfBoundsException异常
+
+                            ```java
+                                int[] arr = new int[5];
+                                int a2 = 5;
+                                arr[a2];//会报ArrayIndexOutOfBoundsException异常，也就是数组越界异常的错误
+                            ```
+                    4:NumberFormatException异常
+
+                            ```java
+                                public class Test7 {
+                                    public static void main(String[] args){
+                                        String str = "1234abcd";
+                                        System.out.println(Interger.parseInt(str)); //转化为整数，但时str里面有字母，所以转换不成功，抛出NumberFormatException异常
+                                    }
+                                }
+                            ```
+                运行是异常总结：以上都是运行时异常处理可以通过自己逻辑代码规避的
+
+
+            2:已检查异常(Checked Exception)
+                概念：所有不是RuntimeException的异常，统称为Checked Exception，又被称为"已检查异常"，如IOException,SQLException等以及用户自定义的Exception异常。这类异常在编译时就必须做出处理，否则无法通过编译
+
+                处理异常的2种方式：Try/catch捕获异常，使用"throws"声明抛出异常
+
+                方式一：try-catch
+
+                    处理异常的过程：捕获异常时通过3个关键字来实现的：try-catch-finally。用try来执行一段程序，如果出现异常，系统抛出异常，可以通过它的类型来捕捉(catch)并处理它，最后一步是通过finally语句为异常处理提供一个统一的出口，finally所指定的代码都要被执行(catch语句可有多条；finally语句最多只能有一条，根据自己的需要可有可无)
+
+                    用法：
+                        事例：
+
+                        ```java
+                            public static void main(String[] args){
+                                FileReader reader = null;
+                                try{
+                                    reader = new FileReader("d:/b.txt"); //1   
+                                    //执行步骤：读取不到d盘下的b.txt文件,下面的就不执行，会直接执行catch 打印step2，然后走finally
+                                    System.out.println("step1");
+                                    char c1 = (char)reader.read();
+                                    System.out.println(c1);
+                                }catch(FileNotFoundException e){ //2   //子类异常    子类异常要在父类异常前面，否则子类异常触发不了
+                                    System.out.println("step2");
+                                    e.printStackTrace();
+                                }catch(IOException e){  //父类异常
+                                    e.printStackTrace();
+                                }finally{//3
+                                    System.out.println("step3");
+                                    try{
+                                        if(reader !=null){
+                                            reader.close()
+                                        }
+                                    }catch(IOException e){
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        ```
+                            事例执行机制：读取不到d盘下的b.txt文件,下面的就不执行所以step1也就不会打印，然后执行catch步骤2打印step2，然后走finally步骤3
+
+                方式二：throws
+                    场景：
+                        1：当CheckedException产生时，不一定立刻处理它，可以再把异常throws出去
+                        2：在方法中使用try-catch-finally是由这个方法来处理异常。但是在一些情况下，当前方法并不需要处理发生的异常，而是向上传递给调用它的方法处理
+                        3：如果一个方法中可能产生某种异常，但是并不能确定如何处理这种异常，则应根据异常规范在方法的首部声明该方法可能抛出的异常
+                        4：如果一个方法抛出多个已检查异常，就必须在方法的首部列出所有的异常，之间以逗号隔开
+
+                    说明：throws抛出异常，谁调用谁处理该异常。
+
+                    用法：
+                        事例：
+
+                        ```java
+                            public static void main(String[] args) /*throws IOException */{ 
+                                //处理异常的第一种方式：方法readMyFile()将异常抛出，我们接受处理异常
+                                try{
+                                    readMyFile()
+                                }catch(IOException e){
+                                    e.printStackTrace();
+                                }
+                                //第二种方法：直接调用readMyFile(),在main里面也将异常抛出，给JRE处理
+                            }
+                            public static void readMyFile() throws IOException {    //将异常抛给谁调用readMyFile()，就将IOException异常给谁
+                                FileReader reader = null;
+                                reader = new FileReader("d:/b.txt");
+                                char c1 = (char)reader.read();
+                                System.out.println(c1);
+                                if(reader !=null){
+                                    reader.close()
+                                }
+                            }
+                        ```
+
+            3：自定义异常
+                用法
+                    事例：
+
+                    ```java
+                        public class Test04 {
+                            public static void main(String[] args){
+                                Person p = new Person();
+                                p.setAge(-10);
+                            }
+                        }
+                        class Person {
+                            int age;
+                            public int getAge() {
+                                return age;
+                            }
+                            public void setAge(int age) {
+                                if(age < 0){
+                                    throw new IllealAge("年龄不能为负数");  
+                                    //条件不满足时，throw抛出自定义的异常类IllealAge,在控制台中也会报错
+                                }
+                                this.age = age;
+                            }
+                        }
+                        class IllealAge extends RuntimeException{
+                            public IllealAge(){
+                                
+                            }
+                            public IllealAge(String msg){
+                                super(msg);
+                            }
+                        }
+                    ```
+
+            使用异常机制建议：
+                1：要避免使用异常处理代替错误处理，这样会降低程序的清晰性，并且效率低下
+                2：处理异常不可以代替简单测试，只在异常情况下使用异常机制
+                3：不要进行小粒度的异常处理，应该将整个任务包装在一个try语句块中
+                4：异常往往在高层处理
+
+        
+        **容器
+            概念：
+                是个对象，用来装其他对象的对象
+            数组：
+                数组就是一种容器，可以在其中放置对象或基本数据类型
+                数组的优势：是一种简单的线性序列，可以快速地访问数组元素，效率高。如果从效率和类型检查的角度讲，数组是最好的
+                数组的劣势：不灵活。容量需要事先定义好，不能随着需求的变化而扩容。比如：我们在一个用户管理中，要把今天注册的所有用户取出来，那么这样的用户有多少个？我们在写程序时就无法确定。因此，在这里就不能使用数组
+
+            泛型：
+                概念：泛型是JDK1.5以后增加的，它可以帮助我们建立类型安全的集合
+                本质：就是"数据类型的参数化"。我们可以把"泛型"理解为数据类型的一个占位符(形式参数)，即告诉编译器，在调用泛型时必须传入实际类型
+                用法：我们可以在类的声明处增加泛型列表，如：<T,E,V>，此处，字符可以是任何标识符，一般采用这3个字母
+
+                事例：
+
+                    ```java
+                        public class TESTGeneric {
+                            public static void main(String[] args){
+                                MyCollection<String> mc = new MyCollection<String>/*new 类名<这里泛型实参可传可不传>*/();//传入的实参
+                                mc.set("今天好开心", 0);
+                                String b = mc.get(0);
+                                System.out.println(b);
+                            }
+                        }
+                        class MyCollection<E>{  //<E>相当于定了形参
+                            Object[] objs = new Object[5];
+                            public void set(E obj,int index){
+                                objs[index] = obj;
+                            }
+                            public E get(int index){
+                                return (E)objs[index]; //解释：Object的类型强制转成String，因为Object类是所有类型的父类
+                            }
+                        }
+                    ```
+
+            容器中使用泛型
+                
+
+
 
 
 
