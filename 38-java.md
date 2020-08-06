@@ -1005,7 +1005,7 @@
                                 stu.study();
                                 stu.rest();
                                 System.out.println(stu instanceof Person);      //返回 true 说明：stu实例对象的类型是 Person
-                                System.out.println(stu instanceof Student);     //返回 true 说明：stu实例对象的类型是 Person
+                                System.out.println(stu instanceof Student);     //返回 true 说明：stu实例对象的类型是 Student
                             }
                         }
 
@@ -1165,9 +1165,9 @@
                             public class Duo {
                                 public static void main(String[] args){
                                     Animal a = new Animal();
-                                    animalCry(a);
+                                    animalCry(a);   //叫了一声
                                     Dog d = new Dog();
-                                    animalCry(d);
+                                    animalCry(d);//汪汪汪
                                 }
                                 static void animalCry(Animal a){        //父类引用类型指向子类对象
                                     a.shout();
@@ -1202,9 +1202,9 @@
                             public class Duo {
                                 public static void main(String[] args){
                                     Animal a = new Dog();	//自动向上转型
-                                    a.shout();
+                                    a.shout();  //汪汪汪
                                     Dog d = (Dog)a;		//强制转型
-                                    d.seeDoor();	
+                                    d.seeDoor();	//看门。。
                                 }
                             }
                             class Animal {
@@ -1237,7 +1237,7 @@
                     概念：使用abstract修饰的方法，没有方法体，只有声明。定义的是一种"规范"，就是告诉子类必须要给抽象方法提供具体实现
                 
                 抽象类
-                    概念：包含抽象方法的类就是抽象类。通过abstract方法定义规范，然后要求子类必须定义具体实现。通过抽象类，我们就可以做到严格限制子类的设计，是子类之间更加通用
+                    概念：包含抽象方法的类就是抽象类。通过abstract方法定义规范，然后要求子类必须定义具体实现。通过抽象类，我们就可以做到严格限制子类的设计，使子类之间更加通用
 
                     抽象类特点：
                         1：有抽象方法的类只能定义成抽象类
@@ -1302,7 +1302,7 @@
                                 public static void main(String[] args){
                                     Volant f = new Angel(); 
                                     //要是把f实例对象的类型写成Volant，编译器就会把f当成volant，而volant里面只有一个方法，所以在这里只能调用flay方法，虽然在Angel里面有Helpother方法，但是编译器并不知道。而f里面有关于接口Volant关于fly方法的实现，所以会调用Angel里面的fly方法。类似于子类继承父类，子类重写父类的方法，调用时会调用子类的方法。若调用的方法只有父类里有，则就会调用父类里的方法
-                                    f.fly();
+                                    f.fly(); //输出飞起来了
                                 }
                             }
                             interface Volant {
@@ -1482,7 +1482,7 @@
                     ```
             
             7：数组的拷贝
-                1:概念：System类里也包含了一个static void arraycopy(object src,int srcpos,object dest,int destpos,int length)方法，改方法可以将src数组里的元素值付给dest数组的元素，其中srcpos指定从src数组的第几个元素开始赋值，length参数指定将src数组的多少个元素赋给dest数组的元素
+                1:概念：System类里也包含了一个static void arraycopy(object src,int srcpos,object dest,int destpos,int length)方法，该方法可以将src数组里的元素值付给dest数组的元素，其中srcpos指定从src数组的第几个元素开始赋值，length参数指定将src数组的多少个元素赋给dest数组的元素
 
                 2:用法
                     事例：将s1的数组拷贝到s2里面
@@ -2084,7 +2084,7 @@
                 运行时异常和已检查异常
 
             1：运行时异常(RuntimeException)
-                概念：以下都是运行时异常情况，编译时可以通过的异常，不会抛出异常
+                特点：以下都是运行时异常情况，编译时可以通过的异常，不会抛出异常；运行时会报异常
 
                     ```java
                         int a = o;
@@ -2246,10 +2246,11 @@
                 3：不要进行小粒度的异常处理，应该将整个任务包装在一个try语句块中
                 4：异常往往在高层处理
 
-        
+
         **容器
             概念：
                 是个对象，用来装其他对象的对象
+                在容器中Collection是父接口,list和set是子接口
             数组：
                 数组就是一种容器，可以在其中放置对象或基本数据类型
                 数组的优势：是一种简单的线性序列，可以快速地访问数组元素，效率高。如果从效率和类型检查的角度讲，数组是最好的
@@ -2283,7 +2284,165 @@
                     ```
 
             容器中使用泛型
+                操作多个list交集并集
+                事例：
+
+                ```java
+                    public static void test01(){
+                            List<String> list01 = new ArrayList<>();
+                            list01.add("aa");
+                            list01.add("bb");
+                            list01.add("cc");
+                            List<String> list02 = new ArrayList<>();
+                            list02.add("aa");
+                            list02.add("dd");
+                            list02.add("ee");
+                            //list01.addAll(list02);	//将list02里面的元素全部添加到list01里输出list01结果为[aa, bb, cc, aa, dd, ee]
+                            //list01.removeAll(list02); //将相同的部分去掉输出list01结果为[bb, cc]
+                            //list01.retainAll(list02);  //只输出相同部分，输出list01结果为[aa]
+                            //list01.containsAll(list02);//list01里面是否包含list02里面所有的元素，是返回true，否返回false
+                            System.out.println(list01);
+                        }
+                ```
+
+            List:
+                概念：
+                    list是有序，可重复的容器
+                    有序：List中每个元素都有索引标记。可以根据元素的索引标记(在List中的位置)访问元素，从而精确控制这些元素
+                    可重复：List允许加入重复的元素。更确切地讲，List通常允许满足e1.equals(e2)的元素重复加入容器
+
+                List接口常用的实现类有3个：ArrayList,LinkedList和Vector
+
+                建议：
+                    需要线程安全时，用Vector
+                    不存在线程安全问题时，并且查找较多用ArrayList(一般使用它)
+                    不存在线程安全问题时，增加或删除元素较多用LinkedList
+
+                事例：
+
+                ```java
+                    public static void test02(){
+                            List<String> list = new ArrayList<>();
+                            list.add("A");
+                            list.add("B");
+                            list.add("C");
+                            list.add("D");
+                            list.add(2, "石惠");//在2位置插入新的字符串"石惠"，后面的内容会依次往后移动，输出结果[A, B, 石惠, C, D]
+                            list.remove(2);//把2位置处对应的内容删掉，输出结果[A, B, C, D]
+                            list.set(2, "石老二");//将2位置处的内容替换成"石老二"
+                            list.indexOf("B");//返回指定的位置第一次出现的位置，不存在返回-1
+                            list.lastIndexOf("B");//返回最后出现的指定元素的位置，否则返回-1
+                            System.out.println(list);
+                        }
+                ```
+
+                ArrayList
+                    特点：
+                        ArrayList底层是用数组实现的存储。特点：查询效率高，增删效率低，线程不安全
+                        数组长度是有限的，而ArrayList是可以存放任意数量的对象，长度不受限制
                 
+                LinkedList
+                    特点：增加或删除的效率非常高
+
+                Vector
+                    特点：Vector底层是用数组实现的List，相关的方法都加上了同步检查，因此"线程安全，效率低"。比如，indexOf方法就增加了synchronized同步标记
+
+                    
+        **map
+            概念：map就是用来存储"键(key)-值(value)对"的。Map类中存储的"键值对"通过键来标识，所以"键对象"不能重复,如果键重复的话，新的覆盖旧的
+
+            Map接口中实现类有HashMap,treeMap,HashTable,Properties等
+
+            Map接口中常用的方法
+                object put(object key,Object value)     存放键值对
+                Object get(Object key)                  通过键对象查找得到值对象
+                Object remove(Object key)               删除键对象对应的键值对
+                boolean containsKey(object key)         Map容器中是否包含键对象对应的键值对
+                boolean containsvalue(Object value)     Map容器中是否包含值对象对应的键值对
+                int size()                              包含键值对的数量
+                boolean isEmpty()                       Map是否为空
+                void putAll(Map t)                      将t的所有键值对存放到本map对象
+                void clear()                            清空本map对象所有键值对
+
+            事例：简单的例子
+
+                ```java
+                    public class TestMap {
+                        public static void main(String[] args){
+                            Map<Integer,String> m1 = new HashMap<>();
+                            m1.put(1, "one");
+                            m1.put(2, "two");
+                            m1.put(3, "three");
+                            m1.put(4, "four");
+                            System.out.println(m1.get(1)); //one
+                            System.out.println(m1.size()); //4
+                            System.out.println(m1.isEmpty());//false
+                            System.out.println(m1.containsKey(2));//true
+                        }
+                    }
+                ```
+
+            事例：键值对：键是Interger类型，值是Object类型
+
+                ```java
+                    public class TestMap {
+                        public static void main(String[] args){
+                            Employee e1 = new Employee(1001,"石惠",50000);
+                            Employee e2 = new Employee(1002,"侠士",60000);
+                            Employee e3 = new Employee(1003,"老式",70000);
+                            Map<Integer,Employee> m1 = new HashMap<>();
+                            m1.put(1, e1);
+                            m1.put(2, e2);
+                            m1.put(3, e3);
+                            System.out.println(m1);
+                            //{1=id:1001name:石惠薪水50000.0, 2=id:1002name:侠士薪水60000.0, 3=id:1003name:老式薪水70000.0}
+                        }
+                    }
+
+                    class Employee{
+                        int id;
+                        String ename;
+                        double sarlay;
+                        public Employee(int id, String ename, double sarlay) {
+                            super();
+                            this.id = id;
+                            this.ename = ename;
+                            this.sarlay = sarlay;
+                        }
+                        public String toString(){
+                            return "id:"+id+"name:"+ename+"薪水"+sarlay;
+                        }
+                        public int getId() {
+                            return id;
+                        }
+                        public void setId(int id) {
+                            this.id = id;
+                        }
+                        public String getEname() {
+                            return ename;
+                        }
+                        public void setEname(String ename) {
+                            this.ename = ename;
+                        }
+                        public double getSarlay() {
+                            return sarlay;
+                        }
+                        public void setSarlay(double sarlay) {
+                            this.sarlay = sarlay;
+                        }
+                    }
+                ```
+
+            
+            HashMap底层实现采用了哈希表，这是一种非常重要的数据结构，哈希表的基本结构就是"数组+链表"
+
+            知识点介绍：
+                数据接口中由数组和链表和哈希表来实现对数据的存储，他们各有特点
+                1：数组：占用空间连续。寻址容易，查询速度快。但是，增加和删除效率非常低
+                2：链表：占用空间不连续。寻址困难，查询速度慢。但是，增加和删除效率非常高。
+                3：哈希表：哈希表结合了数组和链表的有点(即查询快，增删效率也高)，本质就是"数组+链表"
+
+
 
 
 
