@@ -1154,6 +1154,48 @@
             4：多态
                 概念：多态指的是同一个方法调用，由于对象不同可能会有不同的行为。现实生活中，同一个方法，具体实现会完全不同
 
+                编译时多态
+                    方法重载都是编译时多态。根据实际参数的数据类型，个数和次序，java在编译时能够确定执行重载方法中的哪一个
+                    方法覆盖表现出两种多态性，当对象引用本类实例时，为编译时多态，否则为运行时多态。例如，以下声明p，m引用本类实例，调用toString()方法是编译时多态
+                        事例：
+
+                        ```java
+                            public class Test {
+                            
+                                public static void main(String[] args) {
+                                    Person p = new Person();         //对象引用本类实例
+                                    Man m = new Man();               
+                                    System.out.println(p.toString());//编译时多态，执行Person类的toString()
+                                    System.out.println(m.toString()); //编译时多态，执行Man类的toString()
+                                }
+                            }
+                            
+                            class Person{
+                                public String toString() {
+                                    String name = "Person";
+                                    return name;
+                                }
+                            }
+                            
+                            class Man extends Person{
+                                public String toString(){
+                                    String name = "Man";
+                                    return name;
+                                }
+                            }
+                        ```
+                运行时多态
+                    1:当父类引用子类实例时
+                        事例：
+                        ```java
+                            Person p = new Man();   
+                            p.toString();
+                        ```
+                        事例解释运行时多态：java支持运行时多态，意思为p.toString()实际执行p所引用实例toString(),究竟执行Person类还是Man类里的方法，运行时再确定。如果Man类声明了toString()方法，则执行之；否则执行Person类的toString()方法
+
+                        运行机制：程序运行时，java从实例所属的类开始寻找匹配的方法执行，如果当前类中没有匹配的方法，则沿着继承关系逐层向上，依次在父类或各祖先类中寻找匹配方法，直到Object类
+
+
                 多态的要点：
                     1：多态是方法的多态，不是属性的多态(多态与属性无关)
                     2：多态的存在要有3个必要条件：继承，方法重写，父类引用指向子类对象
@@ -1221,6 +1263,7 @@
                                 }
                             }
                         ```
+                    事例注意点：父类引用子类对象，对象调用父类里面没有的方法会报错。
 
             6：final关键字
                 作用：
@@ -2348,99 +2391,109 @@
                     特点：Vector底层是用数组实现的List，相关的方法都加上了同步检查，因此"线程安全，效率低"。比如，indexOf方法就增加了synchronized同步标记
 
                     
-        **map
-            概念：map就是用来存储"键(key)-值(value)对"的。Map类中存储的"键值对"通过键来标识，所以"键对象"不能重复,如果键重复的话，新的覆盖旧的
+            map
+                概念：map就是用来存储"键(key)-值(value)对"的。Map类中存储的"键值对"通过键来标识，所以"键对象"不能重复,如果键重复的话，新的覆盖旧的
 
-            Map接口中实现类有HashMap,treeMap,HashTable,Properties等
+                Map接口中实现类有HashMap,treeMap,HashTable,Properties等
 
-            Map接口中常用的方法
-                object put(object key,Object value)     存放键值对
-                Object get(Object key)                  通过键对象查找得到值对象
-                Object remove(Object key)               删除键对象对应的键值对
-                boolean containsKey(object key)         Map容器中是否包含键对象对应的键值对
-                boolean containsvalue(Object value)     Map容器中是否包含值对象对应的键值对
-                int size()                              包含键值对的数量
-                boolean isEmpty()                       Map是否为空
-                void putAll(Map t)                      将t的所有键值对存放到本map对象
-                void clear()                            清空本map对象所有键值对
+                Map接口中常用的方法
+                    object put(object key,Object value)     存放键值对
+                    Object get(Object key)                  通过键对象查找得到值对象
+                    Object remove(Object key)               删除键对象对应的键值对
+                    boolean containsKey(object key)         Map容器中是否包含键对象对应的键值对
+                    boolean containsvalue(Object value)     Map容器中是否包含值对象对应的键值对
+                    int size()                              包含键值对的数量
+                    boolean isEmpty()                       Map是否为空
+                    void putAll(Map t)                      将t的所有键值对存放到本map对象
+                    void clear()                            清空本map对象所有键值对
 
-            事例：简单的例子
+                事例：简单的例子
 
-                ```java
-                    public class TestMap {
-                        public static void main(String[] args){
-                            Map<Integer,String> m1 = new HashMap<>();
-                            m1.put(1, "one");
-                            m1.put(2, "two");
-                            m1.put(3, "three");
-                            m1.put(4, "four");
-                            System.out.println(m1.get(1)); //one
-                            System.out.println(m1.size()); //4
-                            System.out.println(m1.isEmpty());//false
-                            System.out.println(m1.containsKey(2));//true
+                    ```java
+                        public class TestMap {
+                            public static void main(String[] args){
+                                Map<Integer,String> m1 = new HashMap<>();
+                                m1.put(1, "one");
+                                m1.put(2, "two");
+                                m1.put(3, "three");
+                                m1.put(4, "four");
+                                System.out.println(m1.get(1)); //one
+                                System.out.println(m1.size()); //4
+                                System.out.println(m1.isEmpty());//false
+                                System.out.println(m1.containsKey(2));//true
+                            }
                         }
-                    }
-                ```
+                    ```
 
-            事例：键值对：键是Interger类型，值是Object类型
+                事例：键值对：键是Interger类型，值是Object类型
 
-                ```java
-                    public class TestMap {
-                        public static void main(String[] args){
-                            Employee e1 = new Employee(1001,"石惠",50000);
-                            Employee e2 = new Employee(1002,"侠士",60000);
-                            Employee e3 = new Employee(1003,"老式",70000);
-                            Map<Integer,Employee> m1 = new HashMap<>();
-                            m1.put(1, e1);
-                            m1.put(2, e2);
-                            m1.put(3, e3);
-                            System.out.println(m1);
-                            //{1=id:1001name:石惠薪水50000.0, 2=id:1002name:侠士薪水60000.0, 3=id:1003name:老式薪水70000.0}
+                    ```java
+                        public class TestMap {
+                            public static void main(String[] args){
+                                Employee e1 = new Employee(1001,"石惠",50000);
+                                Employee e2 = new Employee(1002,"侠士",60000);
+                                Employee e3 = new Employee(1003,"老式",70000);
+                                Map<Integer,Employee> m1 = new HashMap<>();
+                                m1.put(1, e1);
+                                m1.put(2, e2);
+                                m1.put(3, e3);
+                                System.out.println(m1);
+                                //{1=id:1001name:石惠薪水50000.0, 2=id:1002name:侠士薪水60000.0, 3=id:1003name:老式薪水70000.0}
+                            }
                         }
-                    }
 
-                    class Employee{
-                        int id;
-                        String ename;
-                        double sarlay;
-                        public Employee(int id, String ename, double sarlay) {
-                            super();
-                            this.id = id;
-                            this.ename = ename;
-                            this.sarlay = sarlay;
+                        class Employee{
+                            int id;
+                            String ename;
+                            double sarlay;
+                            public Employee(int id, String ename, double sarlay) {
+                                super();
+                                this.id = id;
+                                this.ename = ename;
+                                this.sarlay = sarlay;
+                            }
+                            public String toString(){
+                                return "id:"+id+"name:"+ename+"薪水"+sarlay;
+                            }
+                            public int getId() {
+                                return id;
+                            }
+                            public void setId(int id) {
+                                this.id = id;
+                            }
+                            public String getEname() {
+                                return ename;
+                            }
+                            public void setEname(String ename) {
+                                this.ename = ename;
+                            }
+                            public double getSarlay() {
+                                return sarlay;
+                            }
+                            public void setSarlay(double sarlay) {
+                                this.sarlay = sarlay;
+                            }
                         }
-                        public String toString(){
-                            return "id:"+id+"name:"+ename+"薪水"+sarlay;
-                        }
-                        public int getId() {
-                            return id;
-                        }
-                        public void setId(int id) {
-                            this.id = id;
-                        }
-                        public String getEname() {
-                            return ename;
-                        }
-                        public void setEname(String ename) {
-                            this.ename = ename;
-                        }
-                        public double getSarlay() {
-                            return sarlay;
-                        }
-                        public void setSarlay(double sarlay) {
-                            this.sarlay = sarlay;
-                        }
-                    }
-                ```
+                    ```
 
-            
-            HashMap底层实现采用了哈希表，这是一种非常重要的数据结构，哈希表的基本结构就是"数组+链表"
+                
+                HashMap底层实现采用了哈希表，这是一种非常重要的数据结构，哈希表的基本结构就是"数组+链表"
 
-            知识点介绍：
-                数据接口中由数组和链表和哈希表来实现对数据的存储，他们各有特点
-                1：数组：占用空间连续。寻址容易，查询速度快。但是，增加和删除效率非常低
-                2：链表：占用空间不连续。寻址困难，查询速度慢。但是，增加和删除效率非常高。
-                3：哈希表：哈希表结合了数组和链表的有点(即查询快，增删效率也高)，本质就是"数组+链表"
+                知识点介绍：
+                    数据接口中由数组和链表和哈希表来实现对数据的存储，他们各有特点
+                    1：数组：占用空间连续。寻址容易，查询速度快。但是，增加和删除效率非常低
+                    2：链表：占用空间不连续。寻址困难，查询速度慢。但是，增加和删除效率非常高。
+                    3：哈希表：哈希表结合了数组和链表的有点(即查询快，增删效率也高)，本质就是"数组+链表"
+                
+                HashMap存储数据put(key,value)的原理：
+                    1：获得key对象的hashcode，首先调用key对象的hashcode()方法，获得hashcode
+                    2：根据hashcode计算出hash值(要求在[0,数组长度-1区间)。通过将hash值把数据存储到对应的数组的位置，(数组中的每一项都是链表)
+
+                HashMap取数据get的原理：
+                    1：获得key的hashcode，通过hash()散列算法得到hash值，进入定位到数组的位置
+                    2：在链表上挨个比较key对象。调用equals()方法，将key对象和链表上所有节点的key对象进行比较，直到碰到返回true的节点对象为止
+                    3：返回equals()为true的节点对象的value对象
+
 
 
 
