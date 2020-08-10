@@ -2290,7 +2290,7 @@
                 4：异常往往在高层处理
 
 
-        **容器
+        ##容器
             概念：
                 是个对象，用来装其他对象的对象
                 在容器中Collection是父接口,list和set是子接口
@@ -2348,7 +2348,7 @@
                         }
                 ```
 
-            List:
+            **List:
                 概念：
                     list是有序，可重复的容器
                     有序：List中每个元素都有索引标记。可以根据元素的索引标记(在List中的位置)访问元素，从而精确控制这些元素
@@ -2391,7 +2391,7 @@
                     特点：Vector底层是用数组实现的List，相关的方法都加上了同步检查，因此"线程安全，效率低"。比如，indexOf方法就增加了synchronized同步标记
 
                     
-            map
+            **map
                 概念：map就是用来存储"键(key)-值(value)对"的。Map类中存储的"键值对"通过键来标识，所以"键对象"不能重复,如果键重复的话，新的覆盖旧的
 
                 Map接口中实现类有HashMap,treeMap,HashTable,Properties等
@@ -2479,20 +2479,252 @@
                 
                 HashMap底层实现采用了哈希表，这是一种非常重要的数据结构，哈希表的基本结构就是"数组+链表"
 
-                知识点介绍：
-                    数据接口中由数组和链表和哈希表来实现对数据的存储，他们各有特点
-                    1：数组：占用空间连续。寻址容易，查询速度快。但是，增加和删除效率非常低
-                    2：链表：占用空间不连续。寻址困难，查询速度慢。但是，增加和删除效率非常高。
-                    3：哈希表：哈希表结合了数组和链表的有点(即查询快，增删效率也高)，本质就是"数组+链表"
-                
-                HashMap存储数据put(key,value)的原理：
-                    1：获得key对象的hashcode，首先调用key对象的hashcode()方法，获得hashcode
-                    2：根据hashcode计算出hash值(要求在[0,数组长度-1区间)。通过将hash值把数据存储到对应的数组的位置，(数组中的每一项都是链表)
+                    知识点介绍：
+                        数据接口中由数组和链表和哈希表来实现对数据的存储，他们各有特点
+                        1：数组：占用空间连续。寻址容易，查询速度快。但是，增加和删除效率非常低
+                        2：链表：占用空间不连续。寻址困难，查询速度慢。但是，增加和删除效率非常高。
+                        3：哈希表：哈希表结合了数组和链表的有点(即查询快，增删效率也高)，本质就是"数组+链表"
+                    
+                    HashMap存储数据put(key,value)的原理：
+                        1：获得key对象的hashcode，首先调用key对象的hashcode()方法，获得hashcode
+                        2：根据hashcode计算出hash值(要求在[0,数组长度-1区间)。通过将hash值把数据存储到对应的数组的位置，(数组中的每一项都是链表)
 
-                HashMap取数据get的原理：
-                    1：获得key的hashcode，通过hash()散列算法得到hash值，进入定位到数组的位置
-                    2：在链表上挨个比较key对象。调用equals()方法，将key对象和链表上所有节点的key对象进行比较，直到碰到返回true的节点对象为止
-                    3：返回equals()为true的节点对象的value对象
+                    HashMap取数据get的原理：
+                        1：获得key的hashcode，通过hash()散列算法得到hash值，进入定位到数组的位置
+                        2：在链表上挨个比较key对象。调用equals()方法，将key对象和链表上所有节点的key对象进行比较，直到碰到返回true的节点对象为止
+                        3：返回equals()为true的节点对象的value对象
+
+                
+                TreeMap
+                    概念：
+                        TreeMap和HashMap实现了同样的接口Map，因此，用法对于调用者来说没有区别。
+                        HashMap效率高于TreeMap，在需要排序的Map时(key或者value需要排序的时候)才选用TreeMap
+
+                    事例：
+
+                        ```java
+                            public class TestTree {
+                                public static void main(String[] args){
+                                    Map<Integer,String> treemap1 = new TreeMap<>();
+                                    treemap1.put(20,"aa");
+                                    treemap1.put(2,"VV");
+                                    treemap1.put(6,"CC");
+                                    //按照key递增的方式排序
+                                    for(Integer key:treemap1.keySet()){
+                                        System.out.println(key);
+                                    }
+                                    Map<Emp,String> treemap2 = new TreeMap<>();
+                                    treemap2.put(new Emp(100, "张三",50000),"张三是个好小伙子");
+                                    treemap2.put(new Emp(200, "李四",5000),"张三是个好小伙子");
+                                    treemap2.put(new Emp(30, "王五",6000),"张三是个好小伙子");
+                                    treemap2.put(new Emp(3, "金六福",6000),"张三是个好小伙子");
+                                    for(Emp key:treemap2.keySet()){
+                                        System.out.println(key);
+                                        //输出结果
+                                        // id:200,name:李四,salary:5000.0
+                                        // id:3,name:金六福,salary:6000.0
+                                        // id:30,name:王五,salary:6000.0
+                                        // id:100,name:张三,salary:50000.0
+                                    }
+                                }
+                            }
+                            class Emp implements Comparable<Emp>{ //实现Comparable接口，方便排序
+                                int id;
+                                String name;
+                                double salary;
+                                public Emp(int id, String name, double salary) {
+                                    super();
+                                    this.id = id;
+                                    this.name = name;
+                                    this.salary = salary;
+                                }
+                                public String toString(){
+                                    return "id:"+id+",name:"+name+",salary:"+salary;
+                                }
+                                @Override
+                                public int compareTo(Emp o) {
+                                    //TreeMap排序实现原理： Emp实例对象通过实现接口Comparable的CompareTo比较方法来进行排序
+                                    //负数：小于0；等于：整数；正数：大于
+                                    if(this.salary > o.salary){
+                                        return 1;
+                                    }else if(this.salary < o.salary){
+                                        return -1;
+                                    }else{
+                                        if(this.id>o.id){
+                                            return 1;
+                                        }else if(this.id < o.id){
+                                            return -1;
+                                        }else{
+                                            return 0;
+                                        }
+                                    }
+                                }
+                            }
+                        ```
+
+                HashMap和HashTable的区别
+                    1：HashMap：线程不安全，效率高。允许key或value为null
+                    2：HashTable：线程安全，效率低。不允许key或value为null
+
+            
+
+            **set：
+                概念：Set接口继承自Collection，Set接口中没有新增方法，方法和Collection保持完全一致。我们在前面通过List学习的方法，在Set中仍然适用。因此，学习Set的使用将没有任何难度
+
+                特点：无序，不可重复。无序指Set中的元素没有索引，我们只能遍历查找；不可重复指的是不允许加入重复的元素。更确切地讲，新元素如果和Set中某个元素通过equals()方法对比为true，则不能加入；甚至，Set中也只能发乳一个null元素，不能多个
+
+                Set常用的实现类有：HashSet，TreeSet等。我们一般使用HashSet
+
+                HashSet
+                    事例：
+
+                        ```java
+                            public class TestHashSet {
+                                public static void main(String[] args){
+                                    Set<String> set1 = new HashSet<>();
+                                    set1.add("aa");
+                                    set1.add("bb");
+                                    set1.add("cc");
+                                    System.out.println(set1);//[aa, bb, cc]
+                                    Set<String> set2 = new HashSet<>();
+                                    set2.add("小时");
+                                    set2.addAll(set1);
+                                    System.out.println(set2); //[aa, bb, cc, 小时]
+                                }
+                            }
+                        ```
+
+                    事例：hashSet源码实现
+
+                        ```java
+                            public class SxtHashSet {
+                                private static final Object PRESENT = new Object();
+                                HashMap map;
+                                public SxtHashSet() {
+                                    super();
+                                    map = new HashMap();
+                                }
+                                public int size(){
+                                    return map.size();
+                                }
+                                public String toString(){
+                                    StringBuilder s = new StringBuilder();
+                                    s.append("[");
+                                    for(Object key:map.keySet()){
+                                        s.append(key + ",");
+                                    }
+                                    s.setCharAt(s.length()-1, ']');
+                                    return s.toString();
+                                }
+                                public void add(Object o){
+                                    map.put(o, PRESENT);
+                                }
+                                public static void main(String[] args){
+                                    SxtHashSet  set = new SxtHashSet();
+                                    set.add("aa");
+                                    set.add("bb");
+                                    set.add("cc");
+                                    System.out.println(set);//[aa,bb,cc]
+                                }
+                            }
+                        ```
+
+                
+                TreeSet的使用和实现
+                    概念：TreeSet底层实际是用TreeMap实现的，内部维持了一个简化版的TreeMap 通过key来存储Set的元素。TreeSet内部需要对存储的元素进行排序，因此，我们对应的类需要实现Comparable接口。这样，才能根据compareTo()方法比较对象之间的大小，才能进行内部排序
+
+                    原理实现：TreeSet的排序的实现原理和TreeMap的实现原理是一样的，可以参考TreeMap的代码
+
+                    事例：TreeSet简单的使用
+
+                        ```java
+                            public class TestTreeSet {
+                                public static void main(String[] args){
+                                    Set<Integer> set = new TreeSet<>();
+                                    set.add(300);
+                                    set.add(200);
+                                    set.add(600);
+                                    for(Integer key:set){
+                                        System.out.println(key);
+                                        //按照顺序输出200，300，600
+                                    }
+                                }
+                            }
+                        ```
+
+            
+            **Iterator迭代器
+                概念：迭代器为我们提供了统一的遍历容器(List/Set/Map>)的方式
+
+                使用Iterator遍历List
+                    事例：
+
+                    ```java
+                        public static void testIteratorList(){
+                                List<String> list = new ArrayList<>();
+                                list.add("aa");
+                                list.add("bb");
+                                list.add("cc");
+                                //使用iterator遍历List
+                                for(Iterator<String> iter = list.iterator();iter.hasNext();){
+                                    String temp = iter.next();//遍历输出当前值，并且将浮标移动到下一位进行遍历
+                                    System.out.println(temp);
+                                }
+                            }
+                    ```
+
+                使用Iterator遍历Set
+                    事例：
+
+                        ```java
+                            public static void testIteratorSet(){
+                                    Set<String> set = new HashSet<>();
+                                    set.add("aa");
+                                    set.add("bb");
+                                    set.add("cc");
+                                    //使用iterator遍历List
+                                    for(Iterator<String> iter = set.iterator();iter.hasNext();){
+                                        String temp = iter.next();//遍历输出当前值，并且将浮标移动到下一位进行遍历
+                                        System.out.println(temp);
+                                    }
+                                }
+                        ```
+
+                使用Iterator遍历Map
+                    事例：
+
+                        ```java
+                            public static void main(String[] args){
+                                    Map<Integer,String> map = new HashMap<>();
+                                    map.put(6,"小时");
+                                    map.put(3,"小石");
+                                    map.put(5,"石惠");
+                                    Set<Integer> ss = map.keySet();
+                                    for(Iterator<Integer> iterator = ss.iterator();iterator.hasNext();){
+                                        Integer key = iterator.next();
+                                        System.out.println(key+"---"+map.get(key));
+                                    }
+                                }
+                        ```
+
+            理解Set<Integer> ss = map.keySet()，调用方法后返回类名<泛型>的形式
+                事例理解：
+
+                    ```java
+                        class my {
+                            public static List<Integer> say(){
+                                List<Integer> list = new ArrayList<Integer>();
+                                list.add(1);
+                                return list;
+                            }
+                        } 
+
+                        List<Integer> say = my.say(); //调用方法之后返回say，say就是关于List大类，泛型是Integer的类型
+                    ```
+
+
+
+                    
 
 
 
