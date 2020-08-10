@@ -2723,14 +2723,18 @@
                     ```
 
 
-            **Collection工具类
+            **Collections工具类
                 概念：类java.util.Collections提供了对Set,List,Map进行排序，查找元素的辅助方法
+                区别：Collection是接口，Collections是工具类
                 常见的方法：
                     1：void sort(list) //对List容器内的元素进行排序，排序的规则是按照升序排列
                     2：void shuffle(list) //对List容器内的元素进行随机排序
                     3：void reverse(list) //对List容器内的元素进行逆续排列
                     4：void fill(List,Object) //用一个特定的对象重写整个List容器
                     5：int binarySearch(List,Object) //对于顺序的List容器，采用折半查找的方法查找特定的对象
+
+                
+                
 
 
 
