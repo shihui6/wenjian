@@ -2733,6 +2733,167 @@
                     4：void fill(List,Object) //用一个特定的对象重写整个List容器
                     5：int binarySearch(List,Object) //对于顺序的List容器，采用折半查找的方法查找特定的对象
 
+                    事例：
+
+                    ```java
+                        public static void main(String[] args){
+                                List<String> list = new ArrayList<>();
+                                for(int i =0;i<5;i++){
+                                    list.add("小石"+i);
+                                }
+                                System.out.println(list);
+                                Collections.shuffle(list);//随机排列
+                                System.out.println(list);
+                                Collections.reverse(list);//逆序
+                                System.out.println(list);
+                                Collections.sort(list);//正序排序
+                                System.out.println(list);
+                                System.out.println(Collections.binarySearch(list, "小石0"));//折半法查找元素，list中无查找元素则返回负数，存在返回相应index
+                                Collections.fill(list,"hello");//将list中的所有元素换成hello
+                                System.out.println(list);
+                            }
+                    ```
+
+
+            **存储表格数据
+                理解：存储表格数据的核心思想是对象关系映射(ORM思想)
+
+                事例：每一行数据使用一个map，整个表格使用一个List(将数据存储在对象中)
+
+                    ```java
+                        public static void main(String[] args){
+                                Map<String,Object> m = new HashMap<>();//将每行数据存储在Map对象中
+                                m.put("id", 1001);
+                                m.put("name", "张三");
+                                m.put("薪水", 20000);
+                                m.put("入职日期", "2018.5.5");
+                                
+                                Map<String,Object> m1 = new HashMap<>();
+                                m1.put("id", 1002);
+                                m1.put("name", "李四");
+                                m1.put("薪水", 2000);
+                                m1.put("入职日期", "2014.5.4");
+                                
+                                Map<String,Object> m2 = new HashMap<>();
+                                m2.put("id", 1003);
+                                m2.put("name", "王五");
+                                m2.put("薪水", 5000);
+                                m2.put("入职日期", "2019.5.10");
+                                
+                                List<Map<String,Object>> table1 = new ArrayList<>();//将每一行map对象，存储在List中
+                                table1.add(m);
+                                table1.add(m1);
+                                table1.add(m2);
+                                for(Map<String,Object> row:table1){
+                                    Set<String> keyset = row.keySet();
+                                    for(String key:keyset){
+                                        System.out.print(key+"---"+row.get(key)+"\t");
+                                    }
+                                    System.out.println();
+                                }
+                            }       //输出结果：
+                                    // name---张三	薪水---20000	id---1001	入职日期---2018.5.5	
+                                    // name---李四	薪水---2000	id---1002	入职日期---2014.5.4	
+                                    // name---王五	薪水---5000	id---1003	入职日期---2019.5.10
+                    ```
+                
+                事例：每一行数据使用javabean对象存储，多行使用放到map或list中
+
+                    ```java
+                        public class TestStore {
+                            public static void main(String[] args){
+                                Users user = new Users(1001,"张三",20000,"2018.5.5");
+                                Users user1 = new Users(1001,"张三",20000,"2018.5.5");
+                                Users user2 = new Users(1001,"张三",20000,"2018.5.5");
+                            
+                                List<Users> list = new ArrayList<>();
+                                list.add(user);
+                                list.add(user1);
+                                list.add(user2);
+                                for(Users m:list){
+                                    System.out.println(m);
+                                }
+                            }
+                        }
+                        class Users{
+                            private int id;
+                            private String name;
+                            private double salary;
+                            private String handate;
+                            
+                            public Users(int id, String name, double salary, String handate) {
+                                super();
+                                this.id = id;
+                                this.name = name;
+                                this.salary = salary;
+                                this.handate = handate;
+                            }
+                            public String toString(){
+                                return "id:"+id+"name:"+name+"salary:"+salary+"handate:"+handate;
+                            }
+                        }
+                    ```
+
+
+
+        ##IO
+            概念：IO也就是流，流动，流向，从一端移动到另一端。流是一个抽象，动态的概念，是一连串连续动态的数据集合
+            流分类
+                方向划分：
+                    输入流：数据源到程序(InputStream,Reader读进来)
+                    输出流：程序到目的地(OutputStream,Write写出去)
+                功能划分：
+                    节点流：可以直接从数据源或目的地读写数据
+                    处理流：也叫包装流，不直接连接到数据源或目的地，是其他流进行封装。目的主要是简化操作和提高性能
+                    节点流和处理流的关系：
+                        1：节点流处于io操作的第一线，所有操作必须通过他们进行
+                        2：处理流可以对其他流进行处理(提高效率或操作灵活性)
+                数据划分：
+                    字节流：按照字节读取数据(InputStream,OutputStream)(字节流是计算机直接能看懂的数据)
+                    字符流：按照字符读取数据(Reader,Write)，因为文件编码的不同，从而有了对字符进行高效操作的字符流对象。(字符流是人类能看懂的数据)
+                        字符流原理：底层还是基于字节流操作，自动搜索指定的码表
+
+            IO流操作文件的原理：
+                java虚拟机跟操作系统os进行交互，操作系统来操作硬盘上的文件(java是不可以直接跟硬盘进行交互操作的)
+
+            IO相关API
+                事例：名称或路径
+
+                    ```java
+                        public static void main(String[] args){
+                                File src = new File("C:/javalianxi/IOliu/src/img.jpg");
+                                System.out.println("名称："+src.getName());//img.jpg
+                                System.out.println("路径："+src.getPath());
+                                //写的相对路径则返回相对路径，绝对路径则返回绝对路径；例子返回：C:\javalianxi\IOliu\src\img.jpg
+                                System.out.println("绝对路径："+src.getAbsolutePath());//绝对路径   C:\javalianxi\IOliu\src\img.jpg
+                                System.out.println("父路径："+src.getParent());//返回父路径，没有则返回null  C:\javalianxi\IOliu\src
+                                System.out.println("父对象："+src.getParentFile().getName());//返回父路径的文件名称  src
+                            }
+                    ```
+                
+                事例：文件状态
+                    1：不存在：exists
+                    2：存在：文件 isFile
+                            文件夹：isDirctory
+                    
+        
+        ##线程
+            概念：
+                1：线程就是独立的执行路径
+                2：在程序运行时，即使没有自己创建线程，后台也会存在多个线程，如垃圾回收机制线程，主线程
+                3：main()称之为主线程，为系统的入口点，用于执行整个程序
+                4：在一个进程中，如果开辟了多个线程，线程的运行由调度器安排调度，调度器是与操作系统紧密相关的，先后顺序是不能人为干预的
+                5：对同一份资源操作时，会存在资源抢夺的问题，需要加入并发控制
+                6：线程会带来额外的开销，如cpu调度时间，并发控制开销
+                7：每个线程在自己的工作内存交互，加载和存储主内存控制不当会造成数据不一致
+
+            创建线程
+                创建线程的方法：
+                    1：继承Thread类
+                    2：实现Runnable接口
+                    3：实现Callable接口
+            
+
                 
                 
 
