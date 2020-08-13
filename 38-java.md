@@ -1387,6 +1387,163 @@
                         ```
 
             8:接口
+                接口的使用
+                    1：如何定义接口中的成员
+                        JDK7以前，只能定义全局常量和抽象方法
+                            全局常量：public static final的，书写时候可以省略不写，省略的时候自动加上的
+                            抽象方法：public abstract的，可以省略，不写的时候，会自动加上
+                        
+                        JDK8：除了定义全局常量和抽象方法之外，还可以定义静态方法，默认方法(略)
+                    
+                    2：接口中不能定义构造器，意味着接口不能被实例化
+
+                    3：java开发中，接口通过让类去实现(implements)的方式来使用
+                        如果实现类覆盖了接口中所有的抽象方法，则此实现类就可以实例化
+                        如果实现类没有覆盖接口中所有的抽象方法，则此实现类仍为一个抽象类
+
+                    4：java类可以实现多个接口--->弥补了java单继承性的局限性
+                            格式：class AA extends BB implements CC,DD,EE
+
+                    5:接口与接口之间可以继承，而且可以多继承
+
+                    6：接口的具体使用，体现多态性
+                        应用场景：
+                            安全代理：屏蔽对真实角色的直接访问
+                            远程代理：通过代理类处理远程方法调用
+                            延迟加载：先加载轻量级的代理对象，真正需要再加载真实对象
+                        分类：
+                            静态代理(静态定义代理类)，下面的事例就是静态代理
+                            动态代理(动态生成代理类)
+                        事例：
+
+                            ```java
+                                public class TestInterface {
+                                    public static void main(String[] args){
+                                        Computer c = new Computer();
+                                        //1创建了接口的非匿名实现类的非匿名对象
+                                        Flash f = new Flash();
+                                        c.transferDate(f)
+                                        //2创建了接口的非匿名实现类的匿名对象
+                                        c.transferDate(new Flash())
+                                        //3：创建了接口的匿名实现类的非匿名对象
+                                        USB p = new USB(){
+                                            public void start(){
+                                                System.out.println("手机开始工作了");
+                                            }
+                                            public void stop(){
+                                                System.out.println("手机结束工作了");
+                                            }
+                                        }
+                                        c.transferDate(p)
+                                        //4：创建了接口的匿名实现类的匿名对象
+                                        c.transferDate(new USB(){
+                                            public void start(){
+                                                System.out.println("MP3开始工作了");
+                                            }
+                                            public void stop(){
+                                                System.out.println("MP3结束工作了");
+                                            }
+                                        })
+
+                                    }
+                                }
+                                class Computer {
+                                    public void transferDate(USB usb){ //这边接口上说明了多态性
+                                        usb.start();
+                                        usb.stop()
+                                    }
+                                }
+                                interface USB {
+                                    //也可以定义常量：定义长，宽，最大最小传输速度等
+                                    void start();
+                                    void stop();
+                                }
+                                class Flash implements USB{
+                                    public void start(){
+                                        System.out.println("U盘开始工作了");
+                                    }
+                                    public void stop(){
+                                        System.out.println("U盘结束工作了");
+                                    }
+                                }
+                                class Printer implements USB{
+                                    public void start(){
+                                        System.out.println("打印机开始工作了");
+                                    }
+                                    public void stop(){
+                                        System.out.println("打印机结束工作了");
+                                    }
+                                }
+                            ```
+                    7：接口的代理模式
+                        概念：代理模式是java开发中使用较多的一种设计模式。代理设计就是为其他对象提供一种代理以控制对这个对象的访问
+
+                        事例：
+
+                            ```java
+                                public class TestProxy {
+                                    public static void main(String[] args){
+                                        Server server = new Server();
+                                        ProxyServer proxyServer = new ProxyServer(server);
+                                        proxyServer.browse();
+                                    }
+                                }
+                                interface NetWork {
+                                    void browse();
+                                }
+                                //被代理类
+                                class Server implements NetWork {
+                                    public void browse{
+                                        System.out.println("真实的服务器访问网络");
+                                    }
+                                }
+                                //代理类
+                                class ProxyServer implements NetWork{
+                                    private NetWork work;
+
+                                    public ProxyServer(NetWork work){
+                                        this.work = work;
+                                    }
+                                    public void check(){
+                                        System.out.println("联网之前的检查工作");
+                                    }
+                                    public void browse(){
+                                        check();
+                                        work.browse();
+                                    }
+                                }
+                            ```
+
+                    8：JDK8字后增加的知识点
+                        知识点1：接口中定义的静态方法，只能通过接口类调用
+                        
+                        知识点2：通过实现类的对象，可以调用接口中的默认方法
+
+                                如果实现类重写了接口中的默认方法，调用时，任然调用的是重写以后的方法
+
+                        知识点3：如果子类(或实现类)继承的父类和实现的接口中声明了同名同参数的默认方法，那么子类在没有重写此方法的情况下，默认调用的是父类中的同名同参数的方法
+
+                        知识点4：如果实现类实现了多个接口，而这个接口中定义了同名同参数的默认方法，那么在实现类没有重写此方法的情况下，会报错--->接口冲突；这就必须在实现类中重写此方法
+
+                        知识点5：如何在子类(或实现类)的方法中调用父类，接口中被重写的方法
+                            事例：
+                                ```java
+                                    class sub extends SuperClass implements ComparaA,ComparaB{
+                                        public void methods3(){
+                                            System.out.println("sub中的methods3");
+                                        }
+                                        public void mymethods(){
+                                            methods3();//调用自己定义的重写的方法
+                                            super.methods3();//调用父类中的声明的方法
+                                            //调用接口中的默认方法
+                                            ComparaA.super.methods3();
+                                            ComparaB.super.methods3();
+                                        }
+                                    }
+                                ```
+
+
+
                 1：概念：
                     1：接口只定以规范，全面地实现了：规范和具体实现分离
                     2：抽象类还提供某些具体实现，接口不提供任何实现，接口中所有方法都是抽象方法。接口是完全面向规范，规定了一批类具有的公共方法规范
@@ -1449,6 +1606,8 @@
                                 }
                             }
                         ```
+
+                
 
                 5：接口的多继承
                     概念：接口完全支持多继承。和类的继承类似，子接口扩展某个父接口，将会获得父接口中所定义的一切
