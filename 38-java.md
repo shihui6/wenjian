@@ -773,7 +773,7 @@
             3:static
                 概念：
                     静态的，static可以用来修饰：属性，方法，代码块，内部类
-                理解static的原理：从静态属性，静态方法和非静态属性，飞静态方法的是否可以被调用，从类和对象的生命周期考虑就行，一目了然
+                *理解static的原理：从静态属性，静态方法和非静态属性，飞静态方法的是否可以被调用，从类和对象的生命周期考虑就行，一目了然
 
                 2：static修饰属性，静态变量(或类变量)
                     1：属性：按是否使用static修饰，分为：静态属性vs非静态属性(实例变量)
@@ -832,6 +832,7 @@
                 注意点：
                     静态方法和属性可以在非静态方法里面用
                     静态方法里面不可以用非静态属性和方法
+                    注意点的理解，可以从类和对象的生命周期考虑
 
                 
             4：静态初始化块
@@ -2964,238 +2965,9 @@
                             文件夹：isDirctory
                     
         
-        ##线程
-            程序，进程，线程的基本概念
-                1：程序：是为完成特定任务，用某种语言编写的一组指令集合。即指一段静态代码，静态对象
-                2：进程：是程序的一次执行过程，或是正在运行的一个程序。是一个动态的过程：有它自身的产生，存在和消亡的过程，也叫生命周期
-                        如：运行中的qq，运行中的mp3播放器
-                        程序时静态的，进行是动态的
-                        进程作为资源分配的单位，系统在运行时会为每个进程分配不同的内存区域
-                3：线程：进程可进一步细化为线程，是一个程序内部的一条执行路径。
-                        若一个进程同一时间并行执行多个线程。就是支持多线程的
-                        线程作为调度和执行的单位，每个线程拥有独立的运行栈和程序计数器，线程切换的开销小
-                        一个进程中的多个线程共享相同的内存单元/内存地址空间->它们从同一堆中分配对象，可以访问相同的变量和对象。这就使得线程间通信更简便，搞笑。但多个线程操作共享的系统资源可能就会带来安全隐患
+        
 
-            单核CPU和多核CPU的理解
-                1：单核CPU，其实是一种假的多线程，因为在一个时间单元内，也只能执行一个线程的任务。平时看到的单核CPU也能有多个程序在运行，是因为CPU的主频比较高，处理程序的比较快，多个应用在短时间内切换着被执行，但是同一个时间段只执行一个程序。外部看着就像执行多程序一样。
-                2：如果是多核的话，才能更好的发挥多线程的效率。(现在的服务器都是多核的)
-                3：一个java应用程序java.exe，其实至少有三个线程：main()主线程，gc()垃圾回收线程，异常处理线程。当然如果发生异常，会影响主线程
             
-            并行和并发概念
-                并行：多个CPU同时执行多个任务，比如，多个人同时做不同的事儿。
-                并发：一个CPU(采用时间片)通知执行多个任务。比如：秒杀，多个人同时做同一件事儿
-
-            多线程的优点
-                提高应用程序的响应。对图形化界面更有意义，可增强用户体验
-                提高计算机系统CPU的利用率
-                改善程序结构。将即长又复杂的进程分为多个线程，独立运行，利于理解和修改
-
-            何时需要多线程
-                程序需要同时执行两个或多个任务
-                程序需要实现一些需要等待的任务时，如用户输入，文件读写操作，网络操作，搜索，图片加载等
-                需要后台运行的程序时；如垃圾回收机制
-
-            概念：
-                1：线程就是独立的执行路径
-                2：在程序运行时，即使没有自己创建线程，后台也会存在多个线程，如垃圾回收机制线程，主线程
-                3：main()称之为主线程，为系统的入口点，用于执行整个程序
-                4：在一个进程中，如果开辟了多个线程，线程的运行由调度器安排调度，调度器是与操作系统紧密相关的，先后顺序是不能人为干预的
-                5：对同一份资源操作时，会存在资源抢夺的问题，需要加入并发控制
-                6：线程会带来额外的开销，如cpu调度时间，并发控制开销
-                7：每个线程在自己的工作内存交互，加载和存储主内存控制不当会造成数据不一致
-
-            创建线程
-                创建线程的方法：
-                    1：继承Thread类
-                        Thread中的常用方法：
-                            1：start():启动当前线程;调用当前线程的run()
-                            2：run()：通常需要重写Thread类中的此方法，将创建的线程要执行的操作声明在此方法中
-                            3：currentThread()：静态方法，返回执行当前代码的线程
-                            4：getName()：获取当前线程的名字
-                            5：setName()：设置当前线程的名字
-                            6：yield()：释放当前CPU的执行权；可能下一秒又分到了CPU的执行权
-                            7：join():在线程a中调用线程b的join()，此时线程a就进入阻塞状态，直到线程b完全执行完以后，线程a才结束阻塞状态，然后等待CPU给a线程分配资源
-                            8：stop：已过时。当执行此方法时，强制结束当前线程
-                            9：sleep(Long millitime)：让当前线程"睡眠"指定的millitime毫秒。在指定的millitime毫秒时间内，当前线程是阻塞状态，阻塞完毕之后，等待CPU分配资源
-                            10：isAlive()：判断当前线程是否存活
-
-                        步骤：
-                            1：创建一个集成于Thread类的子类
-                            2：重写Thread类的run()方法(run方法中是要执行的操作)
-                            3：创建Thread类的子类的对象
-                            4：通过此对象调用start()方法
-
-                        事例：
-
-                            ```java
-                                public class TestTrhead {
-                                    public static void main(String[] args){
-                                        //创建Thread类的子类的对象
-                                        MyThread t1 = new MyThread();
-                                        t1.start();//通过此对象调用start()：1：启动当前线程，2：调用当前线程的run()
-                                                    //不可以让已经start()的线程去执行。会报Illegal ThreadStateException
-
-                                        // 再启动一个线程
-                                        MyThread t2 = new MyThread()
-                                            t2.setName("线程一") //给线程t2命名
-                                        t2.start();
-
-                                            // 给主线程命名
-                                            Thread.currentThread().setName("主线程")
-                                        
-                                        //下面的操作任然是在main线程中执行的
-                                        System.out.println("hello");
-                                        for(int i=0;i<100;i++){
-                                            if(i%2==0){
-                                                System.out.println(i+"*****");
-                                            }
-                                        }
-                                    }
-                                }
-                                //常见一个继承与Thread类的子类
-                                class MyThread extends Thread {
-                                    //重写Thread类的run()
-                                    public void run(){
-                                        for(int i=0;i<100;i++){
-                                            if(i%2==0){
-                                                System.out.println(i);
-                                            }
-                                        }
-                                    }
-                                }
-                            ```
-                        事例：创建Thread的匿名子类
-
-                            ```java
-                                public static void main(String[] args){
-                                        //创建Thread类的匿名子类的方式
-                                        //理解匿名概念：因为这里子类没有名，所以拿Thread这个父类来充当的，后面的大括号里写的是匿名子类的方法体
-                                        new Thread(){
-                                            public void run(){
-                                                for(int i=0;i<100;i++){
-                                                    if(i%2==0){
-                                                        System.out.println(Thread.currentThread().getName()+":"+i);
-                                                    }
-                                                }
-                                            }
-                                        }.start();
-                                        new Thread(){
-                                            public void run(){
-                                                for(int i=0;i<100;i++){
-                                                    if(i%2==0){
-                                                        System.out.println(Thread.currentThread().getName()+":"+i);
-                                                    }
-                                                }
-                                            }
-                                        }.start();
-                                    }
-                            ```
-                        
-                        线程的调度：
-                            概念：高优先级的线程抢占CPU
-                            用法：
-                                线程的优先级：
-                                        MAX_PRIORITY:10
-                                        MIN_PRIORITY:1
-                                        NORM_PRIORITY:5
-                                设置当前线程的优先级：
-                                    getpriority()：获取线程的优先级
-                                    setpriority(int p)：设置线程的优先级
-                                    说明：高优先级的线程要抢占低优先级线程的CPU的执行权。但是只是从概率上讲，高优先级的线程高概率的情况下被执行。并不意味着只有当高优先级的线程执行完以后，低优先级的线程才执行
-                                事例：
-
-                                    ```java
-                                        public class TestTrhead {
-                                            public static void main(String[] args){
-                                                MyThread t2 = new MyThread();
-                                                t2.setName("线程一"); //给线程t2命名
-                                                //给t2线程设置优先级
-                                                //先设置优先级再掉线程
-                                                t2.setPriority(Thread.MAX_PRIORITY);
-                                                t2.start();
-                                                // 给主线程命名
-                                                Thread.currentThread().setName("主线程");
-                                                //给主线程设置优先级
-                                                Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-                                                //下面的操作任然是在main线程中执行的
-                                                System.out.println("hello");
-                                                for(int i=0;i<100;i++){
-                                                    if(i%2==0){
-                                                        System.out.println(Thread.currentThread().getName()+":"+Thread.currentThread().getPriority()+"--"+i);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        //常见一个继承与Thread类的子类
-                                        class MyThread extends Thread {
-                                            //重写Thread类的run()
-                                            public void run(){
-                                                for(int i=0;i<100;i++){
-                                                    if(i%2==0){
-                                                        System.out.println(Thread.currentThread().getName()+":"+Thread.currentThread().getPriority()+"--"+i);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    ```
-
-                    2：实现Runnable接口
-                        步骤：
-                            1：创建一个实现了Runnable接口的类
-                            2：实现类去实现Runnable中的抽象方法：run()
-                            3：创建实现类的对象
-                            4：将此对象作为参数传递到Thread类的构造器中，创建Thread类的对象
-                            5：通过Thread类的对象调用start()
-                        
-                        特点：共享数据特点
-                        
-                        方法：Thread里的方法，在Runnable中也可以用
-                        事例：
-
-                            ```java
-                                public class TestRunnable {
-                                    public static void main(String[] args){
-                                        //创建实现类的对象
-                                        MThread m = new MThread();
-                                        //将此对象作为参数传递到Thread类的构造器中，创建Thread了类的对象
-                                        Thread t1 = new Thread(m);
-                                        //通过Thread类的对象调用start();启动线程，调用当前线程的run()->调用了Runnable类型的target的run方法
-                                        t1.start();
-                                        
-                                        //再启动一个线程
-                                        Thread t2 = new Thread(m);
-                                        t2.start();
-                                    }
-                                }
-                                //1创建一个实现Runnable接口的类
-                                class MThread implements Runnable{
-                                    @Override
-                                    //实现类去实现Runnable中的抽象方法:run()
-                                    public void run() {
-                                        for(int  i=0;i<100;i++){
-                                            if(i%2==0){
-                                                System.out.println(Thread.currentThread().getName()+"--"+i);
-                                            }
-                                        }
-                                    }
-                                }
-                            ```
-                        **说明：比较创建线程的两种方式;
-                                        开发中：优先选择，实现Runnable接口的方式
-                                        原因：1：实现的方式没有类的单继承性的局限性
-                                              2：实现的方式更适合来处理多个想成的数据共享的情况
-                                        
-                                    联系：public class Thread implements Runnable
-                                    相同点：两种方式都需要重写run()，将线程要执行的逻辑声明在run()中
-
-                    4：实现Callable接口
-            
-
-            线程的同步
-                为什么要用线程的同步：
-                    多个线程执行的不确定性引起执行结果的不稳定
-                    多个线程对账本的共享，会造成操作的不完整性，会破话数据
-                    通过线程的同步可以解决这个安全问题
                 
                 
 
