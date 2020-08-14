@@ -653,9 +653,9 @@
 
     **线程通讯
         事例：线程通讯的例子：使用两个线程打印1-100。线程1，线程2，交替打印
-        用到的方法：wait():一旦执行此方法，当前线程就进入阻塞状态，并且释放锁(同步监视器)
-                   notify()：一旦执行此方法，就会唤醒被wait的一个线程。如果有多个线程被wait，就唤醒优先级高的那个
-                   notifyAll():一旦执行此方法，就会唤醒所有被wait的线程
+        用到的方法：旦执行此方法，就会唤醒被wait的一个线程。如果有多个线程被wait，就唤醒优先级高的那个
+                   notifyAll():一旦wait():一旦执行此方法，当前线程就进入阻塞状态，并且释放锁(同步监视器)
+                   notify()：一执行此方法，就会唤醒所有被wait的线程
         说明：
             1：wait()，notify(),notifyAll()。三个方法必须使用在同步代码块或同步方法中
             2：wait()，notify(),notifyAll()，三个方法的调用者必须是同步代码块或同步方法中的同步监视器(监视器或锁调用这三个方法)，否则会出现异常
@@ -707,6 +707,74 @@
                     关于是否释放同步监视器：如果两个方法都使用在同步代码块或同步方法中，sleep()不会释放锁，wait()会释放锁
         
 
+##java常用类
+    **String字符串
+        理解原理：通过内存结构进行理解
+        1：如何使用：
+            1：使用一对""引起来表示
+            2：String声明为final的，不可被继承
+            3：String实现了Serializable接口：表示字符串是支持序列化的
+                     实现了Comparable接口：表示String可以比较大小
+            4：String内部定义了final char[] value用于存储字符串数据
+            5：String：代表不可变的字符串序列。简称，不可变性
+                    体现：1：当对字符串重新赋值时，需要重写指定内存区域赋值，不能使用原有的value进行赋值
+                          2：当对现有的字符串进行连接操作时，也需要重新指定内存区域赋值，不能使用原有的value进行赋值
+                          3：当调用String的replace()方法修改指定的字符或字符串时，也需要重新指定内存区域赋值，不能使用原有的value进行赋值
+            6：通过字面量的方式(区别于new)给一个字符串赋值，此时的字符串值声明在字符串常量池中
+            7：字符串常量池中是不会存储相同内容的字符串的
 
+            上面的事例：
+
+                ```java
+                    public static void main(String[] args){
+                            String s1 = "abc";//字面量的定义方式
+                            String s2 = "abc";
+                            System.out.println(s1 == s2);//true,比较s1和s2的地址值
+                            
+                            String s3 = "abc";
+                            s3 += "def";
+                            System.out.println(s3);//abcdef  在字符串后面拼接内容，得去新造一个abcdef，在常量池中新造的，因为有变量s3了所以在堆中产生，引用指向常量池
+                            
+                            String s4 = "abc";
+                            String s5 = s4.replace('a', 'm'); //替换字符串，也得去新造一个，原有的字符串不变
+                        }
+                ```
+        
+        2：String对象的创建
+            String的实例化方式：
+                方式一：通过字面量的方式
+                        通过字面量定义的方式：此时的s1的数据abc声明在方法区中的字符串常量池中
+                        String s1 = "abc";
+                方式二：通过new+构造器的方式
+                        通过new+ 构造器的方式，此时s2保存的值，是数据在堆空间中开辟空间以后对应的地址值
+                        String s2 = new String();
+                
+                题目：String s = new String("abc");方式创建对象，在内存中创建了几个对象？
+                    两个：一个是堆空间中new结构，另一个是char[]对应的常量池中的数据:"abc"
+
+                
+                事例：
+
+                ```java
+                    String s1 = "hello";
+                    String s2 = "world";
+                    String s3 = "hello"+"world";
+                    String s4 = s1 + "world";
+                    String s5 = s1 + s2;
+                    String s6 = (s1 + s2).intern();
+                    System.out.println(s3==s4);//false
+                    System.out.println(s3==s5);//false
+                    System.out.println(s4==s5);//false
+                    System.out.println(s3==s6);//true
+                ```
+                    结论：1：常量与常量的的拼接结果是在常量池。且常量池中不会存在相同内容的常量
+                        2：只要其中有一个是变量，结果就在堆中
+                        3：如果拼接的结果调用intern()方法，返回值就在常量池中；例如，会将s6的引用指向常量池中的"helloworld"地址；不会指向堆中的对象
+
+                
+                        
+                
+            
+            
 
 
