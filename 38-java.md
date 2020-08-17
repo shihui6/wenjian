@@ -2533,6 +2533,17 @@
 
 
         ##容器
+
+            双列集合和单列集合的概念：
+                Collection接口：单列集合，用来存储一个一个的对象
+                    List接口：存储有序的，可重复的数据 -->“动态”数组
+                            ArrayList,LinkedList,Vector
+                    Set接口：存储无序的，不可重复的数据
+                            hashSet,LinkedHashSet,TreeSet
+                    
+                  Map接口，双列集合，用来存储一对(key,value)的数据
+                         HashMap,LinkHashMap,TreeMap,Hashtable,Properties
+            
             概念：
                 是个对象，用来装其他对象的对象
                 在容器中Collection是父接口,list和set是子接口
@@ -2631,6 +2642,91 @@
 
                 Vector
                     特点：Vector底层是用数组实现的List，相关的方法都加上了同步检查，因此"线程安全，效率低"。比如，indexOf方法就增加了synchronized同步标记
+
+
+            **set：
+                概念：Set接口继承自Collection，Set接口中没有新增方法，方法和Collection保持完全一致。我们在前面通过List学习的方法，在Set中仍然适用。因此，学习Set的使用将没有任何难度
+
+                特点：无序，不可重复。无序指Set中的元素没有索引，我们只能遍历查找；不可重复指的是不允许加入重复的元素。更确切地讲，新元素如果和Set中某个元素通过equals()方法对比为true，则不能加入；甚至，Set中也只能发乳一个null元素，不能多个
+
+                Set常用的实现类有：HashSet，TreeSet等。我们一般使用HashSet
+
+                HashSet
+                    事例：
+
+                        ```java
+                            public class TestHashSet {
+                                public static void main(String[] args){
+                                    Set<String> set1 = new HashSet<>();
+                                    set1.add("aa");
+                                    set1.add("bb");
+                                    set1.add("cc");
+                                    System.out.println(set1);//[aa, bb, cc]
+                                    Set<String> set2 = new HashSet<>();
+                                    set2.add("小时");
+                                    set2.addAll(set1);
+                                    System.out.println(set2); //[aa, bb, cc, 小时]
+                                }
+                            }
+                        ```
+
+                    事例：hashSet源码实现
+
+                        ```java
+                            public class SxtHashSet {
+                                private static final Object PRESENT = new Object();
+                                HashMap map;
+                                public SxtHashSet() {
+                                    super();
+                                    map = new HashMap();
+                                }
+                                public int size(){
+                                    return map.size();
+                                }
+                                public String toString(){
+                                    StringBuilder s = new StringBuilder();
+                                    s.append("[");
+                                    for(Object key:map.keySet()){
+                                        s.append(key + ",");
+                                    }
+                                    s.setCharAt(s.length()-1, ']');
+                                    return s.toString();
+                                }
+                                public void add(Object o){
+                                    map.put(o, PRESENT);
+                                }
+                                public static void main(String[] args){
+                                    SxtHashSet  set = new SxtHashSet();
+                                    set.add("aa");
+                                    set.add("bb");
+                                    set.add("cc");
+                                    System.out.println(set);//[aa,bb,cc]
+                                }
+                            }
+                        ```
+
+                
+                TreeSet的使用和实现
+                    概念：TreeSet底层实际是用TreeMap实现的，内部维持了一个简化版的TreeMap 通过key来存储Set的元素。TreeSet内部需要对存储的元素进行排序，因此，我们对应的类需要实现Comparable接口。这样，才能根据compareTo()方法比较对象之间的大小，才能进行内部排序
+
+                    原理实现：TreeSet的排序的实现原理和TreeMap的实现原理是一样的，可以参考TreeMap的代码
+
+                    事例：TreeSet简单的使用
+
+                        ```java
+                            public class TestTreeSet {
+                                public static void main(String[] args){
+                                    Set<Integer> set = new TreeSet<>();
+                                    set.add(300);
+                                    set.add(200);
+                                    set.add(600);
+                                    for(Integer key:set){
+                                        System.out.println(key);
+                                        //按照顺序输出200，300，600
+                                    }
+                                }
+                            }
+                        ```
 
                     
             **map
@@ -2808,96 +2904,91 @@
                     1：HashMap：线程不安全，效率高。允许key或value为null
                     2：HashTable：线程安全，效率低。不允许key或value为null
 
+                
+
+                properties
+                    用法：
+                        事例：读取配置文件操作
+
+                        ```java
+                            public class PropertyiesTest {
+                                public static void main(String[] args) throws IOException {
+                                    Properties pros = new Properties();
+                                    FileInputStream fis = new FileInputStream("jdbc.properties"); //查找项目中以.properties结尾的文件进行加载
+                                    pros.load(fis);//加载流对应的文件
+                                    String name = pros.getProperty("name");
+                                    String password = pros.getProperty("password");
+                                    System.out.println("name:"+name+"\tpassword:"+password);//输出结果name:tom password:123456
+                                }
+                            }
+                        ```
+
             
 
-            **set：
-                概念：Set接口继承自Collection，Set接口中没有新增方法，方法和Collection保持完全一致。我们在前面通过List学习的方法，在Set中仍然适用。因此，学习Set的使用将没有任何难度
-
-                特点：无序，不可重复。无序指Set中的元素没有索引，我们只能遍历查找；不可重复指的是不允许加入重复的元素。更确切地讲，新元素如果和Set中某个元素通过equals()方法对比为true，则不能加入；甚至，Set中也只能发乳一个null元素，不能多个
-
-                Set常用的实现类有：HashSet，TreeSet等。我们一般使用HashSet
-
-                HashSet
-                    事例：
-
-                        ```java
-                            public class TestHashSet {
-                                public static void main(String[] args){
-                                    Set<String> set1 = new HashSet<>();
-                                    set1.add("aa");
-                                    set1.add("bb");
-                                    set1.add("cc");
-                                    System.out.println(set1);//[aa, bb, cc]
-                                    Set<String> set2 = new HashSet<>();
-                                    set2.add("小时");
-                                    set2.addAll(set1);
-                                    System.out.println(set2); //[aa, bb, cc, 小时]
-                                }
-                            }
-                        ```
-
-                    事例：hashSet源码实现
-
-                        ```java
-                            public class SxtHashSet {
-                                private static final Object PRESENT = new Object();
-                                HashMap map;
-                                public SxtHashSet() {
-                                    super();
-                                    map = new HashMap();
-                                }
-                                public int size(){
-                                    return map.size();
-                                }
-                                public String toString(){
-                                    StringBuilder s = new StringBuilder();
-                                    s.append("[");
-                                    for(Object key:map.keySet()){
-                                        s.append(key + ",");
-                                    }
-                                    s.setCharAt(s.length()-1, ']');
-                                    return s.toString();
-                                }
-                                public void add(Object o){
-                                    map.put(o, PRESENT);
-                                }
-                                public static void main(String[] args){
-                                    SxtHashSet  set = new SxtHashSet();
-                                    set.add("aa");
-                                    set.add("bb");
-                                    set.add("cc");
-                                    System.out.println(set);//[aa,bb,cc]
-                                }
-                            }
-                        ```
-
-                
-                TreeSet的使用和实现
-                    概念：TreeSet底层实际是用TreeMap实现的，内部维持了一个简化版的TreeMap 通过key来存储Set的元素。TreeSet内部需要对存储的元素进行排序，因此，我们对应的类需要实现Comparable接口。这样，才能根据compareTo()方法比较对象之间的大小，才能进行内部排序
-
-                    原理实现：TreeSet的排序的实现原理和TreeMap的实现原理是一样的，可以参考TreeMap的代码
-
-                    事例：TreeSet简单的使用
-
-                        ```java
-                            public class TestTreeSet {
-                                public static void main(String[] args){
-                                    Set<Integer> set = new TreeSet<>();
-                                    set.add(300);
-                                    set.add(200);
-                                    set.add(600);
-                                    for(Integer key:set){
-                                        System.out.println(key);
-                                        //按照顺序输出200，300，600
-                                    }
-                                }
-                            }
-                        ```
+            
 
             
             **Iterator迭代器
-                概念：迭代器为我们提供了统一的遍历容器(List/Set/Map>)的方式
+                概念：
+                    1：Iterator对象称为迭代器为我们提供了统一的遍历容器Collection(List/Set>)的方式
 
+                    2：迭代器模式定义为：提供一种方法访问一个容器(container)对象中各个元素，而又不需要暴露该对象的内部细节。迭代器模式，就是为容器而生。
+
+                    3：Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()方法，那么所有实现了Collection接口的集合类都有一个Iterator()方法，用以返回一个实现了Iterator接口的对象
+
+                    4：Iterator仅用于遍历集合，Iterator本身并不提供承装对象的能力。如果需要创建Iterator对象，则必须有一个被迭代的集合
+
+                    5：集合对象每次调用iterator()方法都得到一个全新的迭代器对象，默认游标都在集合的第一个元素之前
+
+
+                迭代器的执行原理：
+                    例子：Iterator iterator = coll.iterator()
+                    //hasNext():判断是否还有下一个元素
+                    while(iterator.hasNext()){
+                        //next()的作用:1指针下移2：下移以后将集合的位置上的元素返回
+                        System.out.println(iterator.next());
+                    }
+
+                迭代器remove()方法的使用
+                    说明：内部定义了remove()，可以在遍历的时候，删除集合中的元素。此方法不同于集合直接调用remove()
+                    注意点：
+                        Iterator可以删除集合中的元素，但是是遍历过程中通过迭代器对象remove方法，不是集合对象的remove方法
+                        如果还未调用next()或在上一次调用next方法之后已经调用了remove方法，再调用remove都会报illegalStateException
+    
+                        事例：
+
+                        ```java
+                            public static void test1(){
+                                    Collection coll = new ArrayList();
+                                    coll.add(123);
+                                    coll.add(456);
+                                    coll.add("今天天气真好");
+                                    coll.add(false);
+                                    //删除集合中"今天天气真好"
+                                    Iterator itrerator = coll.iterator();
+                                    while (itrerator.hasNext()){
+                                        Object obj = itrerator.next();
+                                        if("今天天气真好".equals(obj)){
+                                            itrerator.remove();
+                                        }
+                                    }
+                                    //上面删除之后，再重新遍历集合
+                                    itrerator = coll.iterator();
+                                    while (itrerator.hasNext()){
+                                        System.out.println(itrerator.next());
+                                    }
+                                }
+                        ```
+
+                forEach循环
+                    概念：增强for循环；用于遍历集合，数组
+                    语法：for(集合元素的类型 局部变量 ：集合对象)
+                    原理：内部任然调用的了迭代器
+                    Collection coll = new ArrayList();
+                    for(Object obj:coll){
+
+                    }
+                
                 使用Iterator遍历List
                     事例：
 
