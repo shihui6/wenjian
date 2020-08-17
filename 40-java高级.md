@@ -786,6 +786,9 @@
         int compareTO(String anotherString):比较两个字符串的大小
         String substring(int beginIndex)：返回一个新的字符串，他是此字符串的从beginIndex开始截取
         String subString(int beginIndex,int endIndex)：返回一个新字符串，它是此字符串从beginIndex开始，到endInde结束(不包含)
+
+
+    
                 
             
             
