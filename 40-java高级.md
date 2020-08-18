@@ -788,6 +788,82 @@
         String subString(int beginIndex,int endIndex)：返回一个新字符串，它是此字符串从beginIndex开始，到endInde结束(不包含)
 
 
+##java集合
+    **集合框架的概述
+        1：集合，数组都是对多个数据进行存储操作的结构，简称java容器
+            说明：此时的存储，主要指的是内存层面的存储，不涉及到持久化的存储(.txt,.jpg,.avi,数据库存储)
+        2：数组和集合相比的优缺点
+            2.1：数组在存储多个数据方面的特点
+                一旦初始化以后，其长度就确定了
+                数组一旦定义好，其元素的类型也就确定了。我们也就只能操作指定类型的数据了
+            2.2：数组的存储多个数据方面的缺点
+                一旦初始化以后，其长度就不可修改
+                数组中提供的方法非常有限，对于添加，删除，插入数据等操作，非常不便，同时效率不高。
+                获取数组中实际元素的个数的需求，数组没有现成的属性或方法可用
+                数组存储数据的特点：有序，可重复。对于无需，不可重复的需求，不能满足
+
+        3：java集合可分为Collection和Map俩种体系
+            Collection接口：单列数据，定义了存储一组对象的方法的集合。但是Collection没有具体的实现类，它下面List和Set子接口有具体的实现类
+                    List：元素有序，可重复的集合
+                    Set：元素无需，不可重复的集合
+            Map接口：双列数据，保存具有映射关系(key--value对)的集合。Map接口有它的实现类
+
+    **集合框架
+        1：概况：
+            Collection接口：单列集合，用来存储一个一个的对象
+                List接口:存储有序的，可重复的数据  --->“动态”数组
+                        ArrayList，LinkedList，Vector
+                Set接口：存储无序的，不可重复的数据
+                        HashSet，LinkedHashSet，TreeSet
+
+            Map接口：双列集合，用来存储一对(key-value)的数据
+                    HashMap，LinkedHashMap，TreeMap，Hashtable，Properties
+
+        2：Collection接口中的方法的使用
+            //size():获取添加元素的个数
+            //addAll(Collection coll):将coll1集合中的元素添加到当前的集合中
+            //isEmpty():判断当前集合是否为空
+            //clear()：清空集合元素
+            //contains(Object obj)：判断当前集合中是否包含ogj，底层是通过equals进行对比的
+                向Collection接口的实现类的对象中添加数据obj时，要求obj所在类要重写equals()方法
+            //containsAll(Collection coll1):判断形参coll1中的所有元素是否都存在于当前集合中的数据，只要有一个不包含就返回false
+            //remove(Object obj)：移除操作，移除成功返回true
+            //removeAll(Collection coll1)：差集：从当前集合中移除coll1中所有的元素
+            //retainAll(Collection coll1)：交集：获取当前集合和coll1的交集，并返回给当前集合
+            //equals(Object obj)：要想返回true，需要当前集合和形参集合的元素都相同
+            //hashCode():返回当前对象的哈希值
+            //toArray()：集合转数组
+            //Arrays.asList():数组转换成集合：调用Arrays类的静态方法asList()
+
+            实例：
+
+            ```java
+                Collection coll = new ArrayList()
+                coll.add("AA");
+                coll.add("BB");
+                coll.add("CC");
+                coll.size();//
+
+                Collection coll1 = new ArrayList()
+                coll1.add(123);
+                coll1.add("CC");
+                coll.addAll(coll1);//将coll1集合中的元素添加到coll集合中
+
+                coll.isEmpty()
+                coll.clear()
+            ```
+
+
+
+        
+
+            
+
+
+    
+            
+
+
 ##泛型
     为什么要有泛型
 
