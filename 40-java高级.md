@@ -788,6 +788,268 @@
         String subString(int beginIndex,int endIndex)：返回一个新字符串，它是此字符串从beginIndex开始，到endInde结束(不包含)
 
 
+##泛型
+    为什么要有泛型
+
+        概念：所谓泛型，就是允许在定义类，接口时通过一个标识表示类中某个属性的类型或者是某个方法的返回值及参数类型。这个类型参数将在使用时(例如，继承或实现这个接口，用这个类型声明变量，创建对象时)确定(即传入实际的类型参数，也称为类型实参)
+
+    在集合中使用泛型
+        1:集合接口或集合类在jdk5.0时都修改为带泛型的结构
+        2：在实例化集合时，可以指明具体的泛型类型
+        3：指明完以后，在集合类或接口中凡是定义类或接口时，内部结构(比如：方法，构造器，属性等)使用到类的泛型的位置，都指定为实例化的泛型类型。
+            比如：add(E e) --->实例化以后：add(Integer e)
+        4：注意点：泛型的类型必须是一个类，不能是基本数据类型，我们需要用到基本数据类型的位置，拿包装类替换
+        5：如果实例化时没有指定泛型的类型(没有用泛型)。默认类型为java.lang.Object类型
+
+
+    自定义泛型结构或泛型类
+        说明：泛型类，泛型接口；泛型方法
+        事例：
+
+            ```java
+                //自定义泛型类或泛型接口
+                public class GenericTest1 {
+                    //如果定义了泛型类，实例化没有指名类的泛型，则认为此此泛型类型为Object类型
+                    //要求：如果大家定义了类的泛型的，建议在实例化时要指名类的泛型
+                    //建议：实例化时指名类的泛型
+                    Order<String> order = new Order<>();
+
+                    //子类在继承带泛型的父类时，指明了泛型类型。则实例化子类对象时，不再需要指名泛型,子类不是泛型类
+                        //实例：
+                        class subOrder extends Order<String>{}
+
+                    //子类在继承带泛型的父类时，没有指明泛型类型，则子类也是泛型类
+                        //实例：
+                        class subOrder1<T> extends Order<T>{}
+                }
+            ```
+
+        细节点：
+            1：泛型类可能有多个参数，此时应将多个参数一起放在尖括号内，比如<T1,T2,T3>
+            2:泛型类的构造器如下：public GenericClass(){}
+               而下面是错误的：public GenericClass<T>{}
+            3：实例化后，操作原来泛型位置的结构必须与指定的泛型类型一致
+            4：泛型不同的引用不能相互赋值
+                但是尽管在编译时ArrayList<String>和ArrayList<Integer>是两种类型，但是，在运行时只有一个ArrayList被加载带JVM中
+            5：泛型如果不指定，将被擦除，泛型对应的类型均按照Object处理，但不等价于Object。泛型要使用一路都用，要不用，一路都不用
+            6：如果泛型结构是一个接口或抽象类，则不可创建泛型类的对象
+            7：jdk1.7，泛型的简化操作：ArrayList<String> first = new ArrayList<>{}，自定补充
+            8：泛型的指定中不能使用基本数据类型，可以使用包装类替换
+            9：在类/接口上声明的泛型，在本类或本接口中即代表某种类型，可以作为非静态属性的类型，非静态方法的参数类型，非静态方法的返回值类型。但在静态方法中不能使用类的泛型(从类和实例的生命周期考虑)
+            10：异常类不能是泛型
+            11：通过泛型实例化时，不能使用new T[]。但是可以：T[] element = (T[])new Object[];
+            12：父类有泛型，子类可以选择保留泛型也可以选择指定泛型类型
+                有以下这几种情况：
+
+                ```java
+                    class Father<T1,T2>{}
+                    //子类不保留父类的泛型
+                    //1：没有类型  擦除
+                    class Son1 extends Father{} //等价于class Son extends Father<Object,Object>{}
+                    //2:具体类型
+                    class Son2 extends Father<Integer,String>{}
+
+                    //子类保留父类的泛型
+                    //1:全部保留
+                    class Son3<T1,T2> extends Father<T1,T2>{}
+                    //2：部分保留
+                    class Son4<T2> extends Father<Integer,T2>{}
+
+                    //子类不保留父类的泛型
+                    //1：没有类型 擦除
+                    class Son<A,B> extends Father{}//等价于 class Son extends Father<Object,Object>{}
+                    //2具体类型
+                    class Son<A,B> extends Father<Integer,String>{} //另外的Son额外的还有自己的泛型
+
+                    //子类保留父类的泛型
+                    //1：全部保留
+                    class Son<T1,T2,A,B> extends Father<T1,T2>{}
+                    //2：部分保留
+                    class Son<T2,A,B> extends Father<Integer,T2>{}
+                ```
+
+    自定义泛型方法
+        概念：在方法中出现了泛型的结构，泛型的参数与类的泛型参数没有任何关系
+              换句话说，泛型方法所属的类是不是泛型类都没有关系
+        
+        泛型方法的基本结构： public <T> T see(){}
+        
+        用法：
+            实例：
+
+            ```java
+                public <E> List<E> copyFromArrayTolist(E[] arr){
+                        ArrayList<E> list = new ArrayList<>();
+                        for(E e:arr){
+                            list.add(e);
+                        }
+                        return list;
+                    }
+            ```
+        说明：泛型方法，可以声明为静态的。原因：泛型参数是在调用方法时确定的。并非在实例化类时确定
+
+    泛型在继承方面的体现
+        虽然类A是类B的父类，但是G<A>和G<B>二者不具备子类父类关系，二者是并列关系
+        补充：类A是类B的父类，A<G>是B<G>的父类
+
+        各种事例说明：
+
+            ```java
+                Object obj = null;
+                String str = null;
+                obj = str;
+
+                Object[] arr1 = null;
+                String[] arr2 = null;
+                arr1 = arr2;
+
+                List<Object> list1 = null;
+                List<String> list2 = null;
+                //此时的list1和list2的类型不具备子父类关系
+                //list1 = list2;
+
+                List<String> list3 = null;
+                ArrayList<String> list4 = null;
+                list3 = list4;//这时候是可以的
+            ```
+        
+
+    通配符的使用
+        1：通配符：?
+        2：说明：类A和类B的父类，G<A>和G<B>是没有关系的，二者共同的父类是：G<?>
+            事例说明：通配符的作用：
+
+            ```java
+                List<Object> list1 = null;
+                List<String> list2 = null; 
+                List<?> list = null;
+                list = list1;
+                list = list2;
+                //说明：list1和list2是并列关系，通配符让list是list1和list2的父类
+            ```
+
+            事例：
+
+            ```java
+                List<?> list = null;
+                List<String> list1 = new ArrayList<>();
+                list1.add("AA");
+                list1.add("BB");
+                list1.add("CC");
+                list = list1;
+                //添加或者写入：对于List<?>就不能向其内部添加数据。除了添加null之外
+                //list.add("DD");
+                
+                //获取(读取)：允许读取数据，读取数据类型为Object
+                Object o = list.get(0);
+                System.out.println(o);
+            ```
+        
+        3：有限制条件的通配符的使用
+            事例：
+
+            ```java
+                List<? extends Person> list1 = null;
+                List<? super Person> list2 = null;
+                List<Person> list3 = null;
+                List<Student> list4 = null;
+                List<Object> list5 = null;
+                //list1大于等于list3或list4的类，可以将list3或list4赋值给list1，但是大于list1的类不能赋值给list1
+                list1 = list3;
+                list1 = list4;
+                //list1 = list5;不可以，编译不通过
+
+                //list2小于于list3或list5的类，可以将list3或list5赋值给list1，但是小于list1的类不能赋值给list1
+                //list2 = list4;不可以，编译不通过
+                list2 = list3;
+                list2 = list5;
+            ```
+
+    泛型应用举例
+        DAO类
+
+        ```java
+            public class DAO<T> {
+                private Map<String,T> map = new HashMap<>();
+                //保存T类型的兑现到map成员变量中
+                public void save(String id,T entity){
+                    map.put(id,entity);
+                }
+                //从map中获取id对应的对象
+                public T get(String id){
+                    return map.get(id);
+                }
+                //替换map中key为id的内容，改为entity对象
+                public void update(String id,T entity){
+                    if(map.containsKey(id)){
+                        map.put(id,entity);
+                    }
+                }
+                //返回map中存放的所有的T对象
+                public List<T> list(){
+                    Collection<T> values = map.values();
+                    List<T> list = new ArrayList<>();
+                    for(T e:values){
+                        list.add(e);
+                    }
+                    return  list;
+                }
+                //删除指定id对象
+                public void remove(String id){
+                    map.remove(id);
+                }
+            }
+        ```
+
+        User类
+
+        ```java
+            public class User {
+                private int id;
+                private int age;
+                private String name;
+                public User(int id, int age, String name) {
+                    this.id = id;
+                    this.age = age;
+                    this.name = name;
+                }
+                @Override
+                public String toString() {
+                    return "User{" +
+                            "id=" + id +
+                            ", age=" + age +
+                            ", name='" + name + '\'' +
+                            '}';
+                }
+                @Override
+                public boolean equals(Object o) {
+                    if (this == o) return true;
+                    if (o == null || getClass() != o.getClass()) return false;
+
+                    User user = (User) o;
+
+                    if (id != user.id) return false;
+                    if (age != user.age) return false;
+                    return name != null ? name.equals(user.name) : user.name == null;
+                }
+            }
+        ```
+
+        DAOTest类
+
+        ```java
+            public class DAOTest {
+                public static void main(String[] args) {
+                    DAO<User> dao = new DAO<>();
+                    dao.save("1001",new User(1001,34,"周杰伦"));
+                    dao.save("1002",new User(1002,20,"昆凌"));
+                    dao.save("1003",new User(1003,34,"蔡依林"));
+                    List<User> list = dao.list();
+                    list.forEach(System.out::println);
+                    System.out.println(list);
+                }
+            }
+        ```
     
                 
             
