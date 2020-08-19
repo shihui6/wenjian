@@ -1347,43 +1347,7 @@
                     final class A {}
 
         
-        7：抽象方法和抽象类
-            抽象方法
-                概念：使用abstract修饰的方法，没有方法体，只有声明。定义的是一种"规范"，就是告诉子类必须要给抽象方法提供具体实现
-            
-            抽象类
-                概念：包含抽象方法的类就是抽象类。通过abstract方法定义规范，然后要求子类必须定义具体实现。通过抽象类，我们就可以做到严格限制子类的设计，使子类之间更加通用
-
-                抽象类特点：
-                    1：有抽象方法的类只能定义成抽象类
-                    2：抽象类不能实例化，即不能用new来实例化抽象类
-                    3：抽象类可以包含属性，方法，构造方法。但是构造方法不能用来new实例，只能用来被子类调用
-                    4：抽象类只能用来被继承
-                    5：抽象方法必须被子类实现
-                    6：abstract不能用来修饰私有方法，静态方法，final的方法，final类
-
-                实例：
-
-                    ```java
-                        public abstract class Animal {
-                            //抽象方法的特点：没有实现，子类必须实现
-                            abstract public	void shout(); 
-                            public void run(){
-                                System.out.println("快跑");
-                            }
-                            public static void main(String[] args){
-                                Animal d = new Dog();
-                                d.shout();
-                                d.run();
-                            }
-                        }
-                        class Dog extends Animal{
-                            @Override
-                            public void shout() {
-                                System.out.println("汪汪汪");
-                            }
-                        }
-                    ```
+        
 
 ##数组(尚学堂)
     1:概念：
@@ -1623,6 +1587,328 @@
                 ```
 
 ##面向对象编程
+    **抽象类和抽象方法(硅谷)
+        abstract关键字的使用
+            1：abstract可以用来修饰的结构：类，方法
+            2：abstract修饰类：则为抽象类
+                >此类不能实例化(但是子类可以调用父类的构造器，所以才能调用父类的非静态方法)
+                >抽象类中一定有构造器，便于子类对象实例化的时候调用(涉及到子类对象实例化的全过程)
+                >开发中，都会提供抽象类的子类，让子类对象实例化
+            3：abstract修饰方法
+                >抽象方法只有方法的声明，没有方法体
+                >包含抽象方法的类一定是一个抽象类。反之，抽象类中是可以没有抽象方法的
+                >若子类重写了父类中(不止是直接父类)的所有的抽象方法后，子类才可以实例化
+                 若子类没有重写父类中(不止是直接父类)的所有的抽象方法，则子类也是一个抽象类，则需要abstract修饰一下
+        
+        抽象类应用
+            抽象类是用来模型化那些父类无法确定全部实现，而是由子类提供具体实现的对象的类
+
+        abstract使用上的注意点
+            1：abstract不能用来修饰：属性，构造方法等接口
+            2：abstract不能用来修饰私有方法，静态方法,final的方法，final的类
+
+        多态的应用：模板方法设计模式
+            抽象类体现的就是一种模板设计的模式，抽象类作为多个子类的通用模板，子类在抽象类的基础上进行扩展，改造，但子类总体上会保留抽象类的行为方式
+
+            实例理解：    
+                >当功能内部一部分实现是确定的，一部分实现是不确定的。这时可以把不确定的部分暴露出去，让子类实现
+                >换句话说，在软件开发中实现一个算法时，整体步骤很固定，通用，这些步骤已经在父类中写好了。但是某些部分易变，易变部分可以抽象出来，供不同子类实现。这就是一种模板模式
+            
+
+
+    **抽象方法和抽象类(尚学堂)
+            抽象方法
+                概念：使用abstract修饰的方法，没有方法体，只有声明。定义的是一种"规范"，就是告诉子类必须要给抽象方法提供具体实现
+            
+            抽象类
+                概念：包含抽象方法的类就是抽象类。通过abstract方法定义规范，然后要求子类必须定义具体实现。通过抽象类，我们就可以做到严格限制子类的设计，使子类之间更加通用
+
+                抽象类特点：
+                    1：有抽象方法的类只能定义成抽象类
+                    2：抽象类不能实例化，即不能用new来实例化抽象类
+                    3：抽象类可以包含属性，方法，构造方法。但是构造方法不能用来new实例，只能用来被子类调用
+                    4：抽象类只能用来被继承
+                    5：抽象方法必须被子类实现
+                    6：abstract不能用来修饰私有方法，静态方法，final的方法，final类
+
+                实例：
+
+                    ```java
+                        public abstract class Animal {
+                            //抽象方法的特点：没有实现，子类必须实现
+                            abstract public	void shout(); 
+                            public void run(){
+                                System.out.println("快跑");
+                            }
+                            public static void main(String[] args){
+                                Animal d = new Dog();
+                                d.shout();
+                                d.run();
+                            }
+                        }
+                        class Dog extends Animal{
+                            @Override
+                            public void shout() {
+                                System.out.println("汪汪汪");
+                            }
+                        }
+                    ```
+
+    **接口(硅谷)
+        **接口的使用
+            1：如何定义接口中的成员
+                JDK7以前，只能定义全局常量和抽象方法
+                    全局常量：public static final的，书写时候可以省略不写，省略的时候自动加上的
+                    抽象方法：public abstract的，可以省略，不写的时候，会自动加上
+                
+                JDK8：除了定义全局常量和抽象方法之外，还可以定义静态方法，默认方法(略)
+            
+            2：接口中不能定义构造器，意味着接口不能被实例化
+
+            3：java开发中，接口通过让类去实现(implements)的方式来使用
+                如果实现类覆盖了接口中所有的抽象方法，则此实现类就可以实例化
+                如果实现类没有覆盖接口中所有的抽象方法，则此实现类仍为一个抽象类
+
+            4：java类可以实现多个接口--->弥补了java单继承性的局限性
+                    格式：class AA extends BB implements CC,DD,EE
+
+            5:接口与接口之间可以继承，而且可以多继承
+
+            6：接口的具体使用，体现多态性
+                应用场景：
+                    安全代理：屏蔽对真实角色的直接访问
+                    远程代理：通过代理类处理远程方法调用
+                    延迟加载：先加载轻量级的代理对象，真正需要再加载真实对象
+                分类：
+                    静态代理(静态定义代理类)，下面的事例就是静态代理
+                    动态代理(动态生成代理类)
+                事例：
+
+                    ```java
+                        public class TestInterface {
+                            public static void main(String[] args){
+                                Computer c = new Computer();
+                                //1创建了接口的非匿名实现类的非匿名对象
+                                Flash f = new Flash();
+                                c.transferDate(f)
+                                //2创建了接口的非匿名实现类的匿名对象
+                                c.transferDate(new Flash())
+                                //3：创建了接口的匿名实现类的非匿名对象
+                                USB p = new USB(){
+                                    public void start(){
+                                        System.out.println("手机开始工作了");
+                                    }
+                                    public void stop(){
+                                        System.out.println("手机结束工作了");
+                                    }
+                                }
+                                c.transferDate(p)
+                                //4：创建了接口的匿名实现类的匿名对象
+                                c.transferDate(new USB(){
+                                    public void start(){
+                                        System.out.println("MP3开始工作了");
+                                    }
+                                    public void stop(){
+                                        System.out.println("MP3结束工作了");
+                                    }
+                                })
+
+                            }
+                        }
+                        class Computer {
+                            public void transferDate(USB usb){ //这边接口上说明了多态性
+                                usb.start();
+                                usb.stop()
+                            }
+                        }
+                        interface USB {
+                            //也可以定义常量：定义长，宽，最大最小传输速度等
+                            void start();
+                            void stop();
+                        }
+                        class Flash implements USB{
+                            public void start(){
+                                System.out.println("U盘开始工作了");
+                            }
+                            public void stop(){
+                                System.out.println("U盘结束工作了");
+                            }
+                        }
+                        class Printer implements USB{
+                            public void start(){
+                                System.out.println("打印机开始工作了");
+                            }
+                            public void stop(){
+                                System.out.println("打印机结束工作了");
+                            }
+                        }
+                    ```
+            7：接口的代理模式
+                概念：代理模式是java开发中使用较多的一种设计模式。代理设计就是为其他对象提供一种代理以控制对这个对象的访问
+
+                事例：
+
+                    ```java
+                        public class TestProxy {
+                            public static void main(String[] args){
+                                Server server = new Server();
+                                ProxyServer proxyServer = new ProxyServer(server);
+                                proxyServer.browse();
+                            }
+                        }
+                        interface NetWork {
+                            void browse();
+                        }
+                        //被代理类
+                        class Server implements NetWork {
+                            public void browse{
+                                System.out.println("真实的服务器访问网络");
+                            }
+                        }
+                        //代理类
+                        class ProxyServer implements NetWork{
+                            private NetWork work;
+
+                            public ProxyServer(NetWork work){
+                                this.work = work;
+                            }
+                            public void check(){
+                                System.out.println("联网之前的检查工作");
+                            }
+                            public void browse(){
+                                check();
+                                work.browse();
+                            }
+                        }
+                    ```
+
+            8：JDK8字后增加的知识点
+                知识点1：接口中定义的静态方法，只能通过接口类调用
+                
+                知识点2：通过实现类的对象，可以调用接口中的默认方法
+
+                        如果实现类重写了接口中的默认方法，调用时，任然调用的是重写以后的方法
+
+                知识点3：如果子类(或实现类)继承的父类和实现的接口中声明了同名同参数的默认方法，那么子类在没有重写此方法的情况下，默认调用的是父类中的同名同参数的方法
+
+                知识点4：如果实现类实现了多个接口，而这个接口中定义了同名同参数的默认方法，那么在实现类没有重写此方法的情况下，会报错--->接口冲突；这就必须在实现类中重写此方法
+
+                知识点5：如何在子类(或实现类)的方法中调用父类，接口中被重写的方法
+                    事例：
+                        ```java
+                            class sub extends SuperClass implements ComparaA,ComparaB{
+                                public void methods3(){
+                                    System.out.println("sub中的methods3");
+                                }
+                                public void mymethods(){
+                                    methods3();//调用自己定义的重写的方法
+                                    super.methods3();//调用父类中的声明的方法
+                                    //调用接口中的默认方法
+                                    ComparaA.super.methods3();
+                                    ComparaB.super.methods3();
+                                }
+                            }
+                        ```
+
+
+
+        1：概念：
+            1：接口只定以规范，全面地实现了：规范和具体实现分离
+            2：抽象类还提供某些具体实现，接口不提供任何实现，接口中所有方法都是抽象方法。接口是完全面向规范，规定了一批类具有的公共方法规范
+            3：接口是契约是规范，必须遵守
+
+        2：声明格式
+            [访问修饰符] interface 接口名 [extends 父接口1，父接口2...] {
+                常量定义;
+                方法定义;
+            }
+
+        3：定义接口的详细说明：
+            1：访问修饰符：只能是public或默认
+            2：接口名：和类名采用相同命名机制
+            3：extends：接口可以多继承
+            4：常量：接口中的属性只能是常量，总是：public static final修饰。不写也是
+            5：方法：接口中的方法只能是：public abstract。省略的话，也是public abstract
+
+        4：要点：
+            1：子类通过implements来实现接口中的规范
+            2：接口不能创建实例，但是可用于声明引用变量类型
+            3：一个类实现了接口，必须实现接口中所有的方法，并且这些方法只能是public的
+            4：JDK1.7之前，接口只能包含静态常量，抽象方法，不能有普通属性，构造方法，普通方法
+            5：JDK1.8后，接口中包含普通的静态方法
+
+            实例：
+
+                ```java
+                    public class Shixian {
+                        public static void main(String[] args){
+                            Volant f = new Angel(); 
+                            //要是把f实例对象的类型写成Volant，编译器就会把f当成volant，而volant里面只有一个方法，所以在这里只能调用flay方法，虽然在Angel里面有Helpother方法，但是编译器并不知道。而f里面有关于接口Volant关于fly方法的实现，所以会调用Angel里面的fly方法。类似于子类继承父类，子类重写父类的方法，调用时会调用子类的方法。若调用的方法只有父类里有，则就会调用父类里的方法
+                            f.fly(); //输出飞起来了
+                        }
+                    }
+                    interface Volant {
+                        void fly();
+                        int FLY_HEIGHT = 1000;
+                    }
+                    interface Honest {
+                        void Helpother();
+                    }
+                    class Angel implements Volant,Honest{
+                        @Override
+                        public void Helpother() {
+                            // TODO Auto-generated method stub
+                            System.out.println("帮助别人");
+                        }
+                        @Override
+                        public void fly() {
+                            // TODO Auto-generated method stub
+                            System.out.println("飞起来了");
+                        }
+                    }
+                    class GoodMan implements Honest {
+                        @Override
+                        public void Helpother() {
+                            // TODO Auto-generated method stub
+                            System.out.println("好人帮助别人");
+                        }
+                    }
+                ```
+
+        
+
+        5：接口的多继承
+            概念：接口完全支持多继承。和类的继承类似，子接口扩展某个父接口，将会获得父接口中所定义的一切
+            用法：
+                事例：
+
+                    ```java
+                        interface A{
+                            void testa();
+                        }
+                        interface B{
+                            void testb();
+                        }
+                        interface C extends A,B{
+                            void testc();
+                        }
+
+                        class myDuo implements C {
+                            @Override
+                            public void testa() {
+                                // TODO Auto-generated method stub
+                            }
+                            @Override
+                            public void testb() {
+                                // TODO Auto-generated method stub
+                            }
+                            @Override
+                            public void testc() {
+                                // TODO Auto-generated method stub
+                            }
+                        }
+                    ```
+
     **封装(以下是尚学堂)
         1：封装的具体优点：
             1：提高代码的安全性
@@ -1916,260 +2202,7 @@
             4：异常往往在高层处理
         
 
-##接口(硅谷)
-    **接口的使用
-        1：如何定义接口中的成员
-            JDK7以前，只能定义全局常量和抽象方法
-                全局常量：public static final的，书写时候可以省略不写，省略的时候自动加上的
-                抽象方法：public abstract的，可以省略，不写的时候，会自动加上
-            
-            JDK8：除了定义全局常量和抽象方法之外，还可以定义静态方法，默认方法(略)
-        
-        2：接口中不能定义构造器，意味着接口不能被实例化
 
-        3：java开发中，接口通过让类去实现(implements)的方式来使用
-            如果实现类覆盖了接口中所有的抽象方法，则此实现类就可以实例化
-            如果实现类没有覆盖接口中所有的抽象方法，则此实现类仍为一个抽象类
-
-        4：java类可以实现多个接口--->弥补了java单继承性的局限性
-                格式：class AA extends BB implements CC,DD,EE
-
-        5:接口与接口之间可以继承，而且可以多继承
-
-        6：接口的具体使用，体现多态性
-            应用场景：
-                安全代理：屏蔽对真实角色的直接访问
-                远程代理：通过代理类处理远程方法调用
-                延迟加载：先加载轻量级的代理对象，真正需要再加载真实对象
-            分类：
-                静态代理(静态定义代理类)，下面的事例就是静态代理
-                动态代理(动态生成代理类)
-            事例：
-
-                ```java
-                    public class TestInterface {
-                        public static void main(String[] args){
-                            Computer c = new Computer();
-                            //1创建了接口的非匿名实现类的非匿名对象
-                            Flash f = new Flash();
-                            c.transferDate(f)
-                            //2创建了接口的非匿名实现类的匿名对象
-                            c.transferDate(new Flash())
-                            //3：创建了接口的匿名实现类的非匿名对象
-                            USB p = new USB(){
-                                public void start(){
-                                    System.out.println("手机开始工作了");
-                                }
-                                public void stop(){
-                                    System.out.println("手机结束工作了");
-                                }
-                            }
-                            c.transferDate(p)
-                            //4：创建了接口的匿名实现类的匿名对象
-                            c.transferDate(new USB(){
-                                public void start(){
-                                    System.out.println("MP3开始工作了");
-                                }
-                                public void stop(){
-                                    System.out.println("MP3结束工作了");
-                                }
-                            })
-
-                        }
-                    }
-                    class Computer {
-                        public void transferDate(USB usb){ //这边接口上说明了多态性
-                            usb.start();
-                            usb.stop()
-                        }
-                    }
-                    interface USB {
-                        //也可以定义常量：定义长，宽，最大最小传输速度等
-                        void start();
-                        void stop();
-                    }
-                    class Flash implements USB{
-                        public void start(){
-                            System.out.println("U盘开始工作了");
-                        }
-                        public void stop(){
-                            System.out.println("U盘结束工作了");
-                        }
-                    }
-                    class Printer implements USB{
-                        public void start(){
-                            System.out.println("打印机开始工作了");
-                        }
-                        public void stop(){
-                            System.out.println("打印机结束工作了");
-                        }
-                    }
-                ```
-        7：接口的代理模式
-            概念：代理模式是java开发中使用较多的一种设计模式。代理设计就是为其他对象提供一种代理以控制对这个对象的访问
-
-            事例：
-
-                ```java
-                    public class TestProxy {
-                        public static void main(String[] args){
-                            Server server = new Server();
-                            ProxyServer proxyServer = new ProxyServer(server);
-                            proxyServer.browse();
-                        }
-                    }
-                    interface NetWork {
-                        void browse();
-                    }
-                    //被代理类
-                    class Server implements NetWork {
-                        public void browse{
-                            System.out.println("真实的服务器访问网络");
-                        }
-                    }
-                    //代理类
-                    class ProxyServer implements NetWork{
-                        private NetWork work;
-
-                        public ProxyServer(NetWork work){
-                            this.work = work;
-                        }
-                        public void check(){
-                            System.out.println("联网之前的检查工作");
-                        }
-                        public void browse(){
-                            check();
-                            work.browse();
-                        }
-                    }
-                ```
-
-        8：JDK8字后增加的知识点
-            知识点1：接口中定义的静态方法，只能通过接口类调用
-            
-            知识点2：通过实现类的对象，可以调用接口中的默认方法
-
-                    如果实现类重写了接口中的默认方法，调用时，任然调用的是重写以后的方法
-
-            知识点3：如果子类(或实现类)继承的父类和实现的接口中声明了同名同参数的默认方法，那么子类在没有重写此方法的情况下，默认调用的是父类中的同名同参数的方法
-
-            知识点4：如果实现类实现了多个接口，而这个接口中定义了同名同参数的默认方法，那么在实现类没有重写此方法的情况下，会报错--->接口冲突；这就必须在实现类中重写此方法
-
-            知识点5：如何在子类(或实现类)的方法中调用父类，接口中被重写的方法
-                事例：
-                    ```java
-                        class sub extends SuperClass implements ComparaA,ComparaB{
-                            public void methods3(){
-                                System.out.println("sub中的methods3");
-                            }
-                            public void mymethods(){
-                                methods3();//调用自己定义的重写的方法
-                                super.methods3();//调用父类中的声明的方法
-                                //调用接口中的默认方法
-                                ComparaA.super.methods3();
-                                ComparaB.super.methods3();
-                            }
-                        }
-                    ```
-
-
-
-    1：概念：
-        1：接口只定以规范，全面地实现了：规范和具体实现分离
-        2：抽象类还提供某些具体实现，接口不提供任何实现，接口中所有方法都是抽象方法。接口是完全面向规范，规定了一批类具有的公共方法规范
-        3：接口是契约是规范，必须遵守
-
-    2：声明格式
-        [访问修饰符] interface 接口名 [extends 父接口1，父接口2...] {
-            常量定义;
-            方法定义;
-        }
-
-    3：定义接口的详细说明：
-        1：访问修饰符：只能是public或默认
-        2：接口名：和类名采用相同命名机制
-        3：extends：接口可以多继承
-        4：常量：接口中的属性只能是常量，总是：public static final修饰。不写也是
-        5：方法：接口中的方法只能是：public abstract。省略的话，也是public abstract
-
-    4：要点：
-        1：子类通过implements来实现接口中的规范
-        2：接口不能创建实例，但是可用于声明引用变量类型
-        3：一个类实现了接口，必须实现接口中所有的方法，并且这些方法只能是public的
-        4：JDK1.7之前，接口只能包含静态常量，抽象方法，不能有普通属性，构造方法，普通方法
-        5：JDK1.8后，接口中包含普通的静态方法
-
-        实例：
-
-            ```java
-                public class Shixian {
-                    public static void main(String[] args){
-                        Volant f = new Angel(); 
-                        //要是把f实例对象的类型写成Volant，编译器就会把f当成volant，而volant里面只有一个方法，所以在这里只能调用flay方法，虽然在Angel里面有Helpother方法，但是编译器并不知道。而f里面有关于接口Volant关于fly方法的实现，所以会调用Angel里面的fly方法。类似于子类继承父类，子类重写父类的方法，调用时会调用子类的方法。若调用的方法只有父类里有，则就会调用父类里的方法
-                        f.fly(); //输出飞起来了
-                    }
-                }
-                interface Volant {
-                    void fly();
-                    int FLY_HEIGHT = 1000;
-                }
-                interface Honest {
-                    void Helpother();
-                }
-                class Angel implements Volant,Honest{
-                    @Override
-                    public void Helpother() {
-                        // TODO Auto-generated method stub
-                        System.out.println("帮助别人");
-                    }
-                    @Override
-                    public void fly() {
-                        // TODO Auto-generated method stub
-                        System.out.println("飞起来了");
-                    }
-                }
-                class GoodMan implements Honest {
-                    @Override
-                    public void Helpother() {
-                        // TODO Auto-generated method stub
-                        System.out.println("好人帮助别人");
-                    }
-                }
-            ```
-
-    
-
-    5：接口的多继承
-        概念：接口完全支持多继承。和类的继承类似，子接口扩展某个父接口，将会获得父接口中所定义的一切
-        用法：
-            事例：
-
-                ```java
-                    interface A{
-                        void testa();
-                    }
-                    interface B{
-                        void testb();
-                    }
-                    interface C extends A,B{
-                        void testc();
-                    }
-
-                    class myDuo implements C {
-                        @Override
-                        public void testa() {
-                            // TODO Auto-generated method stub
-                        }
-                        @Override
-                        public void testb() {
-                            // TODO Auto-generated method stub
-                        }
-                        @Override
-                        public void testc() {
-                            // TODO Auto-generated method stub
-                        }
-                    }
-                ```
 
 ##枚举类&注解
     **枚举类型
