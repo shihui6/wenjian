@@ -1,4 +1,4 @@
-##线程
+##线程(硅谷)
     **概念：
         程序，进程，线程的基本概念
             1：程序：是为完成特定任务，用某种语言编写的一组指令集合。即指一段静态代码，静态对象
@@ -787,8 +787,266 @@
         String substring(int beginIndex)：返回一个新的字符串，他是此字符串的从beginIndex开始截取
         String subString(int beginIndex,int endIndex)：返回一个新字符串，它是此字符串从beginIndex开始，到endInde结束(不包含)
 
+    (下面是尚学堂的)
+    **包装类
+        概念：java是面向对象的语言，但并不是"纯面向对象"的，因为我们经常用到的基本数据类型就不是对象。但是我们在实际应用中经常需要将基本数据类型转化成对象，以便于操作，所以产生了包装类，包装类的实质还是由基本数据类型组成的。比如：将基本数据类型存储到Object[]数组或集合中的操作等等
 
-##java集合
+        理解包装类：方法中比如say(Object e);这里的e参数就不可以用int类型因为int的祖父类就是他自己，但是可以用Integer类型，Integer最终类指向Object
+
+        包装类均位于java.lang包，八种包装类和基本类型的对应关系如下：
+                        基本数据类型        包装类
+                            byte            Byte
+                            boolean         Boolean
+                            short           Short
+                            char            Charcter
+                            int             Integer
+                            long            Long
+                            float           Float
+                            double          Double
+
+            用法：
+                实例：
+
+                ```java
+                    public static void main(String[] args){
+                            //基本数据类型转成包装类对象
+                            Integer a = new Integer(3);
+                            Integer b = Integer.valueOf(30);
+                            //把包装类对象转成基本数据
+                            int c = b.intValue();
+                            double d = b.doubleValue();
+                            //把字符串转成包装类对象
+                            Integer e = new Integer("99999");
+                            Integer f = Integer.parseInt("999888");
+                            //把包装类对象转成字符串
+                            String str = f.toString();
+                            //常见的常量
+                            System.out.println("int类型最大的整数"+Integer.MAX_VALUE);
+                        }
+                ```
+
+        2:自动装箱和拆箱
+            1：自动装箱
+                概念：基本类型的数据处于需要对象的环境中时，会自动转为"对象"
+                实例：我们以Integer为例：在JDK1.5以前，这样的代码Integer i=5是错误的，必须要通过Integer i=new Integer(5)这样的语句来实现基本数据类型转换成包装类的过程；而在JDK1.5以后，java提供了自动装箱的功能，因此只需要Integer i=5这样的语句就能实现基本数据类型转换成包装类，这是因为JVM为我们执行了Integer.valueOf(5)这样的操作，这就是java的自动装箱
+
+            2：自动拆箱
+                概念：每当需要一个值时，对象会自动转成基本数据类型，没必要再去显示调用intValue()
+                实现原理和自动拆箱的一样的，通过编译器进行转换(或者说是JVM执行了转换操作)
+
+        3:包装类自动缓存
+            用法
+                实例：
+
+                ```java
+                    //缓存[-128,127]之间的数字，实际就是系统初始的时候，创建了[-128,127]之间的一个缓存数组
+                    Integer in1 = 123;
+                    Integer in2 = 123;
+                    System.out.println(in1 == in2);		//true 因为123在缓存范围内
+                    System.out.println(in1.equals(in2) );
+                    Integer in3 = 1234;
+                    Integer in4 = 1234;
+                    System.out.println(in3 == in4);	//false 因为1234不在缓存范围内
+                    System.out.println(in3.equals(in4));
+                ```
+                实例自动缓存原理：当我么你调用valueOf()的时候，首先检查是否在[-128,127]之间，如果在这个范围内则直接从缓存数组中拿出已经建好的对象如果不在这个范围，则创建新的Integer对象
+
+
+    **时间相关类
+        1：DateFormate类的作用：
+            把时间对象转化成指定格式的字符串。反之，把指定格式的字符串转化成时间对象
+            DateFormate是一个抽象类，一般使用它的子类SimpleDateFormate类来实现
+
+            用法：
+                事例：测试时间对象和字符串之间的互相转换
+
+                ```java
+                    public static void main(String[] args) throws ParseException{
+                            Date d = new Date();
+                            System.out.println(d);
+                            System.out.println(d.getTime());	//转成毫秒
+                            
+                            //遇到日期处理，使用Canlendar类
+                            
+                            //把时间对象按照指定的格式，转成相应格式的字符串
+                            DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                            String str = df.format(d.getTime());
+                            System.out.println(str);	//2020-08-03 02:22:38
+                            
+                            //把指定格式的字符串按照"格式字符串指定的格式"转成相应的时间对象
+                            DateFormat df2 = new SimpleDateFormat("yyyy年MM月dd日 hh时mm分ss秒");
+                            Date date = df2.parse("1983年05月10日 10时45分59秒");
+                            System.out.println(date);	//Tue May 10 10:45:59 CST 1983
+                            
+                            //测试其他的格式字符：比如：利用D，获得本时间对象是所处年份的第几天
+                            DateFormat df3 = new SimpleDateFormat("D");
+                            String str3 = df3.format(new Date());
+                            System.out.println(str3);
+                        }
+                ```
+        
+        2：Canlendar日历类
+            概念：
+                Canlendar类是一个抽象类，为我们提供了关于日期计算的相关功能，比如：年，月，日，时，分，秒的展示和计算
+                GregorianCalendar是Calendar的一个具体子类，提供了世界上大多数国家/地区使用的标准日历系统
+
+            用法：
+                事例
+
+                ```java
+                    public static void main(String[] args){
+                            //获取日期的相关元素
+                            Calendar calendar = new GregorianCalendar(2020,7,3,22,10,50);
+                            int year = calendar.get(Calendar.YEAR);
+                            int month = calendar.get(Calendar.MONTH);
+                            int day = calendar.get(Calendar.DATE); //几号
+                            int weekday = calendar.get(Calendar.DAY_OF_WEEK);//星期几，1：星期日，2：星期一。。。7星期六
+                            System.out.println(year);	
+                            System.out.println(month);	//0-11表示对应的月份
+                            System.out.println(weekday);//表示星期几
+                            System.out.println(day);
+                            
+                            
+                            //设置日期的相关元素
+                            Calendar c2 = new GregorianCalendar();//不传参数，默认设置当前日期
+                            c2.set(Calendar.YEAR, 2090);
+                            System.out.println(c2); //输出c2的日历的有关的对象的信息
+                            
+                            //日期的计算
+                            Calendar c3 = new GregorianCalendar();
+                            c3.add(Calendar.DATE, 100);	//往后一百天
+                            c3.add(Calendar.YEAR, 100); //往后一百年
+                            System.out.println(c3);
+                            
+                            //日期对象和时间对象的转化
+                            Date d4 = c3.getTime();
+                            Calendar c4 = new GregorianCalendar();
+                            c4.setTime(new Date());
+                            System.out.println(c4);
+                            
+                            printCalendar(c4);
+                        }
+                        
+                        //疯转方法转换：将日期转成要想的时间格式
+                        public static void printCalendar(Calendar c){
+                            //打印：1918年10月10日 11:23:45 周三
+                            int year = c.get(Calendar.YEAR);
+                            int month = c.get(Calendar.MONTH)+1;
+                            int date = c.get(Calendar.DAY_OF_MONTH);    //当月的第几天
+                            int dayweek = c.get(Calendar.DAY_OF_WEEK)-1;//当月周几
+                            String dayweek2 = dayweek==0?"日":dayweek+"";
+                            
+                            int hour = c.get(Calendar.HOUR);
+                            int minute = c.get(Calendar.MINUTE);
+                            int second = c.get(Calendar.SECOND);
+                            
+                            System.out.println(year+"年"+month+"月"+date+"日");
+                        }
+                ```
+
+    **String类和常量池 (下面是尚学堂)
+        1：概念：
+            1：String类又称不可变字符序列
+            2：java字符串就是Unicode字符序列，例如字符串"java"就是4个Unicode字符"j","a","v","a"组成的
+            3：java没有内置的字符串类型，而是在标准的java类库中提供了一个预定义的类String，每个用双引号括起来的字符串都是String类的一个实例
+            4：String属于引用数据类型
+            5：声明String类型时，使用一对"",
+            6:String可以和8种基本数据类型变量做运算，且运算只能是连接运算：+，运算结果任然为String类型
+
+        2；全局字符串常量池
+            全局字符串常量池中存放的内容是类加载完成后存放到String Pool中的，在每个VM中只有一份，存放的是字符串常量的引用值(在堆中生成字符串对象实例)
+
+        3：class文件常量池
+            class常量池是在编译的时候每个class都有的，在编译阶段，存放的是常量(文本字符串，final常量等)和符号引用
+
+        4：运行时常量池
+            运行时常量池是在类加载完成之后，将每个class常量池中的符号引用值存放到运行时常量池中，也就是说，每个class都有一个运行时常量池，类在解析之后，将符号引用替换成直接引用，与全局常量池中的引用保持一致
+        
+            实例：
+
+                ```java
+                    String str1 = "gaoqi";
+                    String str2 = "gaoqi";
+                    String str3 = new String("gaoqi");
+                    System.out.println(str1 == str3)//返回false，str1引用指向"gaoqi"字符串常量池，str3指向新建的对象，两个地址不一样所以false
+                    System.out.println(str1.equals(str3)) //返回true,因为equals直接比较内容
+                ```
+
+        5：String的API
+                事例：
+
+                    ```java
+                        String s2 = " How are you! ";
+                        String s3 = "shihui"
+                        s = s2.trim();  //trim方法去除字符串守卫的空格。
+                        s = s2.toLowerCase(); //toLowerCase转小写
+                        s = s2.toUpperCase(); //toUpperCase转大写
+                        s = s2.subString(4,7); //subString提取字符串：下标[4,7)不包括7
+                        s = s2.startsWith("How"); //startsWith是否以How开头
+                        s = s2.endsWith("How"); //endsWith是否以you结尾
+                        s = s2.charAt(6); //charAt提取下标为6的字符
+                        s = s2.length(); //length字符串长度
+                        s = s2.equals(s3); //equals比较两个字符串是否相等
+                        s = s2.equalsIgnoreCase(s3); //equalsIgnoreCase比较两个字符串是否相等(忽略大小写)
+                        s = s2.indexOf("you"); //indexOf字符串s1中是否包含you
+                        s = s2.replace('','&'); //replace将s2中的空格替换成&
+                    ```
+
+        6：StringBuilder和StringBuffer
+            概念：
+                StringBuilder和StringBuffer是可变字符序列(在堆中的原来的对象空间里修改)，而String类是不可变字符序列(堆中原来的对象中修改不了，修改完之后，赋值给新创建的对象)
+
+                StringBuilder线程不安全，效率高(一般使用它)；StringBuffer线程安全，效率低
+
+            用法：
+                事例：简单的使用
+
+                ```java
+                    public static void main(String[] args){
+                            StringBuilder sb = new StringBuilder("abcdefg");
+                            System.out.println(Integer.toHexString(sb.hashCode())); //15db9742
+                            System.out.println(sb); //abcdefg
+                            sb.setCharAt(2,'M');
+                            System.out.println(Integer.toHexString(sb.hashCode())); //15db9742
+                            System.out.println(sb); //abMdefg
+                        }
+                ```
+                    事例说明：说明了，StringBuilder是可变字符序列，修改的是字符本身
+
+            
+            使用不可变字符序列和可变字符序列使用时的性能测试
+                事例：
+
+                ```java
+                    public static void main(String[] args){
+                            //使用String进行字符串拼接
+                            String str1 = "";
+                            //本质上使用StringBuilder拼接，但是每次循环都会生成一个StringBuilder对象
+                            long num1 = Runtime.getRuntime().freeMemory();//获取系统剩余内存空间
+                            long time1 = System.currentTimeMillis(); //获取系统的当前时间
+                            for(int i=0;i<5000;i++){
+                                str1 = str1 + i;
+                            }
+                            long num2 = Runtime.getRuntime().freeMemory();
+                            long time2 = System.currentTimeMillis();
+                            System.out.println("String占用内存"+ (num2-num1));      //String占用内存12406960
+                            System.out.println("String占用时间"+ (time2-time1));    //String占用时间81毫秒
+                            
+                            StringBuilder sb1 = new StringBuilder("");
+                            long num3 = Runtime.getRuntime().freeMemory();
+                            long time3 = System.currentTimeMillis();
+                            for(int i=0;i<5000;i++){
+                                sb1.append(i);
+                            }
+                            long num4 = Runtime.getRuntime().freeMemory();
+                            long time4 = System.currentTimeMillis();
+                            System.out.println("StringBuilder占用内存"+ (num4-num3));      //Stringbuilder占用内存0
+                            System.out.println("StringBuilder占用时间"+ (time4-time3));     //StringBUilder占用时间1毫秒
+                        }
+                ```
+                    测试结果：结果为Stringbuilder可变字符序列的性能比不可变字符的性能高很多。
+
+##java集合(硅谷)
     **集合框架的概述
         1：集合，数组都是对多个数据进行存储操作的结构，简称java容器
             说明：此时的存储，主要指的是内存层面的存储，不涉及到持久化的存储(.txt,.jpg,.avi,数据库存储)
@@ -853,6 +1111,645 @@
                 coll.clear()
             ```
 
+##java集合(尚学堂)
+    双列集合和单列集合的概念：
+        Collection接口：单列集合，用来存储一个一个的对象
+            List接口：存储有序的，可重复的数据 -->“动态”数组
+                    ArrayList,LinkedList,Vector
+            Set接口：存储无序的，不可重复的数据
+                    hashSet,LinkedHashSet,TreeSet
+            
+            Map接口，双列集合，用来存储一对(key,value)的数据
+                    HashMap,LinkHashMap,TreeMap,Hashtable,Properties
+    
+    概念：
+        是个对象，用来装其他对象的对象
+        在容器中Collection是父接口,list和set是子接口
+    数组：
+        数组就是一种容器，可以在其中放置对象或基本数据类型
+        数组的优势：是一种简单的线性序列，可以快速地访问数组元素，效率高。如果从效率和类型检查的角度讲，数组是最好的
+        数组的劣势：不灵活。容量需要事先定义好，不能随着需求的变化而扩容。比如：我们在一个用户管理中，要把今天注册的所有用户取出来，那么这样的用户有多少个？我们在写程序时就无法确定。因此，在这里就不能使用数组
+
+    泛型：
+        概念：泛型是JDK1.5以后增加的，它可以帮助我们建立类型安全的集合
+        本质：就是"数据类型的参数化"。我们可以把"泛型"理解为数据类型的一个占位符(形式参数)，即告诉编译器，在调用泛型时必须传入实际类型
+        用法：我们可以在类的声明处增加泛型列表，如：<T,E,V>，此处，字符可以是任何标识符，一般采用这3个字母
+
+        事例：
+
+            ```java
+                public class TESTGeneric {
+                    public static void main(String[] args){
+                        MyCollection<String> mc = new MyCollection<String>/*new 类名<这里泛型实参可传可不传>*/();//传入的实参
+                        mc.set("今天好开心", 0);
+                        String b = mc.get(0);
+                        System.out.println(b);
+                    }
+                }
+                class MyCollection<E>{  //<E>相当于定了形参
+                    Object[] objs = new Object[5];
+                    public void set(E obj,int index){
+                        objs[index] = obj;
+                    }
+                    public E get(int index){
+                        return (E)objs[index]; //解释：Object的类型强制转成String，因为Object类是所有类型的父类
+                    }
+                }
+            ```
+
+    容器中使用泛型
+        操作多个list交集并集
+        事例：
+
+        ```java
+            public static void test01(){
+                    List<String> list01 = new ArrayList<>();
+                    list01.add("aa");
+                    list01.add("bb");
+                    list01.add("cc");
+                    List<String> list02 = new ArrayList<>();
+                    list02.add("aa");
+                    list02.add("dd");
+                    list02.add("ee");
+                    //list01.addAll(list02);	//将list02里面的元素全部添加到list01里输出list01结果为[aa, bb, cc, aa, dd, ee]
+                    //list01.removeAll(list02); //将相同的部分去掉输出list01结果为[bb, cc]
+                    //list01.retainAll(list02);  //只输出相同部分，输出list01结果为[aa]
+                    //list01.containsAll(list02);//list01里面是否包含list02里面所有的元素，是返回true，否返回false
+                    System.out.println(list01);
+                }
+        ```
+
+    **List:
+        概念：
+            list是有序，可重复的容器
+            有序：List中每个元素都有索引标记。可以根据元素的索引标记(在List中的位置)访问元素，从而精确控制这些元素
+            可重复：List允许加入重复的元素。更确切地讲，List通常允许满足e1.equals(e2)的元素重复加入容器
+
+        List接口常用的实现类有3个：ArrayList,LinkedList和Vector
+
+        建议：
+            需要线程安全时，用Vector
+            不存在线程安全问题时，并且查找较多用ArrayList(一般使用它)
+            不存在线程安全问题时，增加或删除元素较多用LinkedList
+
+        事例：
+
+        ```java
+            public static void test02(){
+                    List<String> list = new ArrayList<>();
+                    list.add("A");
+                    list.add("B");
+                    list.add("C");
+                    list.add("D");
+                    list.add(2, "石惠");//在2位置插入新的字符串"石惠"，后面的内容会依次往后移动，输出结果[A, B, 石惠, C, D]
+                    list.remove(2);//把2位置处对应的内容删掉，输出结果[A, B, C, D]
+                    list.set(2, "石老二");//将2位置处的内容替换成"石老二"
+                    list.indexOf("B");//返回指定的位置第一次出现的位置，不存在返回-1
+                    list.lastIndexOf("B");//返回最后出现的指定元素的位置，否则返回-1
+                    System.out.println(list);
+                }
+        ```
+
+        ArrayList
+            特点：
+                ArrayList底层是用数组实现的存储。特点：查询效率高，增删效率低，线程不安全
+                数组长度是有限的，而ArrayList是可以存放任意数量的对象，长度不受限制
+        
+        LinkedList
+            特点：增加或删除的效率非常高
+
+        Vector
+            特点：Vector底层是用数组实现的List，相关的方法都加上了同步检查，因此"线程安全，效率低"。比如，indexOf方法就增加了synchronized同步标记
+
+
+    **set：
+        概念：Set接口继承自Collection，Set接口中没有新增方法，方法和Collection保持完全一致。我们在前面通过List学习的方法，在Set中仍然适用。因此，学习Set的使用将没有任何难度
+
+        特点：无序，不可重复。无序指Set中的元素没有索引，我们只能遍历查找；不可重复指的是不允许加入重复的元素。更确切地讲，新元素如果和Set中某个元素通过equals()方法对比为true，则不能加入；甚至，Set中也只能发乳一个null元素，不能多个
+
+        Set常用的实现类有：HashSet，TreeSet等。我们一般使用HashSet
+
+        HashSet
+            事例：
+
+                ```java
+                    public class TestHashSet {
+                        public static void main(String[] args){
+                            Set<String> set1 = new HashSet<>();
+                            set1.add("aa");
+                            set1.add("bb");
+                            set1.add("cc");
+                            System.out.println(set1);//[aa, bb, cc]
+                            Set<String> set2 = new HashSet<>();
+                            set2.add("小时");
+                            set2.addAll(set1);
+                            System.out.println(set2); //[aa, bb, cc, 小时]
+                        }
+                    }
+                ```
+
+            事例：hashSet源码实现
+
+                ```java
+                    public class SxtHashSet {
+                        private static final Object PRESENT = new Object();
+                        HashMap map;
+                        public SxtHashSet() {
+                            super();
+                            map = new HashMap();
+                        }
+                        public int size(){
+                            return map.size();
+                        }
+                        public String toString(){
+                            StringBuilder s = new StringBuilder();
+                            s.append("[");
+                            for(Object key:map.keySet()){
+                                s.append(key + ",");
+                            }
+                            s.setCharAt(s.length()-1, ']');
+                            return s.toString();
+                        }
+                        public void add(Object o){
+                            map.put(o, PRESENT);
+                        }
+                        public static void main(String[] args){
+                            SxtHashSet  set = new SxtHashSet();
+                            set.add("aa");
+                            set.add("bb");
+                            set.add("cc");
+                            System.out.println(set);//[aa,bb,cc]
+                        }
+                    }
+                ```
+
+        
+        TreeSet的使用和实现
+            概念：TreeSet底层实际是用TreeMap实现的，内部维持了一个简化版的TreeMap 通过key来存储Set的元素。TreeSet内部需要对存储的元素进行排序，因此，我们对应的类需要实现Comparable接口。这样，才能根据compareTo()方法比较对象之间的大小，才能进行内部排序
+
+            原理实现：TreeSet的排序的实现原理和TreeMap的实现原理是一样的，可以参考TreeMap的代码
+
+            事例：TreeSet简单的使用
+
+                ```java
+                    public class TestTreeSet {
+                        public static void main(String[] args){
+                            Set<Integer> set = new TreeSet<>();
+                            set.add(300);
+                            set.add(200);
+                            set.add(600);
+                            for(Integer key:set){
+                                System.out.println(key);
+                                //按照顺序输出200，300，600
+                            }
+                        }
+                    }
+                ```
+
+            
+    **map
+        概念：map就是用来存储"键(key)-值(value)对"的。Map类中存储的"键值对"通过键来标识，所以"键对象"不能重复,如果键重复的话，新的覆盖旧的
+
+        Map接口中实现类有HashMap,treeMap,HashTable,Properties等
+
+        Map接口中常用的方法
+            object put(object key,Object value)     存放键值对
+            Object get(Object key)                  通过键对象查找得到值对象
+            Object remove(Object key)               删除键对象对应的键值对
+            boolean containsKey(object key)         Map容器中是否包含键对象对应的键值对
+            boolean containsvalue(Object value)     Map容器中是否包含值对象对应的键值对
+            int size()                              包含键值对的数量
+            boolean isEmpty()                       Map是否为空
+            void putAll(Map t)                      将t的所有键值对存放到本map对象
+            void clear()                            清空本map对象所有键值对
+
+        事例：简单的例子
+
+            ```java
+                public class TestMap {
+                    public static void main(String[] args){
+                        Map<Integer,String> m1 = new HashMap<>();
+                        m1.put(1, "one");
+                        m1.put(2, "two");
+                        m1.put(3, "three");
+                        m1.put(4, "four");
+                        System.out.println(m1.get(1)); //one
+                        System.out.println(m1.size()); //4
+                        System.out.println(m1.isEmpty());//false
+                        System.out.println(m1.containsKey(2));//true
+                    }
+                }
+            ```
+
+        事例：键值对：键是Interger类型，值是Object类型
+
+            ```java
+                public class TestMap {
+                    public static void main(String[] args){
+                        Employee e1 = new Employee(1001,"石惠",50000);
+                        Employee e2 = new Employee(1002,"侠士",60000);
+                        Employee e3 = new Employee(1003,"老式",70000);
+                        Map<Integer,Employee> m1 = new HashMap<>();
+                        m1.put(1, e1);
+                        m1.put(2, e2);
+                        m1.put(3, e3);
+                        System.out.println(m1);
+                        //{1=id:1001name:石惠薪水50000.0, 2=id:1002name:侠士薪水60000.0, 3=id:1003name:老式薪水70000.0}
+                    }
+                }
+
+                class Employee{
+                    int id;
+                    String ename;
+                    double sarlay;
+                    public Employee(int id, String ename, double sarlay) {
+                        super();
+                        this.id = id;
+                        this.ename = ename;
+                        this.sarlay = sarlay;
+                    }
+                    public String toString(){
+                        return "id:"+id+"name:"+ename+"薪水"+sarlay;
+                    }
+                    public int getId() {
+                        return id;
+                    }
+                    public void setId(int id) {
+                        this.id = id;
+                    }
+                    public String getEname() {
+                        return ename;
+                    }
+                    public void setEname(String ename) {
+                        this.ename = ename;
+                    }
+                    public double getSarlay() {
+                        return sarlay;
+                    }
+                    public void setSarlay(double sarlay) {
+                        this.sarlay = sarlay;
+                    }
+                }
+            ```
+
+        
+        HashMap底层实现采用了哈希表，这是一种非常重要的数据结构，哈希表的基本结构就是"数组+链表"
+
+            知识点介绍：
+                数据接口中由数组和链表和哈希表来实现对数据的存储，他们各有特点
+                1：数组：占用空间连续。寻址容易，查询速度快。但是，增加和删除效率非常低
+                2：链表：占用空间不连续。寻址困难，查询速度慢。但是，增加和删除效率非常高。
+                3：哈希表：哈希表结合了数组和链表的有点(即查询快，增删效率也高)，本质就是"数组+链表"
+            
+            HashMap存储数据put(key,value)的原理：
+                1：获得key对象的hashcode，首先调用key对象的hashcode()方法，获得hashcode
+                2：根据hashcode计算出hash值(要求在[0,数组长度-1区间)。通过将hash值把数据存储到对应的数组的位置，(数组中的每一项都是链表)
+
+            HashMap取数据get的原理：
+                1：获得key的hashcode，通过hash()散列算法得到hash值，进入定位到数组的位置
+                2：在链表上挨个比较key对象。调用equals()方法，将key对象和链表上所有节点的key对象进行比较，直到碰到返回true的节点对象为止
+                3：返回equals()为true的节点对象的value对象
+
+        
+        TreeMap
+            概念：
+                TreeMap和HashMap实现了同样的接口Map，因此，用法对于调用者来说没有区别。
+                HashMap效率高于TreeMap，在需要排序的Map时(key或者value需要排序的时候)才选用TreeMap
+
+            事例：
+
+                ```java
+                    public class TestTree {
+                        public static void main(String[] args){
+                            Map<Integer,String> treemap1 = new TreeMap<>();
+                            treemap1.put(20,"aa");
+                            treemap1.put(2,"VV");
+                            treemap1.put(6,"CC");
+                            //按照key递增的方式排序
+                            for(Integer key:treemap1.keySet()){
+                                System.out.println(key);
+                            }
+                            Map<Emp,String> treemap2 = new TreeMap<>();
+                            treemap2.put(new Emp(100, "张三",50000),"张三是个好小伙子");
+                            treemap2.put(new Emp(200, "李四",5000),"张三是个好小伙子");
+                            treemap2.put(new Emp(30, "王五",6000),"张三是个好小伙子");
+                            treemap2.put(new Emp(3, "金六福",6000),"张三是个好小伙子");
+                            for(Emp key:treemap2.keySet()){
+                                System.out.println(key);
+                                //输出结果
+                                // id:200,name:李四,salary:5000.0
+                                // id:3,name:金六福,salary:6000.0
+                                // id:30,name:王五,salary:6000.0
+                                // id:100,name:张三,salary:50000.0
+                            }
+                        }
+                    }
+                    class Emp implements Comparable<Emp>{ //实现Comparable接口，方便排序
+                        int id;
+                        String name;
+                        double salary;
+                        public Emp(int id, String name, double salary) {
+                            super();
+                            this.id = id;
+                            this.name = name;
+                            this.salary = salary;
+                        }
+                        public String toString(){
+                            return "id:"+id+",name:"+name+",salary:"+salary;
+                        }
+                        @Override
+                        public int compareTo(Emp o) {
+                            //TreeMap排序实现原理： Emp实例对象通过实现接口Comparable的CompareTo比较方法来进行排序
+                            //负数：小于0；等于：整数；正数：大于
+                            if(this.salary > o.salary){
+                                return 1;
+                            }else if(this.salary < o.salary){
+                                return -1;
+                            }else{
+                                if(this.id>o.id){
+                                    return 1;
+                                }else if(this.id < o.id){
+                                    return -1;
+                                }else{
+                                    return 0;
+                                }
+                            }
+                        }
+                    }
+                ```
+
+        HashMap和HashTable的区别
+            1：HashMap：线程不安全，效率高。允许key或value为null
+            2：HashTable：线程安全，效率低。不允许key或value为null
+
+        
+
+        properties
+            用法：
+                事例：读取配置文件操作
+
+                ```java
+                    public class PropertyiesTest {
+                        public static void main(String[] args) throws IOException {
+                            Properties pros = new Properties();
+                            FileInputStream fis = new FileInputStream("jdbc.properties"); //查找项目中以.properties结尾的文件进行加载
+                            pros.load(fis);//加载流对应的文件
+                            String name = pros.getProperty("name");
+                            String password = pros.getProperty("password");
+                            System.out.println("name:"+name+"\tpassword:"+password);//输出结果name:tom password:123456
+                        }
+                    }
+                ```
+
+    
+
+    
+
+    
+    **Iterator迭代器
+        概念：
+            1：Iterator对象称为迭代器为我们提供了统一的遍历容器Collection(List/Set>)的方式
+
+            2：迭代器模式定义为：提供一种方法访问一个容器(container)对象中各个元素，而又不需要暴露该对象的内部细节。迭代器模式，就是为容器而生。
+
+            3：Collection接口继承了java.lang.Iterable接口，该接口有一个iterator()方法，那么所有实现了Collection接口的集合类都有一个Iterator()方法，用以返回一个实现了Iterator接口的对象
+
+            4：Iterator仅用于遍历集合，Iterator本身并不提供承装对象的能力。如果需要创建Iterator对象，则必须有一个被迭代的集合
+
+            5：集合对象每次调用iterator()方法都得到一个全新的迭代器对象，默认游标都在集合的第一个元素之前
+
+
+        迭代器的执行原理：
+            例子：Iterator iterator = coll.iterator()
+            //hasNext():判断是否还有下一个元素
+            while(iterator.hasNext()){
+                //next()的作用:1指针下移2：下移以后将集合的位置上的元素返回
+                System.out.println(iterator.next());
+            }
+
+        迭代器remove()方法的使用
+            说明：内部定义了remove()，可以在遍历的时候，删除集合中的元素。此方法不同于集合直接调用remove()
+            注意点：
+                Iterator可以删除集合中的元素，但是是遍历过程中通过迭代器对象remove方法，不是集合对象的remove方法
+                如果还未调用next()或在上一次调用next方法之后已经调用了remove方法，再调用remove都会报illegalStateException
+
+                事例：
+
+                ```java
+                    public static void test1(){
+                            Collection coll = new ArrayList();
+                            coll.add(123);
+                            coll.add(456);
+                            coll.add("今天天气真好");
+                            coll.add(false);
+                            //删除集合中"今天天气真好"
+                            Iterator itrerator = coll.iterator();
+                            while (itrerator.hasNext()){
+                                Object obj = itrerator.next();
+                                if("今天天气真好".equals(obj)){
+                                    itrerator.remove();
+                                }
+                            }
+                            //上面删除之后，再重新遍历集合
+                            itrerator = coll.iterator();
+                            while (itrerator.hasNext()){
+                                System.out.println(itrerator.next());
+                            }
+                        }
+                ```
+
+        forEach循环
+            概念：增强for循环；用于遍历集合，数组
+            语法：for(集合元素的类型 局部变量 ：集合对象)
+            原理：内部任然调用的了迭代器
+            Collection coll = new ArrayList();
+            for(Object obj:coll){
+
+            }
+        
+        使用Iterator遍历List
+            事例：
+
+            ```java
+                public static void testIteratorList(){
+                        List<String> list = new ArrayList<>();
+                        list.add("aa");
+                        list.add("bb");
+                        list.add("cc");
+                        //使用iterator遍历List
+                        for(Iterator<String> iter = list.iterator();iter.hasNext();){
+                            String temp = iter.next();//遍历输出当前值，并且将浮标移动到下一位进行遍历
+                            System.out.println(temp);
+                        }
+                    }
+            ```
+
+        使用Iterator遍历Set
+            事例：
+
+                ```java
+                    public static void testIteratorSet(){
+                            Set<String> set = new HashSet<>();
+                            set.add("aa");
+                            set.add("bb");
+                            set.add("cc");
+                            //使用iterator遍历List
+                            for(Iterator<String> iter = set.iterator();iter.hasNext();){
+                                String temp = iter.next();//遍历输出当前值，并且将浮标移动到下一位进行遍历
+                                System.out.println(temp);
+                            }
+                        }
+                ```
+
+        使用Iterator遍历Map
+            事例：
+
+                ```java
+                    public static void main(String[] args){
+                            Map<Integer,String> map = new HashMap<>();
+                            map.put(6,"小时");
+                            map.put(3,"小石");
+                            map.put(5,"石惠");
+                            Set<Integer> ss = map.keySet();
+                            for(Iterator<Integer> iterator = ss.iterator();iterator.hasNext();){
+                                Integer key = iterator.next();
+                                System.out.println(key+"---"+map.get(key));
+                            }
+                        }
+                ```
+
+    理解Set<Integer> ss = map.keySet()，调用方法后返回类名<泛型>的形式
+        事例理解：
+
+            ```java
+                class my {
+                    public static List<Integer> say(){
+                        List<Integer> list = new ArrayList<Integer>();
+                        list.add(1);
+                        return list;
+                    }
+                } 
+
+                List<Integer> say = my.say(); //调用方法之后返回say，say就是关于List大类，泛型是Integer的类型
+            ```
+
+
+    **Collections工具类
+        概念：类java.util.Collections提供了对Set,List,Map进行排序，查找元素的辅助方法
+        区别：Collection是接口，Collections是工具类
+        常见的方法：
+            1：void sort(list) //对List容器内的元素进行排序，排序的规则是按照升序排列
+            2：void shuffle(list) //对List容器内的元素进行随机排序
+            3：void reverse(list) //对List容器内的元素进行逆续排列
+            4：void fill(List,Object) //用一个特定的对象重写整个List容器
+            5：int binarySearch(List,Object) //对于顺序的List容器，采用折半查找的方法查找特定的对象
+
+            事例：
+
+            ```java
+                public static void main(String[] args){
+                        List<String> list = new ArrayList<>();
+                        for(int i =0;i<5;i++){
+                            list.add("小石"+i);
+                        }
+                        System.out.println(list);
+                        Collections.shuffle(list);//随机排列
+                        System.out.println(list);
+                        Collections.reverse(list);//逆序
+                        System.out.println(list);
+                        Collections.sort(list);//正序排序
+                        System.out.println(list);
+                        System.out.println(Collections.binarySearch(list, "小石0"));//折半法查找元素，list中无查找元素则返回负数，存在返回相应index
+                        Collections.fill(list,"hello");//将list中的所有元素换成hello
+                        System.out.println(list);
+                    }
+            ```
+
+
+    **存储表格数据
+        理解：存储表格数据的核心思想是对象关系映射(ORM思想)
+
+        事例：每一行数据使用一个map，整个表格使用一个List(将数据存储在对象中)
+
+            ```java
+                public static void main(String[] args){
+                        Map<String,Object> m = new HashMap<>();//将每行数据存储在Map对象中
+                        m.put("id", 1001);
+                        m.put("name", "张三");
+                        m.put("薪水", 20000);
+                        m.put("入职日期", "2018.5.5");
+                        
+                        Map<String,Object> m1 = new HashMap<>();
+                        m1.put("id", 1002);
+                        m1.put("name", "李四");
+                        m1.put("薪水", 2000);
+                        m1.put("入职日期", "2014.5.4");
+                        
+                        Map<String,Object> m2 = new HashMap<>();
+                        m2.put("id", 1003);
+                        m2.put("name", "王五");
+                        m2.put("薪水", 5000);
+                        m2.put("入职日期", "2019.5.10");
+                        
+                        List<Map<String,Object>> table1 = new ArrayList<>();//将每一行map对象，存储在List中
+                        table1.add(m);
+                        table1.add(m1);
+                        table1.add(m2);
+                        for(Map<String,Object> row:table1){
+                            Set<String> keyset = row.keySet();
+                            for(String key:keyset){
+                                System.out.print(key+"---"+row.get(key)+"\t");
+                            }
+                            System.out.println();
+                        }
+                    }       //输出结果：
+                            // name---张三	薪水---20000	id---1001	入职日期---2018.5.5	
+                            // name---李四	薪水---2000	id---1002	入职日期---2014.5.4	
+                            // name---王五	薪水---5000	id---1003	入职日期---2019.5.10
+            ```
+        
+        事例：每一行数据使用javabean对象存储，多行使用放到map或list中
+            javaBean的，java类中符合javabean的标准如下：
+                类是公共的
+                有一个无参的公共构造器
+                有属性，且有对应的get，set方法
+
+
+            ```java
+                public class TestStore {
+                    public static void main(String[] args){
+                        Users user = new Users(1001,"张三",20000,"2018.5.5");
+                        Users user1 = new Users(1001,"张三",20000,"2018.5.5");
+                        Users user2 = new Users(1001,"张三",20000,"2018.5.5");
+                    
+                        List<Users> list = new ArrayList<>();
+                        list.add(user);
+                        list.add(user1);
+                        list.add(user2);
+                        for(Users m:list){
+                            System.out.println(m);
+                        }
+                    }
+                }
+                class Users{
+                    private int id;
+                    private String name;
+                    private double salary;
+                    private String handate;
+                    
+                    public Users(int id, String name, double salary, String handate) {
+                        super();
+                        this.id = id;
+                        this.name = name;
+                        this.salary = salary;
+                        this.handate = handate;
+                    }
+                    public String toString(){
+                        return "id:"+id+"name:"+name+"salary:"+salary+"handate:"+handate;
+                    }
+                }
+            ```
+
 
 
         
@@ -864,7 +1761,7 @@
             
 
 
-##泛型
+##泛型(硅谷)
     为什么要有泛型
 
         概念：所谓泛型，就是允许在定义类，接口时通过一个标识表示类中某个属性的类型或者是某个方法的返回值及参数类型。这个类型参数将在使用时(例如，继承或实现这个接口，用这个类型声明变量，创建对象时)确定(即传入实际的类型参数，也称为类型实参)
@@ -1127,7 +2024,56 @@
             }
         ```
     
-                
+
+##IO流
+    **File类(尚学堂)
+        概念：java.io.File类：代表文件和目录。在开发中，读取文件，生成文件，删除文件，修改文件的属性时经常会用到
+        用法：
+            事例：
+
+            ```java
+                public static void main(String[] args) throws IOException{
+                        File f = new File("dd.txt");
+                        f.createNewFile();
+                        System.out.println(System.getProperty("user.dir"));//当前所在的绝对路径
+                        System.out.println("File是否存在"+f.exists());//File是否存在true
+                        System.out.println("File是否是目录"+f.isDirectory());//File是否是目录false
+                        System.out.println("File是否是文件"+f.isFile());//File是否是文件true
+                        System.out.println("File最后修改时间"+new Date(f.lastModified()));//File最后修改时间Mon Aug 03 16:44:09 CST 2020
+                        System.out.println("File的大小"+f.length());//File的大小0
+                        System.out.println("File的文件名"+f.getName());//File的文件名dd.txt
+                        System.out.println("File的目录路径"+f.getAbsolutePath());//File的目录路径C:\javalianxi\Duixiang\dd.txt
+
+
+                        File f2 = new File("c:/学习/话语/大陆");
+                        //boolean flag = f2.mkdir();//目录结构中只要有一个不存在，则不会创建整个目录树
+                        boolean flag = f2.mkdirs();//目录结构中有一个不存在也没关系；创建整个目录树
+                        System.out.println(flag);
+                    }
+            ```
+
+            实例：递归遍历目录结构和树状展现
+
+                ```java
+                    public static void main(String[] args){
+                            //使用递归算法打印目录树
+                            File f = new File("C:\\M-mind\\x-mind");
+                            printFile(f,0);
+                            
+                        }
+                        static void printFile(File file,int level){
+                            for(int i=0;i<level;i++){
+                                System.out.print("-");
+                            }
+                            System.out.println(file.getName());//打印文件名字
+                            if(file.isDirectory()){//判断是否是目录
+                                File[] files = file.listFiles();//返回目录下面所有的子目录和子文件
+                                for(File temp:files){
+                                    printFile(temp,level+1);
+                                }
+                            }
+                        }
+                ```
             
             
 
