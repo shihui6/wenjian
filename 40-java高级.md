@@ -2074,6 +2074,290 @@
                             }
                         }
                 ```
+
+    **File类(硅谷)
+        1：File类的使用：
+            一：
+                1：File类是一个对象，代表一个文件或一个文件目录(俗称：文件夹)
+                2：File类声明在java.io包下
+                3：File类中设计到关于文件或文件目录的创建，删除，重命名，修改时间，文件大小等方法
+                    并未涉及到写入或读取文件内容的操作。如果需要读取或写入文件内容，必须使用io流来完成
+                4：后续File类的对象常会作为参数传递到流的构造器中，指明读取或写入的"终点"
+            二：
+                1：相对路径：相较于某个路径下，指明的路径
+                2：绝对路径：包含盘符在内的文件或文件目录的路径
+
+            三：路径分隔符
+                windows:\\
+                unix:/
+            
+            四：如何创建File类的实例
+                File(String filePath)
+                File(String parentPath,String childPath)
+                File(File parentPath,String childPath)
+                用法：
+                    实例：
+
+                    ```java
+                        //构造器1
+                        File file = new File("hello.txt");//相对路径，相对于当前的module
+                        File file1 = new File("C:\\java\\myproject\\dayone\\src\\a.txt");
+                        //构造器2
+                        File file3 = new File("C:\\java\\myproject","dayone\\src");
+                        //构造器3
+                        File file4 = new File(file3,"a.txt");
+                    ```
+        
+        2：File类的使用：常用方法
+            File类的获取功能：
+
+                ```java
+                    /*
+                    public String getAbsolutePath()：获取绝对路径
+                    public String getPath()  获取路径
+                    public String getName()  获取名称
+                    public String getParent() 获取上一层文件目录路径。如无，返回null
+                    public Long Length()  获取文件长度(即：字节数)。不能获取目录的长度
+                    public Long LastModified()  获取最后一次的修改时间，毫秒值
+                    如下的两个方法适用于文件目录
+                    public String[] list()  获取指定目录下的所有文件或者文件目录的名称数组
+                    public File[] listFiles() 获取指定目录下的所有文件或者文件目录的File数组
+                    */
+                    具体举例：
+                    public static void Test1(){
+                        //构造器1
+                        File file = new File("a.txt");//相对路径，相对于当前的module
+                        File file1 = new File("C:\\java\\myproject\\dayone\\src\\a.txt");
+                        System.out.println(file.getAbsoluteFile());
+                        System.out.println(file.getPath());
+                        System.out.println(file.getName());
+                        System.out.println(file1.getParent());
+                        System.out.println();
+                    }
+                    public static void test2(){
+                        File file = new File("C:\\M-md学习\\wenjian");
+                        String[] list = file.list();
+                        for(String e:list){
+                            System.out.println(e);
+                        }
+                        System.out.println();
+
+                        File[] listfile = file.listFiles();
+                        for(File e:listfile){
+                            System.out.println(e);
+                        }
+                    }
+                ```
+
+            File类的重命名功能
+
+                ```java
+                    /*
+                    public boolean renameTo(File dest)：把文件重命名为指定的文件路径
+                        比如：file1.renameTo(file2)为例
+                            要保证返回true即重命名到指定文件路径成功，需要file1在硬盘中是存在的，且file2不能在硬盘中存在
+                    */
+                    public  static void test3(){
+                        File file1 = new File("a.txt");
+                        System.out.println(file1.getAbsoluteFile());
+                        File file2 = new File("C:\\io\\hi.txt");
+                        boolean b = file1.renameTo(file2);
+                        System.out.println(b);
+                    }
+                ```
+            
+            File类的判断功能
+
+                ```java
+                    /*
+                    public boolean isDirectory() 判断是否是文件目录(不存在也会返回false)
+                    public boolean isFile()  判断是否是文件(不存在也会返回false)
+                    public boolean exists()  判断是否存在
+                    public boolean canRead()  判断是否可读
+                    public boolean canWrite()  判断是否可写
+                    public boolean isHidden()  判断是否隐藏
+                    */
+                    public static void test4(){
+                        File file6 = new File("a.txt");
+                        System.out.println(file6.isFile());
+                    }
+                ```
+            
+            File类的创建功能
+
+                ```java
+                    /*
+                    创建硬盘中对应的文件或文件目录
+                    public boolean createNewFile()  创建文件。若文件存在，则不创建，返回false
+                    public boolean mkdir()  创建文件目录。如果此文件目录存在，就不创建了。如果此文件目录的上层不存在，也不创建
+                    public boolean mkdirs() 创建文件目录。如果上层目录不存在，一并创建
+
+                    删除磁盘中的文件或文件目录
+                    public boolean delete()  删除文件或者文件夹
+                        删除注意事项：java中的删除不走回收站
+                    */
+                    public static void test6() throws IOException {
+                        File file = new File("hello.txt");
+                        if(!file.exists()){
+                            file.createNewFile();
+                            System.out.println("创建成功");
+                        }
+                    }
+                ```
+
+    
+    **IO流
+        java IO原理
+            1：I/O是Input/Output的缩写，I/O技术是非常使用的技术，用于处理设备之间的数据传输。如读/写文件，网络通讯等
+            2：java程序中，对于数据的输入/输出操作以"流(stream)"的方式进行
+            3：java.io包下提供了各种"流"类和接口，用以获取不同的类的数据，并通过标准的方法输入或输出数据
+        
+        流的分类
+            1：按操作数据单位不同分为：字节流(8 bit)，字符流(16 bit)  (字符流专门处理字符的)(字节流可以处理视频或图片的处理)
+            2：按数据流的流向不同分为：输入流和输出流
+            3：按流的角色的不同分为：节点流，处理流
+
+        流的体系
+            抽象基类            节点流(或文件流)              缓冲流(处理流的一种)
+            InputStream         FileInputStream             BufferedInputStream         
+            OutputStream        FileOutputStream            BufferedOutputStream
+            Reader              FileReader                  BufferedReader
+            Writer              FileWriter                  BufferedWriter
+
+            用法：从硬盘中读取数据
+                事例：read一个一个的读的事例
+
+                ```java
+                    //如果将异常throw出去，可能会导致执行中断
+                    public static void  test(){
+                        FileReader fr = null;
+                        try {
+                            //1实例化File类的对象，指名要操作的文件
+                            File file = new File("dayone\\hello.txt");//若此方法在main中调用，则当前相对路径相对于当前工程
+                            //2提供具体的流
+                            fr = new FileReader(file);
+                            //3数据的读入
+                            //read()：返回读入的一个字符。如果达到文本末尾，即没有数据，返回-1
+                            int data = fr.read();
+                            while (data !=-1){
+                                System.out.print((char)data);
+                                data = fr.read();
+                            }
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }finally {
+                            try {
+                                if(fr !=null)
+                                fr.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                ```
+
+                事例：read按照数组定义的个数一起读
+
+                ```java
+                    public static void test2(){
+                        FileReader fr = null;
+                        try{
+                            //1.File类的实例化
+                            File file = new File("dayone\\hello.txt");
+                            //2.FileReader流的实例化
+                            fr = new FileReader(file);
+                            //3.读入的操作
+                            //read(char[] cbuf)：返回每次读入cbuf数组中的字符的个数。如果达到文件末尾，返回-1
+                            char[] cbuf = new char[5];
+                            int len ; //记录每次读入到cbuf数组中的字符的个数
+                            while ((len = fr.read(cbuf)) !=-1){ 
+                                for (int i=0;i<len;i++){
+                                    System.out.print(cbuf[i]);
+                                }
+                            }
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }finally {
+                            //4.资源的关闭
+                            try {
+                                fr.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                ```
+
+            用法：从内存中写出数据到硬盘的文件里
+
+                ```java
+                    /*
+                    说明：
+                        1：输出操作，对应的File可以不存在的，并不会报异常
+                            File对应的硬盘中的文件如果不存在，在输出的过程中，会自动创建文件
+                            File对应的硬盘中的文件如果存在：
+                                    如果流使用的构造器：FileWriter(file,false)/FileWriter(file)：对原有文件的覆盖
+                                    如果流使用的构造器：FileWriter(file,true)：不会对原有文件覆盖，而是在原有文件基础上追加内容
+                    */
+                    public static void test3() throws IOException {
+                        //1；提供File类的对象，指明写出到的文件
+                        File file = new File("dayone\\hello1.txt");
+                        //2：提供FileWriter的对象，用于数据的写出
+                        FileWriter fw = new FileWriter(file);
+                        //3：写出的操作
+                        fw.write("我有一个梦想");
+                        fw.write("我们都有一个梦想");
+                        //4：流资源的关闭
+                        fw.close();
+                    }
+                ```
+
+
+            用法：读取硬盘中文件的数据，写入到硬盘中另外一个文件(文件的复制)
+
+                ```java
+                    public static void test6()  {
+                        FileReader fr = null;
+                        FileWriter fw = null;
+                        try {
+                            //1创建File类对象，指明读入和写出的文件
+                            File srcFile = new File("dayone\\hello1.txt");
+                            File destFile = new File("hello2.txt");
+                            //2.创建输入流和输出流的对象
+                            fr = new FileReader(srcFile);
+                            fw = new FileWriter(destFile);
+                            //3.数据的读入和写出操作
+                            char[] cbuf = new char[5];
+                            int len;//记录每次读入到cbuf数组中的字符的个数
+                            while ((len = fr.read(cbuf)) != -1){
+                                //每次写入len个字符
+                                fw.write(cbuf,0,len);
+                            }
+                        }catch (Exception e){
+                            e.printStackTrace();
+
+                        }finally {
+                            //4.关闭资源流
+                            try {
+                                fr.close();
+                                fw.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                ```
+
+
+            用法：处理图片
+
+        
+
+
+                
+
+            
+        
             
             
 
