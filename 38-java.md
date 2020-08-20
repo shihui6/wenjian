@@ -550,6 +550,242 @@
                         当i%j==0的时候，进入if语句，执行continue outer;不会执行本次循环且会根据标签outer跳转到外部for循环执行程序
                         如果不写标签的outer，当执行到continue语句，会跳到里面的循环不会跳转到外面的循环了
 
+##数组(尚学堂)
+    1:概念：
+        数组是相同类型数据的有序集合。数组描述的是相同类型的若干数据，按照一定的先后次序排列组合而成。其中，每个数据称作一个元素，每个元素可以通过一个索引(小标)来访问
+
+        数组属于引用类型，数组也是对象，数组中的每个元素相当于该对象的成员变量
+
+    2:特点：
+        1：长度是确定的。数组一旦被创建，它的大小就是不可以改变的
+        2：其元素必须是相同类型，不允许出现混合类型
+        3：数组类型可以是任何数据类型，包括基本数据类型和引用数据类型
+
+    3:数组声明方式有两种
+        1： type[] arr_name;(推荐使用这种方式)
+        2： type   arr_name[];
+        实例：  
+
+        ```java
+            int[] arr01; //声明
+            arr01 = new int[]{1,2,3,4} //初始化
+            String[] arr02;
+        ```
+
+        注意点：
+            1：声明的时候并没有实例化任何对象，只有在实例化数组对象时，JVM才分配空间，这时才与长度有关
+            2：声明一个数组的时候并没有数组真正被创建
+            3：构造一个数组，必须指定长度
+
+
+    4:初始化方式
+        1：静态初始化
+            解释：初始化的时候直接赋值(数组的初始化和数组元素的赋值操作同时进行)
+            实例：
+
+                ```java
+                    int[] id = new int[]{1,2,3,4,5};
+                    int[] a = {1,2,3};
+                    User[] b = {new User(12,"是"),new User(11,"会")};
+                ```
+        2：动态初始化
+            解释：先分配空间(数组长度)，然后一个个给数组进行赋值(数组的初始化和数组元素的赋值操作分开进行)
+            事例：
+                ```java
+                    int[] a = new int[2];
+                    a1[0] = 1;
+                    a1[1] = 2
+                ```
+        3：默认初始化
+            解释：初始化数组长度之后，默认给数组的元素进行赋值。赋值的规则和成员变量默认规则一致
+            事例：
+                ```java
+                    int[] a1 = new int[2]; //默认给数组a1赋值0
+                ```
+
+            
+    5:用法：
+        实例：
+
+            ```java
+                public class Shuzu {
+                    public static void main(String[] args){
+                        int[] arr01 = new int[10];	//数组内每个元素的类型是int
+                        String[] arr02 = new String[5];	//数组内每个元素的类型为 String
+                        User[] arr03 =new User[3]; 
+                        //为User类型指的是，数组内部元素为对象的引用类型，存的是对象的地址，且应用类型为User
+                        for(int i =0;i <10;i++){
+                            arr01[i] = 10*i;
+                        }
+                        for(int i =0;i<10;i++){
+                            System.out.println(arr01[i]);
+                        }
+                        
+                        arr03[0] = new User(10,"石惠");
+                        arr03[1] = new User(11,"石惠h");
+                        arr03[2] = new User(12,"石惠shihui");
+                        for(int i=0;i<3;i++){
+                            System.out.println(arr03[i].getName());
+                        }
+                    }
+                }
+                class User{
+                    private String name;
+                    public User(int id,String name){
+                        this.name = name;
+                    }
+                    public String getName(){
+                        return this.name;
+                    }
+                }
+            ```
+
+    
+    6：for-each循环
+        概念：增强for循环for-each是JDK1.5新增的功能，专门用于读取数组或集合中所有的元素，即对数组进行遍历
+        事例：
+
+            ```java
+                for(int m:a){} //意思是循环a数组，把每个元素取出来之后放到m变量里面
+            ```
+    
+    7：数组的拷贝
+        1:概念：System类里也包含了一个static void arraycopy(object src,int srcpos,object dest,int destpos,int length)方法，该方法可以将src数组里的元素值付给dest数组的元素，其中srcpos指定从src数组的第几个元素开始赋值，length参数指定将src数组的多少个元素赋给dest数组的元素
+
+        2:用法
+            事例：将s1的数组拷贝到s2里面
+
+                ```java
+                    public static void testBasic1(){
+                        String[] s1 = {"aa","bb","cc","dd","ee"};
+                        String[] s2 = new String[10];
+                        System.arraycopy(s1, 2, s2, 6, 3);
+                        for(int i=0;i<s2.length;i++){
+                            System.out.println(i+"数组"+s2[i]);
+                        }
+                    }
+                ```
+
+            事例：从数组中删除某个元素(本质上还是数组的拷贝)
+
+                ```java
+                    public static void testBasic2(){
+                            String[] s1 = {"aa","bb","cc","dd","ee"};
+                            String[] s2 = new String[5];
+                            System.arraycopy(s1, 3, s1, 2, 2);
+                            s1[s1.length-1] = null;
+                            for(int i=0;i<s1.length;i++){
+                                System.out.println(s1[i]);
+                            }
+                        }
+                ```
+
+            事例：数组的扩容(本质上是：先定义一个更大的数组，然后将原数组内容原封不动拷贝到新数组中)
+
+                ```java
+                    public static void extendRange(){
+                            String[] s1 = {"aa","bb","cc","dd"};
+                            String[] s2 = new String[s1.length+10];
+                            System.arraycopy(s1, 0, s2, 0, s1.length);
+                            for(String item:s2){
+                                System.out.println(item);
+                            }
+                        }
+                ```
+    
+    8:java.util.Array类
+        概念：JDK提供的java.util.Arrays类，包含了常用的数组操作，方便我们日常开发。Arrays类包含了：排序，查找，填充，打印内容等常见的操作
+
+        用法：
+            事例：
+
+                ```java
+                    public static void testArr(){
+                            int[] a = {10,11,22,44,14,12,55};
+                            System.out.println(Arrays.toString(a));//描述数组内容的字符串，不用此方法则返回对数组内存地址的引用
+                            Arrays.sort(a);	//排序
+                            System.out.println(Arrays.toString(a));
+                            System.out.println(Arrays.binarySearch(a,44));//查找指定的元素,查找不到返回负数
+                        }
+                ```
+
+
+    9：多维数组
+        概念：多维数组可以看成以数组为元素的数组。可以有二维，三维，甚至更多维数组，但是实际上开发中用的非常少。最多到二维数组(学习容器后，我们一般使用容器，二维数组用的都很少)
+
+        用法：
+            实例：
+
+            ```java
+                public static void main(String[] args){
+                        int[][] a = new int[3][];	//创建多维数组
+                        a[0] = new int[]{02,30};	//给数组的第一项里面添加一个数组
+                        a[1] = new int[]{10,30,80};
+                        a[2] = new int[]{50,60};
+                        for(int[] temp:a){
+                            System.out.println(Arrays.toString(temp));
+                        }
+                    }
+            ```
+
+    10：冒泡排序算法
+        概念：冒泡排序重复访问要排序的数列，一次比价两个元素，如果他们的顺序错误就把他们交换过来，这样越大的元素会经过交换慢慢到数列的顶端
+
+        冒泡排序算法的执行机制：
+            1：比较相邻的元素。如果第一个比第二个大，就交换他们两
+            2：对每一对相邻元素作同样的工作，从开始第一对到结尾的最后一对。在这一点，最后的元素应该会是最大的数
+            3：针对所有的元素重复以上的步骤，除了最后一个
+            4：持续每次对越来越少的元素重复上面步骤，知道没有任何一对数字需要比较
+
+        用法：
+            实例：
+
+                ```java
+                    public static void main(String[] args){
+                            int[] values = {3,1,2,6,5,4,7,9,8,0};
+                            int temp = 0;
+                            for(int i=0;i<values.length-1;i++){
+                                for(int j =0;j<values.length-1-i;j++){
+                                    if(values[j] > values[j+1]){
+                                        temp = values[j];
+                                        values[j] = values[j+1];
+                                        values[j+1] = temp;
+                                    }
+                                }
+                            }
+                            System.out.println(Arrays.toString(values));
+                        }
+                ```
+
+    11：二分法查找
+        二分法执行机制：
+            1：二分法查找，基本思想是数组中的元素从小到大有序的存放在数组中，首先将给定值key与数组中间位置上元素的key进行比较，如果相等，则检索成功
+            2：否则，若key小，则在数组前半部分继续进行二分法检索
+            3：若key大，则在数组后半部分中继续进行二分法检索；
+            4：这样，经过一次比较就缩小一半的检索区间，如此进行下去，知道检索成功或检索失败
+
+        用法：
+            实例：
+
+                ```java
+                    public static int myBubble(int[] arr,int value){
+                            int low = 0;
+                            int high = arr.length-1;
+                            while(low <=high){
+                                int mid = (low+high)/2;
+                                if(value == arr[mid]){
+                                    return mid;
+                                }
+                                if(value > arr[mid]){
+                                    low = mid +1;
+                                }
+                                if(value < arr[mid]){
+                                    high = mid -1;
+                                }
+                            }
+                            return -1;
+                        }
+                ```
 
     
 ##面向对象编程(尚学堂)
@@ -614,14 +850,20 @@
                 3：用来存放程序中永远是不变或唯一的内容。(类信息 class对象，静态变量，字符串常量等)
 
         
-        4：构造器
+        4：构造器(硅谷)
             4-1：概念：构造器也叫构造方法(constructor),用于对象的初始化
 
-            4-2：要点：
-                1：通过new关键字调用
-                2：构造器虽然有返回值，但是不能定义返回值类型(返回值的类型肯定是本类)，不能在构造器里使用return返回某个值
-                3：如果我们没有定义构造器，则编译器会自动定义一个无参的构造函数，如果已定义则编译器不会自动添加
-                4：构造器的方法名必须和类名一致
+            4-2：作用
+                    >创建对象：new + 构造器：例如Person p = new Person();这里new后面加的其实是类里面的构造器
+                    >初始化对象的属性
+
+                
+            4-3：说明：
+                1：如果没有显示的定义类的构造器的话，则系统默认提供一个空参构造器
+                2：定义构造器的格式：权限修饰符 类名(形参列表){}
+                3:一个类中定义了多个构造器，彼此构成重载
+                4：一旦我们显示的定义了类的构造器之后，系统就不在提供默认的空参构造器
+                5：一个类中，至少会有一个构造器
 
                 事例：
 
@@ -690,13 +932,22 @@
             4：返回对象的地址给相关的变量
         
 
-        2：this
+        2：this(硅谷)
             概念：this的本质就是"创建好的对象的地址"由于在构造方法调用前，对象已经创建。因此，在构造方法中也可以使用this代表"当前对象"
 
             用法：
                 1：在程序中使用this来指明当前对象：普通方法中，this总是指向调用该方法的对象。构造方法中，this总是指向正要初始化的对象
-                2：使用this关键字调用重载的构造方法，避免相同的初始化代码。但只能在构造方法中用，并且必须位于构造方法的第一句
-                3：this不能用于static方法中
+                2：this不能用于static方法中
+                3：this指当前对象或当前正在创建的对象(特指构造方法)
+                4：在类的方法中，我们可以使用"this.属性"或"this.方法"的方式。调用当前正在创建对象的属性或方法，但是通常情况下，我们都选中省略"this."。特殊情况下，如果方法的形参和类的属性同名时，我们必须显式的使用"this.变量"的方式，表明此变量是属性，而非形参
+                5：this调用构造器
+                    >我们在类的构造器中，可以显示的使用"this(形参列表)"的方式，调用本类中指定的其他构造器
+                    >构造器中不能通过"this(形参列表)"方式调用自己
+                    >如果一个类中有n个构造器，则最多有n-1构造器使用了"this(形参列表)"
+                    >规定："this(形参列表)"必须声明在当前构造器的首行
+                    >构造器内部，最多只能声明一个"this(形参列表)"，用来调用其他的构造器
+
+                
 
                 实例：
 
@@ -705,7 +956,7 @@
                             int a,b,c;
                             
                             User(int a,int b){
-                                this.a =a;
+                                this.a =a;   //添加this表明this.a的a是属性a，不加this的话，会被认为是形参a；不重名的话，可以不需要加this。
                                 this.b =b;
                             }
                             
@@ -730,7 +981,7 @@
         3:static(硅谷)
             概念：
                 静态的，static可以用来修饰：属性，方法，代码块，内部类
-            *理解static的原理：从静态属性，静态方法和非静态属性，飞静态方法的是否可以被调用，从类和对象的生命周期考虑就行，一目了然
+            *理解static的原理：从静态属性，静态方法和非静态属性，非静态方法的是否可以被调用，从类和对象的生命周期考虑就行，一目了然
 
             2：static修饰属性，静态变量(或类变量)
                 1：属性：按是否使用static修饰，分为：静态属性vs非静态属性(实例变量)
@@ -1142,11 +1393,32 @@
                         }
                     ```
 
-        3：super
-            概念：super是直接父类对象的引用。可以通过super来访问父类中被子类覆盖的方法或属性
+        3：super(硅谷)
+            super关键字的使用
+                1：super理解为，父类的
+                2：super可以用来调用，属性，方法，构造器
+                3：super的使用
+                    >我们可以在子类的方法或构造器中，通过使用"super.属性"或"super.方法"的方式。显示的调用父类中声明的属性或方法。但是，通常情况下，我们习惯省略"super."
+                    >我们在子类中调用没有的属性或方法时，但是父类中有，那就会自动调用父类中的属性或方法
+                    >特殊情况，当子类和父类中定义了同名的属性时，我们要想在子类中调用父类中声明的属性或方法，则必须显式的使用"super.属性/方法"的方式，表明调用的是父类中声明的属性或方法
+                
+                4：super调用构造器
+                    >我们可以在子类的构造器中显示的使用"super(形参列表)"的方式，调用父类中声明的指定的构造器
+                    >"super(形参列表)"的使用，必须声明在子类构造器的首行
+                    >我们在类的构造器中，针对于"super(形参列表)"或"this(形参列表)"，只能二选一，不能同时出现
+                    >在构造器的首行，没有显示的声明"super(形参列表)"或"this(形参列表)",则默认调用的是父类的空参构造器：super()
+                    >在类的多个构造器中，至少有一个类的构造器使用了"super(形参列表)"，调用父类中的构造器
 
-            构造方法调用顺序：
-                构造方法第一句总是：super(...)来调用父类对应的构造方法。所以，流程就是：先向上追溯到Object，然后再依次向下执行类的初始化块和构造方法，直到当前子类为止
+            子类对象实例化的全过程
+                1：从结果上来看：(继承性)
+                        子类继承父类以后，就获取了父类中声明的属性或方法
+                        创建子类的对象，在堆空间中，就会加载所有父类中声明的属性，子类就可以直接用
+
+                2：从过程上看
+                        当我们通过子类的构造器创建子列对象时，我们一定会直接或间接的调用其父类的构造器，进而调用父类的构造器，直到调用了java.lang.object类中空参的构造器位置。正因为加载过所有的父类的结构，所以才可以看到内存中父类的结构，子类对象才可以考虑进行调动
+
+                3：明确：虽然创建子类对象时，调用了父类的构造器，但是自始至终在堆中就创建了一个对象(可以理解为调用父类构造器就是让父类生成隐式的对象，然后将属性或方法都加载到子类当中)；即为new的子类对象
+
 
                 事例：
 
@@ -1175,12 +1447,25 @@
                         }
                     ```
 
-        4：多态
-            概念：多态指的是同一个方法调用，由于对象不同可能会有不同的行为。现实生活中，同一个方法，具体实现会完全不同
+        4：多态(硅谷)
+            1：理解多态性：可以理解为一个事物的多种形态
+            2：何为多态性
+                    对象的多态性，父类的引用指向子类的对象(或子类的对象付给父类的引用)
+            3：多态的使用
+                    有了对象的多态性以后，我们在编译期，只能调用父类中声明的方法，但在运行期，我们实际上执行的是子类重写父类的方法
+                    总结：编译，看左边，运行，看右边
 
-            编译时多态
-                方法重载都是编译时多态。根据实际参数的数据类型，个数和次序，java在编译时能够确定执行重载方法中的哪一个
-                方法覆盖表现出两种多态性，当对象引用本类实例时，为编译时多态，否则为运行时多态。例如，以下声明p，m引用本类实例，调用toString()方法是编译时多态
+            4：多态性的使用前提
+                    >要有类的继承关系
+                    >要有方法的重写
+
+            5：对象的多态性，只适用于方法，不适用于属性 (对于属性来说：编译和运行都看左边)
+
+            
+            6：从编译和运行的角度看
+                    在方法调用之前，编译器就已经确定了所要调用的方法，这称为"早绑定"或"静态绑定"
+                    对于多态而言，只有等到方法调用的那一刻，解释运行期才会确定所要调用的具体方法，这称为"晚绑定"或"动态绑定"
+                
                     事例：
 
                     ```java
@@ -1208,22 +1493,6 @@
                             }
                         }
                     ```
-            运行时多态
-                1:当父类引用子类实例时
-                    事例：
-                    ```java
-                        Person p = new Man();   
-                        p.toString();
-                    ```
-                    事例解释运行时多态：java支持运行时多态，意思为p.toString()实际执行p所引用实例toString(),究竟执行Person类还是Man类里的方法，运行时再确定。如果Man类声明了toString()方法，则执行之；否则执行Person类的toString()方法
-
-                    运行机制：程序运行时，java从实例所属的类开始寻找匹配的方法执行，如果当前类中没有匹配的方法，则沿着继承关系逐层向上，依次在父类或各祖先类中寻找匹配方法，直到Object类
-
-
-            多态的要点：
-                1：多态是方法的多态，不是属性的多态(多态与属性无关)
-                2：多态的存在要有3个必要条件：继承，方法重写，父类引用指向子类对象
-                3：父类引用指向子类对象后，用该父类引用调用子类重写的方法，此时多态就出现了
 
                 实例：
 
@@ -1257,7 +1526,8 @@
                     ```
                     事例理解：
                         1：当调用子父类同名参数的方法时，实际执行的是子类重写父类的方法
-                        2：有了对象的多态性以后，我们在编译期，只能调用父类中声明的方法，但在运行期，我们实际执行的是子类重写父类的方法；总结：编译，看左边；运行看右边
+                        2：有了对象的多态性以后，我们在编译期，只能调用父类中声明的方法，但在运行期，我们实际执行的是子类重写父类的方法；
+                        总结：编译，看左边；运行看右边
 
                     多态以及对象转型的核心理解：Animal d = new Dog() Animal是个引用类，相当于图纸，Animal中有的d对象才能调用；
 
@@ -1285,7 +1555,7 @@
                             }
                         }
                         class Dog extends Animal{
-                            public void shout(){
+                            public void shout(){ 
                                 System.out.println("汪汪汪");
                             }
                             public void seeDoor(){
@@ -1295,10 +1565,24 @@
                     ```
                 事例注意点：父类引用子类对象，对象调用父类里面没有的方法会报错。
 
-        6：final关键字
+        6：final关键字(硅谷)
             作用：
-                1：修饰变量：被他修饰的变量不可改变。一旦赋了初值，就不能被重新赋值
+                1：final修饰属性：此时的"变量"就被称为是一个常量；底层原理：类生成对象添加到堆中的时候，通过final修饰的属性必须要赋值。
+                        >被他修饰的变量不可改变。一旦赋了初始值，就不能被重新赋值
+                        >final修饰属性，可以考虑赋值的位置有，显示初始化，代码块中初始化，构造器中初始化   
+                        >注意：方法中初始化不可取
+                        >static final 用来修饰属性，则为全局常量(即为同一个类，new出来的对象通过static final修饰的属性都不变)
+
+
                     final int Max_speed = 120
+
+                  final修饰局部变量
+                        尤其是使用final来修饰形参时，表明此形参是一个常量。当我们调用此方法时，给常量赋一个实参，一旦赋值以后，就只能在方法体内使用此形参，但不能进行重新赋值
+                        public void show(){
+                            final int MAX_SLEEP = 100;
+                        }
+                        public void show(final int age){}
+
                 2：修饰方法：该方法不可被子类重写。但是可以被重载
                     final void study(){}
                 3：修饰类：修饰的类不能被继承。比如Math，String
@@ -1307,242 +1591,6 @@
         
         
 
-##数组(尚学堂)
-    1:概念：
-        数组是相同类型数据的有序集合。数组描述的是相同类型的若干数据，按照一定的先后次序排列组合而成。其中，每个数据称作一个元素，每个元素可以通过一个索引(小标)来访问
-
-        数组属于引用类型，数组也是对象，数组中的每个元素相当于该对象的成员变量
-
-    2:特点：
-        1：长度是确定的。数组一旦被创建，它的大小就是不可以改变的
-        2：其元素必须是相同类型，不允许出现混合类型
-        3：数组类型可以是任何数据类型，包括基本数据类型和引用数据类型
-
-    3:数组声明方式有两种
-        1： type[] arr_name;(推荐使用这种方式)
-        2： type   arr_name[];
-        实例：  
-
-        ```java
-            int[] arr01; //声明
-            arr01 = new int[]{1,2,3,4} //初始化
-            String[] arr02;
-        ```
-
-        注意点：
-            1：声明的时候并没有实例化任何对象，只有在实例化数组对象时，JVM才分配空间，这时才与长度有关
-            2：声明一个数组的时候并没有数组真正被创建
-            3：构造一个数组，必须指定长度
-
-
-    4:初始化方式
-        1：静态初始化
-            解释：初始化的时候直接赋值(数组的初始化和数组元素的赋值操作同时进行)
-            实例：
-
-                ```java
-                    int[] id = new int[]{1,2,3,4,5};
-                    int[] a = {1,2,3};
-                    User[] b = {new User(12,"是"),new User(11,"会")};
-                ```
-        2：动态初始化
-            解释：先分配空间(数组长度)，然后一个个给数组进行赋值(数组的初始化和数组元素的赋值操作分开进行)
-            事例：
-                ```java
-                    int[] a = new int[2];
-                    a1[0] = 1;
-                    a1[1] = 2
-                ```
-        3：默认初始化
-            解释：初始化数组长度之后，默认给数组的元素进行赋值。赋值的规则和成员变量默认规则一致
-            事例：
-                ```java
-                    int[] a1 = new int[2]; //默认给数组a1赋值0
-                ```
-
-            
-    5:用法：
-        实例：
-
-            ```java
-                public class Shuzu {
-                    public static void main(String[] args){
-                        int[] arr01 = new int[10];	//数组内每个元素的类型是int
-                        String[] arr02 = new String[5];	//数组内每个元素的类型为 String
-                        User[] arr03 =new User[3]; 
-                        //为User类型指的是，数组内部元素为对象的引用类型，存的是对象的地址，且应用类型为User
-                        for(int i =0;i <10;i++){
-                            arr01[i] = 10*i;
-                        }
-                        for(int i =0;i<10;i++){
-                            System.out.println(arr01[i]);
-                        }
-                        
-                        arr03[0] = new User(10,"石惠");
-                        arr03[1] = new User(11,"石惠h");
-                        arr03[2] = new User(12,"石惠shihui");
-                        for(int i=0;i<3;i++){
-                            System.out.println(arr03[i].getName());
-                        }
-                    }
-                }
-                class User{
-                    private String name;
-                    public User(int id,String name){
-                        this.name = name;
-                    }
-                    public String getName(){
-                        return this.name;
-                    }
-                }
-            ```
-
-    
-    6：for-each循环
-        概念：增强for循环for-each是JDK1.5新增的功能，专门用于读取数组或集合中所有的元素，即对数组进行遍历
-        事例：
-
-            ```java
-                for(int m:a){} //意思是循环a数组，把每个元素取出来之后放到m变量里面
-            ```
-    
-    7：数组的拷贝
-        1:概念：System类里也包含了一个static void arraycopy(object src,int srcpos,object dest,int destpos,int length)方法，该方法可以将src数组里的元素值付给dest数组的元素，其中srcpos指定从src数组的第几个元素开始赋值，length参数指定将src数组的多少个元素赋给dest数组的元素
-
-        2:用法
-            事例：将s1的数组拷贝到s2里面
-
-                ```java
-                    public static void testBasic1(){
-                        String[] s1 = {"aa","bb","cc","dd","ee"};
-                        String[] s2 = new String[10];
-                        System.arraycopy(s1, 2, s2, 6, 3);
-                        for(int i=0;i<s2.length;i++){
-                            System.out.println(i+"数组"+s2[i]);
-                        }
-                    }
-                ```
-
-            事例：从数组中删除某个元素(本质上还是数组的拷贝)
-
-                ```java
-                    public static void testBasic2(){
-                            String[] s1 = {"aa","bb","cc","dd","ee"};
-                            String[] s2 = new String[5];
-                            System.arraycopy(s1, 3, s1, 2, 2);
-                            s1[s1.length-1] = null;
-                            for(int i=0;i<s1.length;i++){
-                                System.out.println(s1[i]);
-                            }
-                        }
-                ```
-
-            事例：数组的扩容(本质上是：先定义一个更大的数组，然后将原数组内容原封不动拷贝到新数组中)
-
-                ```java
-                    public static void extendRange(){
-                            String[] s1 = {"aa","bb","cc","dd"};
-                            String[] s2 = new String[s1.length+10];
-                            System.arraycopy(s1, 0, s2, 0, s1.length);
-                            for(String item:s2){
-                                System.out.println(item);
-                            }
-                        }
-                ```
-    
-    8:java.util.Array类
-        概念：JDK提供的java.util.Arrays类，包含了常用的数组操作，方便我们日常开发。Arrays类包含了：排序，查找，填充，打印内容等常见的操作
-
-        用法：
-            事例：
-
-                ```java
-                    public static void testArr(){
-                            int[] a = {10,11,22,44,14,12,55};
-                            System.out.println(Arrays.toString(a));//描述数组内容的字符串，不用此方法则返回对数组内存地址的引用
-                            Arrays.sort(a);	//排序
-                            System.out.println(Arrays.toString(a));
-                            System.out.println(Arrays.binarySearch(a,44));//查找指定的元素,查找不到返回负数
-                        }
-                ```
-
-
-    9：多维数组
-        概念：多维数组可以看成以数组为元素的数组。可以有二维，三维，甚至更多维数组，但是实际上开发中用的非常少。最多到二维数组(学习容器后，我们一般使用容器，二维数组用的都很少)
-
-        用法：
-            实例：
-
-            ```java
-                public static void main(String[] args){
-                        int[][] a = new int[3][];	//创建多维数组
-                        a[0] = new int[]{02,30};	//给数组的第一项里面添加一个数组
-                        a[1] = new int[]{10,30,80};
-                        a[2] = new int[]{50,60};
-                        for(int[] temp:a){
-                            System.out.println(Arrays.toString(temp));
-                        }
-                    }
-            ```
-
-    10：冒泡排序算法
-        概念：冒泡排序重复访问要排序的数列，一次比价两个元素，如果他们的顺序错误就把他们交换过来，这样越大的元素会经过交换慢慢到数列的顶端
-
-        冒泡排序算法的执行机制：
-            1：比较相邻的元素。如果第一个比第二个大，就交换他们两
-            2：对每一对相邻元素作同样的工作，从开始第一对到结尾的最后一对。在这一点，最后的元素应该会是最大的数
-            3：针对所有的元素重复以上的步骤，除了最后一个
-            4：持续每次对越来越少的元素重复上面步骤，知道没有任何一对数字需要比较
-
-        用法：
-            实例：
-
-                ```java
-                    public static void main(String[] args){
-                            int[] values = {3,1,2,6,5,4,7,9,8,0};
-                            int temp = 0;
-                            for(int i=0;i<values.length-1;i++){
-                                for(int j =0;j<values.length-1-i;j++){
-                                    if(values[j] > values[j+1]){
-                                        temp = values[j];
-                                        values[j] = values[j+1];
-                                        values[j+1] = temp;
-                                    }
-                                }
-                            }
-                            System.out.println(Arrays.toString(values));
-                        }
-                ```
-
-    11：二分法查找
-        二分法执行机制：
-            1：二分法查找，基本思想是数组中的元素从小到大有序的存放在数组中，首先将给定值key与数组中间位置上元素的key进行比较，如果相等，则检索成功
-            2：否则，若key小，则在数组前半部分继续进行二分法检索
-            3：若key大，则在数组后半部分中继续进行二分法检索；
-            4：这样，经过一次比较就缩小一半的检索区间，如此进行下去，知道检索成功或检索失败
-
-        用法：
-            实例：
-
-                ```java
-                    public static int myBubble(int[] arr,int value){
-                            int low = 0;
-                            int high = arr.length-1;
-                            while(low <=high){
-                                int mid = (low+high)/2;
-                                if(value == arr[mid]){
-                                    return mid;
-                                }
-                                if(value > arr[mid]){
-                                    low = mid +1;
-                                }
-                                if(value < arr[mid]){
-                                    high = mid -1;
-                                }
-                            }
-                            return -1;
-                        }
-                ```
 
 ##面向对象编程
     **抽象类和抽象方法(硅谷)
@@ -1571,78 +1619,81 @@
             实例理解：    
                 >当功能内部一部分实现是确定的，一部分实现是不确定的。这时可以把不确定的部分暴露出去，让子类实现
                 >换句话说，在软件开发中实现一个算法时，整体步骤很固定，通用，这些步骤已经在父类中写好了。但是某些部分易变，易变部分可以抽象出来，供不同子类实现。这就是一种模板模式
-            
+        
+        实例：
 
+            ```java
+                public abstract class Animal {
+                    //抽象方法的特点：没有实现，子类必须实现
+                    abstract public	void shout(); 
+                    public void run(){
+                        System.out.println("快跑");
+                    }
+                    public static void main(String[] args){
+                        Animal d = new Dog();
+                        d.shout();
+                        d.run();
+                    }
+                }
+                class Dog extends Animal{
+                    @Override
+                    public void shout() {
+                        System.out.println("汪汪汪");
+                    }
+                }
+            ```
+    
+    **匿名对象
+        使用：
+            1：理解：我们创建的对象，没有显式的赋给一个变量名。即为匿名对象
+            2：特征：匿名对象只能调用一次
+            3：使用：如下
 
-    **抽象方法和抽象类(尚学堂)
-            抽象方法
-                概念：使用abstract修饰的方法，没有方法体，只有声明。定义的是一种"规范"，就是告诉子类必须要给抽象方法提供具体实现
-            
-            抽象类
-                概念：包含抽象方法的类就是抽象类。通过abstract方法定义规范，然后要求子类必须定义具体实现。通过抽象类，我们就可以做到严格限制子类的设计，使子类之间更加通用
-
-                抽象类特点：
-                    1：有抽象方法的类只能定义成抽象类
-                    2：抽象类不能实例化，即不能用new来实例化抽象类
-                    3：抽象类可以包含属性，方法，构造方法。但是构造方法不能用来new实例，只能用来被子类调用
-                    4：抽象类只能用来被继承
-                    5：抽象方法必须被子类实现
-                    6：abstract不能用来修饰私有方法，静态方法，final的方法，final类
-
-                实例：
-
-                    ```java
-                        public abstract class Animal {
-                            //抽象方法的特点：没有实现，子类必须实现
-                            abstract public	void shout(); 
-                            public void run(){
-                                System.out.println("快跑");
-                            }
-                            public static void main(String[] args){
-                                Animal d = new Dog();
-                                d.shout();
-                                d.run();
-                            }
+                ```java
+                    public class NIming {
+                    public static void main(String[] args) {
+                        new Phone().sendEmil();//匿名对象的使用
+                        PhoneMail phoneMail = new PhoneMail();
+                        phoneMail.show(new Phone());//匿名对象的使用，是将Phone对象赋值给了phoneMain的show方法的形参phone，phone在栈中，new Phone()对象地址指向形参phone
+                    }
+                    }
+                    class Phone{
+                        double price;
+                        public void sendEmil(){
+                            System.out.println("用手机发送邮件");
                         }
-                        class Dog extends Animal{
-                            @Override
-                            public void shout() {
-                                System.out.println("汪汪汪");
-                            }
+                        public void showPrice(){
+                            System.out.println(price);
                         }
-                    ```
-    **方法  (和js里面的函数方法概念差不多)
-        概念：方法就是一段用来完成特定功能的代码片段，类似于其他语言的函数
-        方法声明格式：
-            [修饰符1  修饰符2] 返回值类型   方法名(形式参数列表){
-                java语句;
-            }
-        方法的调用方式
-            对象名.方法名(实参列表)
-            方法的详细说明
-                1：形式参数：在方法声明时用于接收外界传入的数据
-                2：实参：调用方法时实际传给方法的数据
-                3：返回值：方法在执行完毕后返回给调用它的环境的数据
-                4：返回值类型：事先约定的返回值的类型，如无返回值，必须显式指定位void
+                    }
+                    class PhoneMail{
+                        public void show(Phone phone){
+                            phone.sendEmil();
+                            phone.showPrice();
+                        }
+                    }
+                ```
 
-                注意点：
-                    1：return的作用(和js里面的类似)：1结束方法的运行 2：返回值
-                    2：实参的数目，数据类型和次序必须和所调用的方法声明的形式参数列表匹配
-                    3：java中进行方法调用中传递参数时，遵循值传递的原则(传递的都是数据的副本)
-                    4：基本类型传递的是该数据值的copy值
-                    5：应用类型传递的是该对象引用的copy值，但指向的是同一个对象
-                    6：方法的使用；可以调用当前类的属性或方法
-                    7：方法中不可以定义方法
-
+    **方法  (和js里面的函数方法概念差不多)(硅谷)
         1：方法的重载
-            1：概念，重载的方法，实际是完全不同的独立的方法，只是名称相同而已
+            1：概念:在同一个类中，允许存在一个以上的同名方法，只要他们的参数个数或者参数类型不同即可
 
             2：构成方法重载的条件：
                     1：不同的含义：形参类型，形参个数，形参顺序不同
                     2：只有返回值不同不构成方法的重载
 
+        2：方法参数的值传递机制
+            底层原理：方法中的局部变量存放在栈中(方法执行完之后，从栈中出去被销毁，方法中相应的局部变量也会被销毁)
+                      对象存放在堆中
+                      方法区存放常量池和静态域
+            
+            1：值传递机制：
+                如果参数是基本数据类型，此时实参赋给形参的是实参真实存储的数据值
+                如果参数是引用数据类型，此时实参赋给形参的是实参存储数据的地址值
 
-        2：递归
+            
+
+        3：递归
             1：概念：方法自己调用自己
 
             2：递归结构包括两个部分：
@@ -1653,6 +1704,7 @@
 
             4：注意点：任何能用递归解决的问题也能使用循环迭代解决
                     在要求高性能的情况下尽量避免使用递归，递归调用既花时间又耗内存
+
 
     **接口(硅谷)
         **接口的使用

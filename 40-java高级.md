@@ -2224,134 +2224,169 @@
             Reader              FileReader                  BufferedReader
             Writer              FileWriter                  BufferedWriter
 
-            用法：从硬盘中读取数据
-                事例：read一个一个的读的事例
+            字节流或文件流的应用：
+                用法：从硬盘中读取数据
+                    事例：read一个一个的读的事例
 
-                ```java
-                    //如果将异常throw出去，可能会导致执行中断
-                    public static void  test(){
-                        FileReader fr = null;
-                        try {
-                            //1实例化File类的对象，指名要操作的文件
-                            File file = new File("dayone\\hello.txt");//若此方法在main中调用，则当前相对路径相对于当前工程
-                            //2提供具体的流
-                            fr = new FileReader(file);
-                            //3数据的读入
-                            //read()：返回读入的一个字符。如果达到文本末尾，即没有数据，返回-1
-                            int data = fr.read();
-                            while (data !=-1){
-                                System.out.print((char)data);
-                                data = fr.read();
-                            }
-                        }catch (Exception e) {
-                            e.printStackTrace();
-                        }finally {
+                    ```java
+                        //如果将异常throw出去，可能会导致执行中断
+                        public static void  test(){
+                            FileReader fr = null;
                             try {
-                                if(fr !=null)
-                                fr.close();
-                            } catch (IOException e) {
+                                //1实例化File类的对象，指名要操作的文件
+                                File file = new File("dayone\\hello.txt");//若此方法在main中调用，则当前相对路径相对于当前工程
+                                //2提供具体的流
+                                fr = new FileReader(file);
+                                //3数据的读入
+                                //read()：返回读入的一个字符。如果达到文本末尾，即没有数据，返回-1
+                                int data = fr.read();
+                                while (data !=-1){
+                                    System.out.print((char)data);
+                                    data = fr.read();
+                                }
+                            }catch (Exception e) {
                                 e.printStackTrace();
-                            }
-                        }
-                    }
-                ```
-
-                事例：read按照数组定义的个数一起读
-
-                ```java
-                    public static void test2(){
-                        FileReader fr = null;
-                        try{
-                            //1.File类的实例化
-                            File file = new File("dayone\\hello.txt");
-                            //2.FileReader流的实例化
-                            fr = new FileReader(file);
-                            //3.读入的操作
-                            //read(char[] cbuf)：返回每次读入cbuf数组中的字符的个数。如果达到文件末尾，返回-1
-                            char[] cbuf = new char[5];
-                            int len ; //记录每次读入到cbuf数组中的字符的个数
-                            while ((len = fr.read(cbuf)) !=-1){ 
-                                for (int i=0;i<len;i++){
-                                    System.out.print(cbuf[i]);
+                            }finally {
+                                try {
+                                    if(fr !=null)
+                                    fr.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             }
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }finally {
-                            //4.资源的关闭
-                            try {
-                                fr.close();
-                            } catch (IOException e) {
+                        }
+                    ```
+
+                    事例：read按照数组定义的个数一起读
+
+                    ```java
+                        public static void test2(){
+                            FileReader fr = null;
+                            try{
+                                //1.File类的实例化
+                                File file = new File("dayone\\hello.txt");
+                                //2.FileReader流的实例化
+                                fr = new FileReader(file);
+                                //3.读入的操作
+                                //read(char[] cbuf)：返回每次读入cbuf数组中的字符的个数。如果达到文件末尾，返回-1
+                                char[] cbuf = new char[5];
+                                int len ; //记录每次读入到cbuf数组中的字符的个数
+                                while ((len = fr.read(cbuf)) !=-1){ 
+                                    for (int i=0;i<len;i++){
+                                        System.out.print(cbuf[i]);
+                                    }
+                                }
+                            }catch (Exception e){
                                 e.printStackTrace();
+                            }finally {
+                                //4.资源的关闭
+                                try {
+                                    fr.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
-                    }
-                ```
+                    ```
 
-            用法：从内存中写出数据到硬盘的文件里
+                用法：从内存中写出数据到硬盘的文件里
 
-                ```java
-                    /*
-                    说明：
-                        1：输出操作，对应的File可以不存在的，并不会报异常
-                            File对应的硬盘中的文件如果不存在，在输出的过程中，会自动创建文件
-                            File对应的硬盘中的文件如果存在：
-                                    如果流使用的构造器：FileWriter(file,false)/FileWriter(file)：对原有文件的覆盖
-                                    如果流使用的构造器：FileWriter(file,true)：不会对原有文件覆盖，而是在原有文件基础上追加内容
-                    */
-                    public static void test3() throws IOException {
-                        //1；提供File类的对象，指明写出到的文件
-                        File file = new File("dayone\\hello1.txt");
-                        //2：提供FileWriter的对象，用于数据的写出
-                        FileWriter fw = new FileWriter(file);
-                        //3：写出的操作
-                        fw.write("我有一个梦想");
-                        fw.write("我们都有一个梦想");
-                        //4：流资源的关闭
-                        fw.close();
-                    }
-                ```
+                    ```java
+                        /*
+                        说明：
+                            1：输出操作，对应的File可以不存在的，并不会报异常
+                                File对应的硬盘中的文件如果不存在，在输出的过程中，会自动创建文件
+                                File对应的硬盘中的文件如果存在：
+                                        如果流使用的构造器：FileWriter(file,false)/FileWriter(file)：对原有文件的覆盖
+                                        如果流使用的构造器：FileWriter(file,true)：不会对原有文件覆盖，而是在原有文件基础上追加内容
+                        */
+                        public static void test3() throws IOException {
+                            //1；提供File类的对象，指明写出到的文件
+                            File file = new File("dayone\\hello1.txt");
+                            //2：提供FileWriter的对象，用于数据的写出
+                            FileWriter fw = new FileWriter(file);
+                            //3：写出的操作
+                            fw.write("我有一个梦想");
+                            fw.write("我们都有一个梦想");
+                            //4：流资源的关闭
+                            fw.close();
+                        }
+                    ```
 
 
-            用法：读取硬盘中文件的数据，写入到硬盘中另外一个文件(文件的复制)
+                用法：读取硬盘中文件的数据，写入到硬盘中另外一个文件(文件的复制)
 
-                ```java
-                    public static void test6()  {
-                        FileReader fr = null;
-                        FileWriter fw = null;
-                        try {
-                            //1创建File类对象，指明读入和写出的文件
-                            File srcFile = new File("dayone\\hello1.txt");
-                            File destFile = new File("hello2.txt");
-                            //2.创建输入流和输出流的对象
-                            fr = new FileReader(srcFile);
-                            fw = new FileWriter(destFile);
-                            //3.数据的读入和写出操作
-                            char[] cbuf = new char[5];
-                            int len;//记录每次读入到cbuf数组中的字符的个数
-                            while ((len = fr.read(cbuf)) != -1){
-                                //每次写入len个字符
-                                fw.write(cbuf,0,len);
-                            }
-                        }catch (Exception e){
-                            e.printStackTrace();
-
-                        }finally {
-                            //4.关闭资源流
+                    ```java
+                        public static void test6()  {
+                            FileReader fr = null;
+                            FileWriter fw = null;
                             try {
-                                fr.close();
-                                fw.close();
-                            } catch (IOException e) {
+                                //1创建File类对象，指明读入和写出的文件
+                                File srcFile = new File("dayone\\hello1.txt");
+                                File destFile = new File("hello2.txt");
+                                //2.创建输入流和输出流的对象
+                                fr = new FileReader(srcFile);
+                                fw = new FileWriter(destFile);
+                                //3.数据的读入和写出操作
+                                char[] cbuf = new char[5];
+                                int len;//记录每次读入到cbuf数组中的字符的个数
+                                while ((len = fr.read(cbuf)) != -1){
+                                    //每次写入len个字符
+                                    fw.write(cbuf,0,len);
+                                }
+                            }catch (Exception e){
                                 e.printStackTrace();
+
+                            }finally {
+                                //4.关闭资源流
+                                try {
+                                    fr.close();
+                                    fw.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
-                    }
-                ```
+                    ```
 
 
-            用法：处理图片
+                用法：实现对图片的复制
+
+                    ```java
+                        public static void test8(){
+                            FileInputStream fr = null;
+                            FileOutputStream fw = null;
+                            try {
+                                //1创建File类对象，指明读入和写出的文件
+                                File srcfile = new File("dayone\\xiaozhang.jpg");
+                                File destfile = new File("dayone\\xiaozhang1.jpg");
+                                //创建节点流的对象
+                                fr = new FileInputStream(srcfile);
+                                fw = new FileOutputStream(destfile);
+
+                                int len;
+                                byte[] cubf = new byte[5];
+                                while ((len = fr.read(cubf))!=-1){
+                                    fw.write(cubf,0,len);
+                                }
+                            }catch (Exception e){
+                                e.printStackTrace();
+
+                            }finally {
+                                try {
+                                    fr.close();
+                                    fw.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                    ```
 
         
+            缓冲流的应用：
+                作用：提高处理效率
+                
+
 
 
                 
