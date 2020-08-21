@@ -2218,11 +2218,11 @@
             3：按流的角色的不同分为：节点流，处理流
 
         流的体系
-            抽象基类            节点流(或文件流)              缓冲流(处理流的一种)
-            InputStream         FileInputStream             BufferedInputStream         
-            OutputStream        FileOutputStream            BufferedOutputStream
-            Reader              FileReader                  BufferedReader
-            Writer              FileWriter                  BufferedWriter
+            抽象基类            节点流(或文件流)                                    缓冲流(处理流的一种)
+            InputStream         FileInputStream (read(byte[] buffer))             BufferedInputStream (read(byte[] buffer))         
+            OutputStream        FileOutputStream (write(byte[] buffer,0,len))     BufferedOutputStream(write(byte[] buffer,0,len)/flush())
+            Reader              FileReader (read(char[] cbuf))                    BufferedReader (read(char[] cubf) /readline())
+            Writer              FileWriter (write(char[] cbuf,0,len))             BufferedWriter (write(char[] cbuf,0,len) / flush())
 
             字节流或文件流的应用：
                 用法：从硬盘中读取数据
@@ -2382,10 +2382,225 @@
                             }
                     ```
 
-        
-            缓冲流的应用：
-                作用：提高处理效率
-                
+            处理流之一：缓冲流的使用
+                1：缓冲流：
+                    BufferedInputStream
+                    BufferedOutputStream
+                    BufferedReader
+                    BufferedWriter
+                2：作用：提高路的读取，写入的速度
+                     提高读写速度的原因是：内部提供了一个缓冲区
+
+                3：处理流，就是"套接"在已有的流的基础上
+                    事例：使用BufferedInputStream，BufferedOutputStream实现视频图片的复制
+
+                    ```java
+                        public static void BufferedStreamTest(){
+                            BufferedInputStream bis = null;
+                            BufferedOutputStream bos = null;
+                            try {
+                                //1：造文件
+                                File srcFile = new File("dayone\\xiaozhang.jpg");
+                                File desFile = new File("dayone\\xiaozhang2.jpg");
+                                //2：造流
+                                //  2-1：造节点流
+                                FileInputStream fis = new FileInputStream(srcFile);
+                                FileOutputStream fos = new FileOutputStream(desFile);
+
+                                //  2-2：造缓冲流
+                                bis = new BufferedInputStream(fis);
+                                bos = new BufferedOutputStream(fos);
+
+                                //复制的细节：读取，写入
+                                byte[] buffer = new byte[10];
+                                int len;
+                                while ((len = bis.read(buffer))!=-1){
+                                    bos.write(buffer,0,len);
+                                }
+                            }catch (IOException e){
+                                e.getMessage();
+                            }finally {
+                                //资源关闭
+                                //要求1：先关闭外层的流，再关闭内层的流
+                                //说明：关闭外层流的同时，内层流也会自动的进行关闭。关于内存流的关闭，我们可以省略
+                                try {
+                                    if(bos != null){
+                                        bos.close();
+                                    }
+                                    if (bis !=null){
+                                        bis.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    ```
+
+                    事例：使用BufferedReader，BufferedWriter实现文本文件的复制
+
+                    ```java
+                        public static void Bufferedtest(){
+                            BufferedReader br = null;
+                            BufferedWriter bw = null;
+                            try{
+                                br = new BufferedReader(new FileReader(new File("dayone\\hello.txt")));
+                                bw = new BufferedWriter(new FileWriter(new File("dayone\\hello5.txt")));
+                                    //读写操作
+                                    //char[] cbuf = new char[1024];
+                                    ////方式一：使用char[]数组
+                                    //int len;
+                                    //while ((len = br.read(cbuf)) !=-1){
+                                    //    bw.write(cbuf,0,len);
+                                    //    bw.flush(); //作用：强制刷新缓存区，将读取的数据从内存中直接全部倒出来，不在等待缓存区满了。
+                                    //}
+                                //方式二：使用String
+                                String data;
+                                while((data = br.readLine()) !=null){  //readLine();读取方式：一行一行的读取，默认不换行
+                                    bw.write(data);
+                                    bw.newLine(); //换行
+                                }
+                            }catch(IOException e){
+
+                            }finally {
+                                //关闭资源
+                                try {
+                                    if(br !=null){
+                                        br.close();
+                                    }
+                                    if(bw !=null){
+                                        bw.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    ```
+            
+
+            处理流之二：转换流的使用
+                1：转换流：属于字符流
+                    InputStreamReader：将一个字节的输入流转换成字符的输入流   
+                    OutputStreamWriter：将一个字符的输出流转换为字节的输出流
+                2：作用：提供了字节流与字符流之间的转换
+                3：过程：解码：字节或字节数组 --->字符数组，字符串
+                        编码：字符数组或字符串 --->字节，字节数组
+
+                    事例：在内存中通过转换流输出文本文件内容
+
+                    ```java
+                        public static void test7(){
+                            InputStreamReader isr = null;
+                            try{
+                                //造文件，造流
+                                // File file1 = new File("dayone\\hello.txt");
+                                FileInputStream fis = new FileInputStream("dayone\\hello.txt");
+                                isr = new InputStreamReader(fis,"UTF-8");
+                                //读写过程
+                                char[] cbuf = new char[20];
+                                int len;
+                                while ((len = isr.read(cbuf)) !=-1){
+                                    String str = new String(cbuf,0,len);
+                                    //若这里用String的方式操作字节的话，可能会出现乱码；原因，一个中文由很多字节组成
+                                    System.out.println(str);
+                                }
+                            }catch (IOException e){
+
+                            }finally {
+                                try {
+                                    isr.close();
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    ```
+                    流的运行机制：isr.read(),在读取数据之前，上面代码初始化new的时候添加到堆中，建立流类似于管道，当调用read方法的时候，才开始有数据传过来，才调用堆中new出来流的方法
+
+                    事例：用转换流进行文件的复制
+
+                    ```java
+                        public static void test7(){
+                            InputStreamReader isr = null;
+                            OutputStreamWriter osw = null;
+                            try{
+                                //造文件，造流
+                                File file1 = new File("dayone\\hello.txt");
+                                File file2 = new File("dayone\\hello66.txt");
+
+                                FileInputStream fis = new FileInputStream(file1);
+                                FileOutputStream fos = new FileOutputStream(file2);
+
+                                isr = new InputStreamReader(fis,"UTF-8");//使用UTF-8的方式读取
+                                osw = new OutputStreamWriter(fos,"UTF-8");//使用UTF-8的方式写入
+                                //读写过程
+                                char[] cbuf = new char[20];
+                                int len;
+                                while ((len = isr.read(cbuf)) !=-1){
+                                    osw.write(cbuf,0,len);
+                                }
+                            }catch (IOException e){
+
+                            }finally {
+                                try {
+                                    isr.close();
+                                    osw.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    ```
+
+
+            其他流的使用
+                标准的输入输出流
+                    事例：从键盘中输入字符串，要求将读取到的整行字符串转成大写输出。然后继续进行输入操作。直至当输入"e"或者"exit"时，退出程序
+                        思路：使用键盘事件，System.in实现。System.in--->转换流--->BufferedReader的readLine()
+
+                    ```java
+                        /*
+                        1：标准的输入流，输出流
+                            1.1：
+                            System.in：标准的输入流，默认从键盘输入
+                            System.out：标准的输出流，默认的输出是控制台
+                            1.2：
+                            System类的setIn(InputStream is)/setOut(PrintStream ps)方式重新制定输入和输出的流
+                        */
+                        public static void main(String[] args) {
+                            BufferedReader br = null;
+                            try{
+                                InputStream put = System.in;//输入的时候是字节流，类型是InputStream，是字节流
+                                InputStreamReader isr = new InputStreamReader(put);//要使用BufferedReader，就必须通过转换流转成字符流
+
+                                br = new BufferedReader(isr);
+                                while (true){
+                                    System.out.println("请输入字符串:");
+                                    String data = br.readLine();
+                                    if("e".equalsIgnoreCase(data) || "exit".equalsIgnoreCase(data)){
+                                        System.out.println("程序运行结束");
+                                        break;
+                                    }
+                                    String upperCase = data.toUpperCase();
+                                    System.out.println(upperCase);
+                                }
+                            }catch (IOException e){
+
+                            }finally {
+                                try {
+                                    br.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    ```
+
+
+
+
 
 
 
