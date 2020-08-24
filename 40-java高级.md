@@ -2621,6 +2621,188 @@
                     ```
 
 
+            处理流之六：对象流
+                对象流：ObjectInputStream，ObjectOutputStream
+                作用：用于存储和读取基本数据类型数据或对象的处理流。它的强大之处就是可以把java中的对象写入到数据源中，也能把对象从数据源中还原回来。
+
+                要想一个java对象是可序列化的，需要满足相应的要求。比如Person.java
+                    1:需要实现接口：Serializable
+                    2：当前类提供一个全局常量：SerialVersionUID
+                    3：除了当前Person类需要实现Serializable接口之外，还必须保证其内部所有属性也必须是可序列化的(默认情况下，基本数据类型可序列化)
+                    补充：ObjectOutputStream和ObjectInputStream不能序列化static和transient修饰的成员；如用这两个关键字修饰属性或对象，则序列化的时候，不能将传入的值序列化，即为初始值；(用static修饰属性的不属于对象，所以不能被序列化；而自己不想让对象某些属性序列化则可通过transiend修饰成员即可)
+
+                        实例：满足对象序列化的java对象的实例
+
+                        ```java
+                            public class Person implements Serializable { //需要实现接口Serializable
+                                public final long serivalVersionUID = 12839287345L; //全局常量SerialVersionUID
+                                private String name;
+                                private static int age;
+                                public Person(String name,int age){
+                                    this.name = name;
+                                    this.age = age;
+                                }
+                            }
+                        ```
+
+                序列化的概念：将数据从内从中保存到数据源中，这个过程我们称之为序列化
+                    序列化：用ObjectOutputStream类保存基本数据类型或对象的机制
+                    反序列化：用ObjectInputStream类读取基本数据类型或对象的机制
+
+                    注意点：ObjectInputStream,ObjectOutputStream不能序列化Static和transient修饰的成员变量
+
+                对象的序列化机制：
+                    允许把内存中的java对象转换成平台无关的二进制流，从而允许把这种二进制流持久地保存在磁盘上，或通过网络将这种二进制流传出到另一个网络节点。当其它程序获取了这种二进制流，就可以恢复成原来的java对象
+
+                    事例：
+
+                    ```java
+                        public static void testWrite(){
+                            ObjectOutputStream oos = null;
+                            try{
+                                oos = new ObjectOutputStream(new FileOutputStream("Object.dat"));
+                                oos.writeObject("今天天气真好"); //先写入的，先读取，通过flush()来区分先写入后写入的顺序
+                                oos.flush();
+                                oos.writeObject(new Person("石惠",12));
+                                oos.flush();
+                                oos.writeObject(new Person("张学良",23));
+                                oos.flush();
+                            }catch (IOException e){
+
+                            }finally {
+                                try {
+                                    oos.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        public static void testRead(){
+                            ObjectInputStream ois = null;
+                            try{
+                                ois = new ObjectInputStream(new FileInputStream("Object.dat"));
+                                String str = (String)ois.readObject();//先写进的限度，字符串先写进，先读取字符串，否则报错
+                                Person p = (Person)ois.readObject();//先写进的先读取，后写进的后读取，通过flush()来区分谁先写进的
+                                Person p1 = (Person)ois.readObject();
+                                System.out.println(str);
+                                System.out.println(p);
+                                System.out.println(p1);
+
+                            }catch (IOException | ClassNotFoundException e){
+
+                            }finally {
+                                try {
+                                    ois.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    ```
+
+
+            处理流之七：随机存储文件流
+                RandomAccessFile的使用
+                    1：RandomAccessFile直接继承与java.lang.Object类，实现了DataInput和DataOutput接口
+                    2：RandomAccessFile即可以作为一个输入流，又可以作为一个输出流
+                    3：如果RandomAccessFile作为输出流时，写出到的文件如果不存在，则在执行过程中自动创建；如果写出到的文件存在，则会对原有文件内容进行覆盖(默认情况下，从头覆盖，写多少覆盖多少，没覆盖的部分保持原样)
+
+                RandomAccessFile对象包含一个记录指针
+                    作用：用以表示当前读写处的位置，从当前位置往后读写。RandomAccessFile类对象可以自由的移动记录指针
+                        >long getFilePointer()：获取文件记录指针的当前位置
+                        >void seek(long pos)：将文件记录指针定位到pos位置
+
+                RandomAccessFile类
+                    创建RandomAccessFile类实例需要制定一个mode参数(构造器 public RandomAccessFile(String name,String mode))，该参数指定RandomAccessFile的访问模式
+                        >r：以只读方式打开
+                        >rw：打开以便读取和写入
+                        >rwd：打开以便读取和写入：同步文件内容的更新
+                        >rws：打开以便读取和写入；同步文件内容和元数据的更新
+                        说明：
+                            如果模式为只读r。则不会创建文件，而是会去读取一个已经存在的文件，如果读取的文件不存在则出现异常。如果模式为rw读写，如果文件不存在则会去创建文件，如果存在则不会创建
+                            rw模式，数据不会立即写到硬盘汇总；而rwd，数据会被立即写入硬盘。如果写数据过程发生异常，rwd模式中已被write的数据被保存到硬盘中，而rw则全部丢失
+
+                        事例：使用随机存储文件流复制图片
+
+                        ```java
+                            public static void test1() {
+                                RandomAccessFile raf1 = null;
+                                RandomAccessFile raf2 = null;
+                                try {
+                                    //1
+                                    raf1 = new RandomAccessFile(new File("one6\\xiaozhang.jpg"), "r");
+                                    raf2 = new RandomAccessFile(new File("one6\\xiaozhang1.jpg"), "rw");
+                                    //2
+                                    byte[] buffer = new byte[1024];
+                                    int len;
+                                    while ((len = raf1.read(buffer)) != -1) {
+                                        raf2.write(buffer, 0, len);
+                                    }
+                                } catch (IOException e) {
+
+                                } finally {
+                                    try {
+                                        raf1.close();
+                                        raf2.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        ```
+
+
+##网络编程
+    **网络编程概述
+        网络基础
+            计算机网络：
+                概念：把分布在不同地理区域的计算机与专门的外部设备用通讯线路互连成一个规模大，功能强的网络系统，从而使众多的计算机可以方便地互相传递信息，共享硬件，软件，数据信息等资源
+            网络编程的目的：
+                直接或间接地通过网络协议与其他计算机实现数据交换，进行通讯
+            网络编程中有两个主要的问题
+                >如果准确地定位网络上一台或多台主机；定位主机上的特定的应用
+                >知道主机后如何可靠地高效的进行数据传输
+            
+    **网络通讯要素概述
+        IP和端口号
+            IP：
+                1:概念：唯一的标识Internet上的计算机(通讯实体)
+                2:在java中使用InetAddress类代表ip，类似File代表本地文件一样
+                3:IP分类：IPv4和IPv4;万维网和局域网
+                4:域名：www.baidu.com  www.mi.com 
+                5:如何实例化InetAddress：两个方法：getByName(String host)、getLocalHost()
+                                    实例化InetAddress之后的两个常用方法:getHostName() / getHostAddress()
+                事例：关于getByName(),getLocalhost()方法的使用，以及实例化之后方法的使用
+
+                ```java
+                    public static void main(String[] args) {
+                        try {
+                            InetAddress inte1 = InetAddress.getByName("www.baidu.com");
+                            System.out.println(inte1);
+                            InetAddress inte2 = InetAddress.getByName("127.0.0.1");
+                            System.out.println(inte2);
+                            //获取本地ip
+                            InetAddress inte3 = InetAddress.getLocalHost();
+                            System.out.println(inte3);
+                            //getHostName()获取域名
+                            System.out.println(inte3.getHostName());
+                            //getHostAddress()获取主机地址
+                            System.out.println(inte3.getHostAddress());
+                        } catch (UnknownHostException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                ```
+
+        网络通讯协议
+            计算机网络中实现通讯必须有一些约定，即通讯协议，对速率，传输代码，代码结构，传输控制步骤，出错控制等制定标准。
+
+    **通讯要素1：IP和端口号
+    **通讯要素2：网络协议
+    **TCP网络编程
+    **UDP网络编程
+    **URL编程
+
 
 
 
