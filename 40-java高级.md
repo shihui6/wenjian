@@ -2838,8 +2838,160 @@
             计算机网络中实现通讯必须有一些约定，即通讯协议，对速率，传输代码，代码结构，传输控制步骤，出错控制等制定标准。
 
     **TCP网络编程
+        事例：
+
+        ```java
+            //客户端
+            public static void client() {
+                Socket socket = null;
+                OutputStream os = null;
+                ByteArrayOutputStream bos = null;
+                try{
+                    //1：创建Sokcet对象，指名服务端的ip和端口号
+                    InetAddress inet = InetAddress.getByName("127.0.0.1");
+                    socket = new Socket(inet,8899);
+                    //2；获取一个输出流，用户输出数据
+                    os = socket.getOutputStream();
+                    //3:写出数据的操作
+                    os.write("你好，我是客户端mm".getBytes());
+
+                    //关闭数据的输出（告诉服务器数据接收完成，让服务器继续向下执行）
+                    socket.shutdownOutput();
+
+                    //接收来自服务器端反馈的数据，并显示到控制台上
+                    InputStream is = socket.getInputStream();
+                    bos = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[5];
+                    int len;
+                    while ((len = is.read(buffer)) != -1){//将反馈的内容写在控制台上
+                        bos.write(buffer,0,len);
+                    }
+                    System.out.println(bos.toString());
+                }catch(IOException e){
+
+                }finally {
+                    try {
+                        //4：关闭资源
+                        os.close();
+                        socket.close();
+                        bos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            //服务端
+            public static void server(){
+                ServerSocket ss = null;
+                Socket socket = null;
+                InputStream is = null;
+                ByteArrayOutputStream bos = null;
+                try{
+                    //1:创建服务器端的ServerSocket，指名自己的端口号
+                    ss = new ServerSocket(8899);
+                    //2：调用accept()表示接收来自客户端的socket
+                    socket = ss.accept();
+                    //3:获取输入流
+                    is = socket.getInputStream();
+                    //4:读取输入流中的数据
+                    bos = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[5];
+                    int len;
+                    while ((len = is.read(buffer)) != -1){
+                    //客户端要告诉服务端传输数据完成，不然服务器会一直在while循环里(通过事件socket.shutdownOutput()告诉服务端，数据传输完成，可向下执行)
+                        bos.write(buffer,0,len);
+                    }
+                    System.out.println(bos.toString());
+                    System.out.println("收到了来自于"+socket.getInetAddress().getHostAddress());
+
+                    System.out.println("传输完成");
+
+                    //服务端给予客户端反馈
+                    OutputStream op = socket.getOutputStream();
+                    op.write("你好我已经收到了你发的信息".getBytes());
+
+                }catch(IOException e){
+
+                }finally {
+                    //5:资源关闭
+                    try {
+                        bos.close();
+                        is.close();
+                        socket.close();
+                        ss.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        ```
+
     **UDP网络编程
+
     **URL编程
+        URL：统一资源定位符，对应着互联网上的统一资源地址
+        URl的基本结构由5个部分组成
+            <传输协议>://<主机名>:<端口号>/<文件名>#片段名?参数列表
+                >协议：http,https   
+                >主机名：ip或域名       
+                >端口号               
+                >资源地址：文件名，片段明 
+                >参数列表        
+            
+        URL类的方法
+            new URL().getProtocol()     获取协议
+            new URL().getHost()         获取URL主机名
+            new URL().getPort()         获取URL端口号
+            new URL().getPath()         获取URL文件路径
+            new URL().getFile()         获取URL的文件名
+            new URL().getQuery()        获取URL的查询名
+
+        事例：通过URL编程下载服务器端的图片
+
+            ```java
+                public static void sender(){
+                    URL url = new URL("http://localhost:8080/example/beautify");
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.connect();
+                    InputStream is = urlConnection.getInputStream();
+                    FileOutputStream fos = new FileOutputStream("one6//beautify5.jpg");
+                    
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = is.read(buffer)) != -1){
+                        fos.write(buffer,0,len);
+                    }
+                }
+            ```
+
+
+##反射机制
+    java发射机制的概念
+        Reflection(反射)是被视为动态语言的关键，反射机制允许程序在执行期借助于Reflection API取得任何类的内部信息，并能直接操作任意对象的内部属性和方法
+        java反射机制提供的功能
+            >在运行时判断任意一个对象所属的类
+            >在运行时构造任意一个类的对象
+            >在运行时判断任意一个类所具有的成员变量和方法
+            >在运行时获取泛型信息
+            >在运行时调用任意一个对象的成员变量和方法
+            >在运行时处理注解
+            >生成动态代理
+        
+        反射相关的主要API
+            java.lang.Class：代表一个类(主要)
+            java.lang.refleft.Method：代表类的方法
+            java.lang.reflect.Field：代表了类的成员变量
+            java.lang.reflect.Constructor：代表类的构造器
+
+        
+    理解class类并获取class事例
+    类的加载与classLoader的理解
+    创建运行时类的对象
+    获取运行时类的完整结构
+    调用运行时类的指定结构
+    发射的应用：动态代理
+
 
 
 
