@@ -2985,10 +2985,110 @@
             java.lang.reflect.Constructor：代表类的构造器
 
         
-    理解class类并获取class事例
+    理解Class类并获取Class实例
+        理解Class类
+            关于java.lang.Class类的理解
+            1:类的加载过程：
+                程序经过javac.exe命令以后，会生成一个或多个字节码文件(.class结尾)。
+                接着我们使用java.exe命令对某个字节码文件进行解释运行。相当于将某个字节码文件加载到内存中。此过程就称为类的加载。加载到内存中的类，我们就称为运行时类，此运行时类，就作为Class的一个实例
+                    (理解：类本身就是一个对象，作为Class的对象)(万事万物皆对象)
+            2：换句话说，Class的实例就对应着一个运行时类。
+            3：加载到内存中的运行时类，会缓存一定的时间。在此时间之内，我们可以通过不同的方式来获取此运行时类
+
+        深入理解Class类
+            >java中说万物皆对象，我们使用的对象都是某个类的实例，那么类是不是对象呢，又是谁的对象呢？
+            >类当然也是对象，java中有一个Class类，所有的类都是它的对象。当我们声明一个类编译时，java虚拟机会调用相应的构造方法(此处与类加载器相关以后会讲到)，构造出一个类对象供我们使用
+            >JDK的API中是这么说的：Class没有公共构造方法。Class对象是在加载类时由java虚拟机以及通过调用类加载器中的defineClass方法自动构造的
+            >Class是谁的对象呢？那么应该是jvm虚拟机的对象
+
+        获取Class的实例的方式
+
+            ```java
+                //获取class的实例的方式(前三种方式需要掌握)
+                public static void test3() throws ClassNotFoundException {
+                    //方式一：调用运行时类的属性：.class
+                    Class clazz1 = Person.class;
+                    System.out.println(clazz1);
+                    //方式二：通过运行时类的对象，调用getClass()
+                    Person p1 = new Person();
+                    Class clazz2 = p1.getClass();
+                    System.out.println(clazz2);
+                    //方式三：调用class的静态方法：forName(String classPath)；方法三编译时classPath写不存在的类，也不报错，更好的体现了动态性
+                    Class clazz3 = Class.forName("com.atguigu.Person");
+                    System.out.println(clazz3);
+                    System.out.println(clazz1 == clazz2);//true
+                    System.out.println(clazz1 == clazz3);//true
+
+                    //方式四：使用类的加载器ClassLoader (了解)
+                    ClassLoader classLoader = ReflectTest.class.getClassLoader();
+                    Class clazz4 = classLoader.loadClass("com.atguigu.Person");
+                    System.out.println(clazz4);
+                    System.out.println(clazz4 == clazz1);
+                }
+            ```
+        Class的实例可以是哪些结构：
+
+            ```java
+                public void test5(){
+                    Class c1 = Object.class;
+                    Class c2 = Comparable.class;
+                    Class c3 = String[].class;
+                    Class c4 = int[][].class;
+                    Class c5 = ElementType.class;
+                    Class c6 = Override.class;
+                    Class c7 = int.class;
+                    Class c8 = void.class;
+                    Class c9 = Class.class;
+                    
+                    int[] a = new int[10];
+                    int[] b = new int[100];
+                    //只要元素类型与维度一样，就是同一个Class
+                    Class c10 = a.getClass();
+                    Class c11 = b.getClass();
+                    System.out.println(c10 == c11);//true
+                }
+            ```
+
     类的加载与classLoader的理解
+        类的加载的过程
+            加载：
+                将class文件字节码内容加载到内存中，并将这些静态数据转换成方法区的运行时数据结构，然后生成一个代表这个类的java.Lang.Class对象，作为方法去中类数据的访问入口(即引用地址)。所有需要访问和使用类数据只能通过这个Class对象。这个加载的成果需要类的加载器参与
+            链接：将java类的二进制代码合并到JVM的运行状态之中的过程
+                >验证：确保加载的类信息符合JVM规范，例如：以cafe开头，没有安全方面的问题
+                >准备：正式为类变量(static)分配内存并设置类变量默认初始化的阶段，这些内存都将在方法区中进行分配
+                >解析：虚拟机常量池内的符号引用(常量名)替换为直接引用的(地址)过程
+            初始化：
+                >执行类构造器<clinit>()方法的过程。类构造器<clinit>()方法是由编译期自动收集类中所有类变量的赋值动作和静态代码块中的语句合并产生的。(类构造器是构造类欣欣的，不是构造该类对象的构造器)
+                >当初始化一个类的时候，如果发现其父类还没有进行初始化，则需要先触发其父类的初始化
+                >虚拟机会保证一个类的<clinit>()方法在多线程环境中被正确加锁和同步
+
+        类加载器的作用：
+            >类加载器的作用：将class文件字节码内容加载到内存中，并将这些静态数据转换成方法区的运行时数据结构，然后在堆中生成一个代表这个类的java.Lang.Class对象，作为方法区中类数据的访问入口
+            >类缓存：标准的javaSE类加载器可以按要求查找类，但一旦某个类加载到类加载器中，它将维持加载(缓存)一段时间。不过JVM垃圾回收机制可以回收这些Class对象
+
     创建运行时类的对象
+
+            ```java
+                //通过反射创建对应的运行时类的对象
+                public static void test() throws Exception {
+                    Class clazz = Person.class; //Class<>泛型决定了newInstance()方法的返回值
+                    //创建Person类的对象
+                    /*
+                    newInstance()：调用此方法，创建对应的运行时类的对象。内部调用了运行时类的空参构造器
+                        要想方法正常的创建运行时类的对象，要求：
+                            1：运行时类必须提供空参构造器
+                            2：空参的构造器的访问权限得够。通常，设置为public
+
+                            在javabean中要求提供一个public的空参构造器。原因：
+                                1：便于通过反射，创建运行时类的对象
+                                2：便于子类继承此运行时类时，默认调用super()时，保证父类有次构造器
+                    */
+                    Person o = (Person)clazz.newInstance();
+                }
+            ```
+
     获取运行时类的完整结构
+            
     调用运行时类的指定结构
     发射的应用：动态代理
 
