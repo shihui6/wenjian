@@ -127,6 +127,9 @@
                                                                                     例如(server 192.168.177.129:8080 weight=2)
 
 
+    **linux的操作
+        查看用nginx部署的项目占用的端口     netstat -ntulp | grep nginx
+        查看服务器上所有项目占用的端口      netstat -ntulp
 
 
                 
