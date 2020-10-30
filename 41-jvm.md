@@ -1,7 +1,7 @@
 ***类的加载，连接与初始化
     注意：
         先编译，再加载，连接与初始化，使用，卸载
-        加载了一不定会被初始化，初始化就一定会加载
+        加载了不一定会被初始化，初始化就一定会加载
     *过程
         1-加载：查找并加载类的二进制数据(将class的字节码文件从磁盘加载到内存中去)
         2-连接：
@@ -82,10 +82,24 @@
         java虚拟机自带了以下几种加载器
             >根类加载器：该加载器没有父类加载器。它负责加载虚拟机的核心类库.根类加载器从系统属性sun.boot.class.path所指定的目录中加载类库。根类加载器的实现依赖于底层操作系统，属于虚拟机的实现的一部分，它并没有继承java.lang.ClassLoader类。
             >扩展类加载器：它的父类加载器为根类加载器。它从java.ext.dirs系统属性所指定的目录中加载类库，或者从JDK的安装目录的jre\lib\ext子目录(扩展目录)下加载类库，如果把用户创建的JAR文件放在这个目录下，也会自动由扩展类加载器加载。扩展类加载器是纯java类，是java.lang.ClassLoader类的子类
-            >系统类加载器：也称为应用类加载器，它的父加载器为扩展类加载器。它从环境变量classpath或者系统属性java.class.path所制定的目录中加载类，它是用户自定义的类加载器的默认父加载器。系统类加载器是纯java类，是java.lang.Classloader类的子类
+            >系统类加载器：也称为应用类加载器，它的父加载器为扩展类加载器。它从环境变量classpath或者系统属性java.class.path所制定的目录中加载类，它是用户自定义的类加载器的默认父加载器。系统类加载器是纯java类，是java.lang.Classloader类的子类、
+            
+        java虚拟机自带了以下几种加载器分别加载的文件
+            >Bootstrap ClassLoader/启动类加载器(根类加载器)，加载$JAVA_HOME中jre/lib/rt.jar里所有的class，由C++实现，不是ClassLoader子类
+            >Extension ClassLoader/扩展类加载器,负责加载java平台中扩展功能的一些jar包，包括$JAVA_HOME中jre/lib/*.jar或-Djava.ext.dirs指定目录下的jar包
+            >App ClassLoader/系统类加载器，负责加载classpath中指定的jar包及目录中class
 
-        几种加载器的关系：表面上看是继承关系，实际上是包含关系：系统加载器包含扩展类加载器，扩展类加载器包含根类加载器
+
+            几种加载器的关系：表面上看是继承关系，实际上是包含关系：系统加载器包含扩展类加载器，扩展类加载器包含根类加载器
         
+        类加载器的父亲委托机制
+            1：自底向上检查类是否已经加载(如果类加载了，那就不去加载)2：自顶向下尝试加载类(将没有加载的类，尝试进行加载)
+
+        获取ClassLoader的途径
+            获取当前了类的ClassLoader：Clazz.getClassLoader()
+            获取当前线程上下文的ClassLoader：Thread.currentThread().getContextClassLoader()
+            获取系统的ClassLoader：ClassLoader.getSystemClassLoader()
+            获取调用者的ClassLoader：DriverManager.getCallerClassLoader()
 
         事例：
 
@@ -271,4 +285,133 @@
                     初始化阶段，会按顺序的给静态变量赋值
                     注意：初始化只会执行一次
                 */
+            ```
+
+        事例：类的加载和准备阶段初始化和运行阶段执行顺序
+
+            ```java
+                class Parent2{
+                    static int a = 2;
+                    static {
+                        System.out.println("Parent2 static block");
+                    }
+                }
+                class Child2 extends Parent2{
+                    static int b = 3;
+                    static {
+                        System.out.println("Child2 static block");
+                    }
+                }
+                public class test10 {
+                    static {
+                        System.out.println("test10 static block");
+                    }
+                    public static void main(String[] args) {
+                        Parent2 parent2;
+                        System.out.println("----------");
+                        parent2 = new Parent2();
+                        System.out.println("----------");
+                        System.out.println(Parent2.a);
+                        System.out.println("--------");
+                        System.out.println(Child2.b);
+                    }
+                }
+                /**输出结果
+                    test10 static block
+                    ----------
+                    Parent2 static block
+                    ----------
+                    2
+                    --------
+                    Child2 static block
+                    3
+                /
+            ```
+        
+        事例：子类类名访问父类的静态变量或者静态方法，本质上都是对父类的主动使用而不是对子类的主动使用
+
+            ```java
+                class Parent3{
+                    static int a = 3;
+                    static {
+                        System.out.println("Parent3 staic block");
+                    }
+                    public static void dosomething(){
+                        System.out.println("do somethings");
+                    }
+                }
+                class Child3 extends Parent3{
+                    static int b = 4;
+                    static {
+                        System.out.println("Child static block");
+                    }
+                }
+                public class test11 {
+                    public static void main(String[] args) {
+                        System.out.println(Child3.a);
+                        Child3.dosomething();
+                    }
+                }
+                //输出结果：
+                // Parent3 staic block
+                // 3
+                // do somethings
+            ```
+        
+        事例：反射属于对类的主动使用；加载器加载class文件是在加载阶段，不是主动使用不会初始化class文件
+
+            ```java
+                class CL{
+                    static {
+                        System.out.println("Class CL");
+                    }
+                }
+                //调用ClassLoader类的LoadClass方法加载一个类，是在类的加载阶段，并不是对类的主动使用，不会导致类的初始化
+                public class test12 {
+                    public static void main(String[] args) throws Exception {
+                        ClassLoader loader = ClassLoader.getSystemClassLoader();//获取加载器
+                        Class<?> clazz = loader.loadClass("com.shengs.java.CL");//加载CL的class文件，是在加载阶段，加载CL的class文件并不会使类初始化
+                        System.out.println(clazz);
+                        System.out.println("--------");
+                        clazz = Class.forName("com.shengs.java.CL");//反射是对类的主动使用，会初始化
+                        System.out.println(clazz);
+                    }
+                }
+                // class com.shengs.java.CL
+                // --------
+                // Class CL
+                // class com.shengs.java.CL
+            ```
+        事例：获取系统类加载器，以及获取双亲加载器
+
+            ```java
+                public class test13 {
+                    public static void main(String[] args) {
+                        //获取系统类加载器
+                        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+                        System.out.println(classLoader);
+                        while (null != classLoader){
+                            //获取加载器的双亲加载器
+                            classLoader = classLoader.getParent();
+                            System.out.println(classLoader);
+                        }
+                    }
+                }
+            ```
+
+        事例：通过加载器获取class文件在磁盘上的位置
+
+            ```java
+                //通过加载器获取文件在磁盘上的位置
+                public class test14 {
+                    public static void main(String[] args) throws IOException {
+                        //获取当前线程的上下文加载器
+                        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                        String name = "com/shengs/java/test13.class";
+                        //通过加载器获取包中的class文件对应在磁盘上的位置
+                        URL urls = classLoader.getResource(name);
+                        System.out.println(urls);
+                    }
+                }
+                //输出file:/C:/java/jvm_laction/out/production/project2/com/shengs/java/test13.class
             ```
