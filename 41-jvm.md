@@ -87,7 +87,7 @@
         java虚拟机自带了以下几种加载器分别加载的文件
             >Bootstrap ClassLoader/启动类加载器(根类加载器)，加载$JAVA_HOME中jre/lib/rt.jar里所有的class，由C++实现，不是ClassLoader子类
             >Extension ClassLoader/扩展类加载器,负责加载java平台中扩展功能的一些jar包，包括$JAVA_HOME中jre/lib/*.jar或-Djava.ext.dirs指定目录下的jar包
-            >App ClassLoader/系统类加载器，负责加载classpath中指定的jar包及目录中class
+            >App ClassLoader/系统类加载器(应用类加载器)，负责加载classpath中指定的jar包及目录中class
 
 
             几种加载器的关系：表面上看是继承关系，实际上是包含关系：系统加载器包含扩展类加载器，扩展类加载器包含根类加载器
