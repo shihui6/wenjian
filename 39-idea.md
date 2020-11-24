@@ -144,7 +144,9 @@ idea断点调试
 
 
 idea中配置maven
-    File->settings->Build,Execution,Deployment->Build Tools->Maven页，Maven home directory设置idea绑定的maven版本；User settings files配置文件(文件里面记录了很多重要的信息，如相应的依赖的文件下载的地址)；Local repository(本地仓库的设置)
+    File->settings->Build,Execution,Deployment->Build Tools->Maven页，Maven home directory设置idea绑定的maven版本；User settings files配置文件(文件里面记录了很多重要的信息，如相应的依赖文件下载的地址)；Local repository(本地仓库的设置)
+
+    问题：这个本地仓库存放什么的？是不是maven：package打包生成jar包所在的位置
 
     创建maven构建的模板：New Module->Spring Initializr-> next,next即可
 
