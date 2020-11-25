@@ -124,6 +124,7 @@
     run->edit Configurations->Tomcat Server->Local页，进行操作：Application server:选择Tomcat文件导入;创建javaEE项目：new Module->web Application等即可，然后在local页的Deployment中导入要部署在tomcat上的项目
 
 在idea中关联数据库
+    步骤：点击idea右侧的Databases->点+号->Data Sourcer选择mysql数据库，进行连接即可
 
 idea里面设置git
 
@@ -144,7 +145,7 @@ idea断点调试
 
 
 idea中配置maven
-    File->settings->Build,Execution,Deployment->Build Tools->Maven页，Maven home directory设置idea绑定的maven版本；User settings files配置文件(文件里面记录了很多重要的信息，如相应的依赖的文件下载的地址)；Local repository(本地仓库的设置)
+    File->settings->Build,Execution,Deployment->Build Tools->Maven页，Maven home directory设置idea绑定的maven版本；User settings files配置文件(文件里面记录了很多重要的信息，如相应的依赖的文件下载的地址)；Local repository(本地仓库的设置)：是下载的依赖所存放的位置
 
     创建maven构建的模板：New Module->Spring Initializr-> next,next即可
 
