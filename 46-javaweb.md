@@ -74,7 +74,7 @@
 
 
         *IDEA中如何创建动态web工程
-            new->Module->Java Enterprise页，选择应用的服务器，一定要勾选Web Application;然后生成的web项目
+            1.new->Module->Java Enterprise页，选择应用的服务器，一定要勾选Web Application;然后生成的web项目
                 生成的web项目的目录介绍
                     src目录存放自己编写的java源代码
                     web目录专门用来存放web工程的资源文件；比如：html页面，css文件，js文件等等
@@ -92,6 +92,11 @@
                                         然后选择项目里类库需要的jar包(前提要将这些需要添加的jar包复制到项目里，才可以选择)，点击确定
                                         然后选择这些jar生成的类库可以使用到的模块
                                         选择Artifacts选项，将类库，添加到打包部署中；操作Artifacts->fix即可
+
+            2.在idea上创建web项目，通过tomcat运行起来的执行机制：
+                通过idea启动项目的时候，Idea会整合Tomcat之后。Tomcat被拷贝一些副本(放在对应的目录里)，此副本里配置了访问web项目的信息。
+                同时idea也会把web项目的web目录拷贝副本(放在对应的目录)把web目录的副本所在路径放在被拷贝的Tomcat的副本里的xml的配置信息的docBase里，通过路由即可以访问到web项目。
+                通过Idea启动之后，通过路由即可访问
 
         *在idea中启动部署web模板
 
@@ -123,6 +128,10 @@
                                 <servlet-name>Helloservlet</servlet-name>
                                 <!--servlet-class是Servlet程序的全类名  -->
                                 <servlet-class>com.atguigu.servlet.Helloservlet</servlet-class>
+                                <init-param>
+                                    <param-name>username</param-name>
+                                    <param-value>root</param-value>
+                                </init-param>
                             </servlet>
                             <servlet-mapping>
                                 <!--servlet-name标签的作用是告诉服务器，我当前配置的地址给哪个Servlet程序使用-->
@@ -164,6 +173,9 @@
                     步骤：在package包下，new->Create new Servlet，然后就可以快速生成相应的配置和class类了
 
         *ServletConfig类
+            概念：ServletConfig类是Servlet程序的配置信息类
+                    Servlet程序和ServletConfig对象都是由Tomcat负责创建
+                    Servlet程序默认是第一次访问的时候创建，ServletConfig是每个Servlet程序创建时，就创建一个对应的ServletConfig对象
             作用：
                 1.可以获取servlet程序的别名servlet-name(配置文件xml的配置信息)的值
                 2.获取初始化参数init-param(配置文件xml的配置信息)
@@ -181,8 +193,223 @@
                             System.out.println(servletConfig.getServletContext());
                         }
                     ```
-        
+
+时间2020/11/27
+        *ServletContext类
+            什么是ServletContext
+                1.ServletContext是一个接口，它表示Servlet上下文对象
+                2.一个web工程，只有一个ServletContext对象
+                3.ServletContext对象是一个域对象
+                    什么是域对象？
+                        域对象，是一个像Map一样存取数据的对象，叫域对象
+                        这里的域指的是存取数据的操作范围，整个web工程
+                4.ServletContext是在web工程部署启动的时候创建。在web工程停止的时候销毁
+
+            ServletContext的作用：
+                1.获取web.xml中配置的上下文参数context-param
+                2.获取当前的工程路径，格式：/工程路径
+                3.获取工程部署后在服务器硬盘商的绝对路径
+                4.像Map一样存取数据
+
+            ServletContext类的使用
+                事例：在Servlet类中的使用
+
+                    ```java
+                            protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+                        //        1.获取web.xml中配置的上下文参数context-param
+                                /*
+                                    前提要在xml配置文件里添加context-param标签内容
+                                    如：<context-param>
+                                            <param-name>username</param-name>
+                                            <param-value>selectContext</param-value>
+                                        </context-param>
+                                    context-param当前工程下所有的类都可以访问
+                                */
+                                ServletContext context = getServletConfig().getServletContext();
+                                String username = context.getInitParameter("username");
+                                System.out.println("context-param参数的username的值"+username); //输出结果selectContext
+                        //        2.获取当前的工程路径，格式：/工程路径
+                                System.out.println("当前工程路径"+context.getContextPath());
+                                    //输出结果 /06_servlet
+                        //        3.获取工程部署后在服务器硬盘商的绝对路径
+                                /*
+                                    "/"斜杠被服务器解析成地址为http://ip:port/工程名/  映射到IDEA代码的web目录
+                                */
+                                System.out.println("工程部署的路径"+context.getRealPath("/"));
+                                System.out.println("工程下css的绝对路径"+context.getRealPath("/css"));
+                                    //输出结果为C:\javaceshi\out\artifacts\06_servlet_war_exploded\
+                        //        4.像Map一样存取数据
+                                    // //获取ServletContext对象
+                                    //         ServletContext servletContext = getServletContext();
+                                    //         servletContext.setAttribute("key1","value1");
+                                    //         System.out.println(servletContext.getAttribute("key1"));
+                            }
+                    ```
+
+        *Http协议
+            什么是http协议
+                什么是协议：协议是指双方，或多方，相互约定号，大家都需要遵守的规则，叫协议
+                所谓http协议，就是指，客户端和服务器之间通信时，发送的数据，需要遵守的规则，叫http协议
+                http协议中的数据又叫报文
+
+
+        *HttpServletRequest类
+            作用：每次只要有请求进入Tomcat服务器，Tomcat服务器就会把请求过来的HTTP协议信息解析好封装到Request对象中。然后传递到service方法(doGet和doPost)中给我们使用。我们可以通过HttpServletRequest对象，获取到所有请求信息
+
+            1.常用的方法：
+                getRequestURI()             获取请求的资源路径
+                getRequestURL()             获取请求的统一资源定位符(绝对路径)
+                getRemoteHost()             获取客户端的IP地址
+                getHeader()                 获取请求头
+                getParameter()              获取请求的参数
+                getParameterValues()        获取请求的参数(多个值的时候使用)
+                getMethod()                 获取请求的方式GET或POST
+                setAttribute(key,value)     设置域数据
+                getAttribute(key)           获取域数据
+                getRequestDispatcher()      获取请求转发对象
+
+                >事例：API的使用
+
+                    ```java
+                        public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                        //        getRequestURI()             获取请求的资源路径
+                                System.out.println("url=>"+req.getRequestURI());
+                        //        getRequestURL()             获取请求的统一资源定位符(绝对路径)
+                                System.out.println("URL=>"+req.getRequestURL());
+                        //        getRemoteHost()             获取客户端的IP地址
+                                /*
+                                    在idea中，使用localhost访问时，得到的客户端ip地址是===》127.0.0.1
+                                    在idea中，使用127.0.0.1访问时，得到的客户端ip地址是===》127.0.0.1
+                                    在idea中，使用 真实ip 访问时，得到的客户端ip地址是===》真实的客户端的IP地址
+                                */
+                                System.out.println("客户端的ip地址=>"+req.getRemoteHost());
+                        //        getHeader()                 获取请求头
+                                System.out.println("获取请求头的User-Agent=>"+req.getHeader("User-Agent"));
+                        //        getMethod()                 获取请求的方式GET或POST
+                                System.out.println("请求的方式=>"+req.getMethod());
+
+                                //设置请求体的字符集为UTF-8，从而解决post请求的中文乱码的问题
+                                //setCharacterEncoding要在获取请求参数之前调用才有效，否则后面获取的中文参数会有乱码
+                                req.setCharacterEncoding("UTF-8");
+
+                        //        获取请求的参数
+                                //获取一个参数对应一个值
+                                //String username = req.getParameter("username");
+                                //获取一个参数对应多个值,返回的是个数组
+                        //        String[] hobbies = req.getParameterValues("hobby");
+                            }
+                    ```
 
             
-            
+                >事例:请求转发的使用getRequestDispatcher()
+                    请求转发的特点：
+                        1.浏览器地址栏没有变化
+                        2.他们是一次请求
+                        3.他们共享Request域中的数据
+                        4.可以转发到WEB-INF目录下
+                            注意点：平时放在web工程下，且非WEB-INF目录下的页面通过地址可以访问
+                        5.是否可以访问工程以外的资源(不可以)
 
+                    ```java 下面是Servlet1类中的代码
+                        public class Servlet1 extends HttpServlet {
+                            public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                                //获取请求的参数(办事的材料)查看
+                                String username = req.getParameter("username");
+                                System.out.println("在Servlet1中查看的参数"+username);
+
+                                req.setAttribute("key1","我的天哪，太好看了吧");
+
+                                /*
+                                    请求转发必须要以斜杠开头，/ 斜杠表示地址为:http://ip:port/工程名/,映射到IDEA代码的web目录
+                                */
+                                RequestDispatcher requestDispatcher = req.getRequestDispatcher("/Servlet2");
+                                //走向Servlet2  就会执行Servlet2的程序
+                                requestDispatcher.forward(req,resp);
+                            }
+                        }
+                    ```
+
+                    ```java 下面是Servlet2中的代码
+                        public class Servlet2 extends HttpServlet {
+                            public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                                //获取请求的参数(办事的材料)查看
+                                String username = req.getParameter("username");
+                                System.out.println("在Servlet1中查看的参数"+username);
+                                //查看 柜台1 是否有
+                                Object key1 = req.getAttribute("key1");
+                                System.out.println("柜台1是否有章"+key1);
+                                //处理自己的业务
+                                System.out.println("servlet2处理自己的业务");
+                            }
+                        }
+                    ```
+
+                >事例：base标签的作用：可以设置当前页面中所有相对路径工作时，参照哪个路径来进行跳转
+                        路由地址跳转相对路径的工作原理：
+                            当我们点击a标签进行跳转的时候，浏览器地址栏中的地址是：http://localhost:8080/07_servlet/a/b/c.html
+                            跳转回的a标签路径是:../../index.html
+                            所有相对路径在工作时候都会参照当前浏览器地址栏中的地址来进行跳转
+                            参照浏览器地址栏中的地址得到的地址是http://localhost:8080/07_servlet/index.html
+                        
+                        当在html中设置了base标签，并赋了url地址，那么相对路径就会屏蔽浏览器地址栏中的地址，而会参照base的地址来进行跳转
+
+
+        *HttpServletResponse类
+            作用：
+                HttpServletResponse类和HttpServletRequest类一样。每次请求进来，Tomcat服务器都会创建一个Response对象传递给Servlet程序去使用。HttpServletRequest表示请求过来的信息，HttpServletResponse表示所有响应的信息
+
+                我们如果需要设置返回给客户端你的信息，都可以通过HttpServletResponse对象来进行设置
+
+            怎么用：
+                字节流      getOutputStream()       常用于下载(传递二进制数据)
+                字符流      getWrite()              常用于回传字符串(常用)
+                注意：两个流同时只能使用一个，使用了字节流，就不能再使用字符流，反之亦然，否则就会报错
+
+                事例：通过流将信息写入到浏览器，并设置浏览器使用UTF-8字符集
+
+                    ```java
+                        public class Servlet2 extends HttpServlet {
+                            public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                                //设置服务器的和客户端使用UTF-8字符集
+                                    // 方法一：
+                                        // //设置服务器字符集UTF-8
+                                        // resp.setCharacterEncoding("UTF-8");
+                                        // //通过响应头，设置浏览器也使用UTF-8字符集
+                                        // resp.setHeader("Content-Type","text/html;charset=UTF-8");
+                                    //方法二：
+                                        //此方法同时设置服务器和客户端都使用UTF-8字符集，还设置了响应头
+                                        //此方法一定要在获取流对象之前调用才有效，否则无效
+                                        resp.getContentType("text/html;charset=UTF-8");
+
+                                //获取字符流对象
+                                PrintWriter writer = resp.getWriter();
+                                writer.writer("今天天气真好")
+                            }
+                        }
+                    ```
+
+            1.请求重定向
+                使用：在response1中，跳转到response2里
+
+                    ```java
+                        public class Servlet2 extends HttpServlet {
+                            public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                            // 重定向方法一
+                                // //设置响应状态码302，表示重定向(做个标记)
+                                // resp.setStatus(302);
+                                // //设置响应头，说明新的地址在哪里
+                                // resp.setHeader("Location","http://localhost:8080/07_servlet/response2");
+                            
+                            // 重定向方法二,一行代码搞定
+                                resp.sendRedirect("http://localhost:8080/07_servlet/response2");
+                            }
+                    ```
+                    执行机制：通过http://localhost:8080/07_servlet/response1，访问Servlet2类的时候，设置响应状态码302，响应头的地址，浏览器就会自动重定向跳转到http://localhost:8080/07_servlet/response2地址。
+
+                特点：
+                    1.浏览器地址栏会发生变化
+                    2。两次请求
+                    3.不共享Request域中的数据
+                        (因为浏览器请求一次服务器，服务器只创建一个Request对象，重定向则是浏览器请求了两次，创建了两个Request对象，所以数据不共享)
+                    4.不能访问WEB-INF下的资源
+                    5.可以访问工程外的资源
