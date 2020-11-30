@@ -413,3 +413,45 @@
                         (因为浏览器请求一次服务器，服务器只创建一个Request对象，重定向则是浏览器请求了两次，创建了两个Request对象，所以数据不共享)
                     4.不能访问WEB-INF下的资源
                     5.可以访问工程外的资源
+
+2020/11/30
+###JSP
+    *jsp
+        概念：jsp的全称是java server pages；java的服务器页面
+        作用：jsp主要作用是代替servlet程序回传html页面的数据
+                因为servlet程序回传html页面数据是一件非常繁琐的事情。开发成本和维护成本都极高
+
+        如何创建jsp页面
+            在创建的javaweb工程下，在web目录下new->jsp/jspx创建文件名即可
+        如何访问：
+            jsp页面和html页面一样，都是存放在web目录下。访问也跟访问html页面一样
+            比如：在web目录下有如下的文件
+                web目录：
+                    a.html页面      访问地址=====> http://ip:port/工程路径/a.html
+                    b.jsp页面      访问地址=====> http://ip:port/工程路径/b.jsp
+
+        本质：
+            jsp页面本质上是Servlet程序
+            当我们第一次访问jsp页面的时候。Tomcat服务器会帮我们把jsp页面翻译成为一个java源文件。并且对它进行编译成为.class字节码程序。我们打开java源文件不难发现里面的内容
+
+                ```java
+                    public final class a_jsp extends org.apache.jasper.runtime.HttpJspBase
+                ```
+                ```java
+                    public abstract class HttpJspBase extends HttpServlet implements HttpJspPage{}
+                ```
+            上面是.class文件中的源代码的一分部
+            我们跟踪源代码发现，HttpJspBase类。它直接地继承了HttpServlet类。也就是说。jsp翻译出来的java类，它间接的继承了HttpServlet了。也就是说，翻译出来的是一个Servlet程序
+
+            总结：通过翻译出来的代码，不难发现jsp就是Servlet程序；可以观察翻译出来的Servlet程序的源代码，不难发现。其底层实现，也是通过输出流。把html页面数据回传给客户端的
+
+            事例：本质通过输出流将html页面回传给客户端的
+
+                ```java
+                    PrintWriter writer = resp.getWriter();
+                    writer.writer("<html lang=\"en\">\r\n")
+                    writer.writer("<head>\r\n")
+                    writer.writer("</head>\r\n")
+                    writer.writer("</html>\r\n")
+                ```
+        
