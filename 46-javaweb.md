@@ -416,42 +416,407 @@
 
 2020/11/30
 ###JSP
-    *jsp
-        概念：jsp的全称是java server pages；java的服务器页面
-        作用：jsp主要作用是代替servlet程序回传html页面的数据
+    **jsp
+        1.概念：jsp的全称是java server pages；java的服务器页面
+        2.作用：jsp主要作用是代替servlet程序回传html页面的数据
                 因为servlet程序回传html页面数据是一件非常繁琐的事情。开发成本和维护成本都极高
 
-        如何创建jsp页面
-            在创建的javaweb工程下，在web目录下new->jsp/jspx创建文件名即可
-        如何访问：
-            jsp页面和html页面一样，都是存放在web目录下。访问也跟访问html页面一样
-            比如：在web目录下有如下的文件
-                web目录：
-                    a.html页面      访问地址=====> http://ip:port/工程路径/a.html
-                    b.jsp页面      访问地址=====> http://ip:port/工程路径/b.jsp
+        3.使用：
+            如何创建jsp页面
+                在创建的javaweb工程下，在web目录下new->jsp/jspx创建文件名即可
+            如何访问：
+                jsp页面和html页面一样，都是存放在web目录下。访问也跟访问html页面一样
+                比如：在web目录下有如下的文件
+                    web目录：
+                        a.html页面      访问地址=====> http://ip:port/工程路径/a.html
+                        b.jsp页面      访问地址=====> http://ip:port/工程路径/b.jsp
 
-        本质：
-            jsp页面本质上是Servlet程序
-            当我们第一次访问jsp页面的时候。Tomcat服务器会帮我们把jsp页面翻译成为一个java源文件。并且对它进行编译成为.class字节码程序。我们打开java源文件不难发现里面的内容
+            本质：
+                jsp页面本质上是Servlet程序
+                当我们第一次访问jsp页面的时候。Tomcat服务器会帮我们把jsp页面翻译成为一个java源文件。并且对它进行编译成为.class字节码程序。我们打开java源文件不难发现里面的内容
 
-                ```java
-                    public final class a_jsp extends org.apache.jasper.runtime.HttpJspBase
-                ```
-                ```java
-                    public abstract class HttpJspBase extends HttpServlet implements HttpJspPage{}
-                ```
-            上面是.class文件中的源代码的一分部
-            我们跟踪源代码发现，HttpJspBase类。它直接地继承了HttpServlet类。也就是说。jsp翻译出来的java类，它间接的继承了HttpServlet了。也就是说，翻译出来的是一个Servlet程序
+                    ```java
+                        public final class a_jsp extends org.apache.jasper.runtime.HttpJspBase
+                    ```
+                    ```java
+                        public abstract class HttpJspBase extends HttpServlet implements HttpJspPage{}
+                    ```
+                上面是.class文件中的源代码的一分部
+                我们跟踪源代码发现，HttpJspBase类。它直接地继承了HttpServlet类。也就是说。jsp翻译出来的java类，它间接的继承了HttpServlet了。也就是说，翻译出来的是一个Servlet程序
 
-            总结：通过翻译出来的代码，不难发现jsp就是Servlet程序；可以观察翻译出来的Servlet程序的源代码，不难发现。其底层实现，也是通过输出流。把html页面数据回传给客户端的
+                总结：通过翻译出来的代码，不难发现jsp就是Servlet程序；可以观察翻译出来的Servlet程序的源代码，不难发现。其底层实现，也是通过输出流。把html页面数据回传给客户端的
 
-            事例：本质通过输出流将html页面回传给客户端的
+                事例：本质通过输出流将html页面回传给客户端的
 
-                ```java
-                    PrintWriter writer = resp.getWriter();
-                    writer.writer("<html lang=\"en\">\r\n")
-                    writer.writer("<head>\r\n")
-                    writer.writer("</head>\r\n")
-                    writer.writer("</html>\r\n")
-                ```
+                    ```java
+                        PrintWriter writer = resp.getWriter();
+                        writer.writer("<html lang=\"en\">\r\n")
+                        writer.writer("<head>\r\n")
+                        writer.writer("</head>\r\n")
+                        writer.writer("</html>\r\n")
+                    ```
+
+        *jsp的三种语法
+            1.jsp头部的page指令
+                概念：jsp的page指令可以修改jsp页面中一些重要的属性，或者行为
+                    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+                    >language属性           表示jsp翻译后是什么语言文件。暂时只支持java
+                    >contentType属性        表示jsp返回的数据类型是什么。也是源码中response.setContentType()参数值
+                    >pageEncoding属性       表示当前jsp页面文件本身的字符集
+                    >import属性             跟java源码中一样。用于导包，导类
+                    ---------------------------两个属性是给out输出流使用------------------------------
+                    >autoFlush属性          设置当out输出流缓冲区满了之后，是否自动刷新缓冲区。默认值是true
+                    >buffer属性             设置out缓冲区的大小。默认是8kb
+                    ---------------------------两个属性是给out输出流使用------------------------------
+                    >errorPage属性          设置当jsp页面运行时出错，自动跳转去的错误页面路径
+                        事例：当此页面发生错误时，设置errorPage跳转到b.jsp页面
+                        ```jsp
+                            <%@ page contentType="text/html;charset=UTF-8"
+                                    errorPage="/b.jsp"
+                                    language="java" %>
+                            <%--
+                                errorPage表示错误后自动跳转的路径
+                                这个路径一般都是以斜杠开头，它表示请求地址为http://ip:port/工程路径/
+                                映射到代码的web目录
+                            --%>
+                            <html>
+                            <head>
+                                <title>Title</title>
+                            </head>
+                            <body>
+                            这是首个jsp页面
+                                <%
+                                    int i = 12 /0; //这行代码会报错，会导致此页面运行出错，会自动跳转到设置的错误页面的路径b.jsp
+                                %>
+                            </body>
+                            </html>
+                        ```
+                    >isErrorPage属性        设置当前jsp页面是否是错误信息页面。默认false。如果是true可以获取异常信息
+                    >session属性            设置访问当前jsp页面，是否会创建HttpSession对象。默认是true
+                    >extends属性            设置jsp翻译出来的java类默认继承谁
         
+
+            2.jsp的常用脚本
+                1.jsp中常用脚本(极少用)
+                    1.声明脚本
+                        声明脚本的格式：<%! 声明java代码 %>
+                        作用：可以给jsp翻译出来的java类定义属性和方法甚至是静态代码块。内部类等
+
+                        事例：在jsp页面中操作：声明类属性|声明static静态代码块|声明类方法|声明内部类
+
+                            ```java
+                                <%-- 1声明类属性--%>
+                                <%!
+                                    private Integer id;
+                                    private String name;
+                                    private static Map<String,Object> map;
+                                %>
+                                <%-- 2.声明static静态代码块--%>
+                                <%!
+                                    static {
+                                        map = new HashMap<String,Object>();
+                                        map.put("key1","value1");
+                                        map.put("key2","value2");
+                                        map.put("key3","value3");
+                                    }
+                                %>
+                                <%-- 3.声明类方法--%>
+                                <%!
+                                    public int abc(){
+                                        return 12;
+                                    }
+                                %>
+                                <%--4.声明内部类--%>
+                                <%!
+                                    public static class A{
+                                        private Integer id = 12;
+                                        private String abc = "abc";
+                                    }
+                                %>
+                            ```
+
+                2.表达式脚本(经常用到)
+                    表达式脚本的格式是：<%=表达式%>
+                    作用：在jsp页面上输出数据
+                    表达式脚本的特点：
+                        1.所有的表达式脚本都会被翻译到_jspService()方法中
+                        2.表达式脚本都会被翻译成为out.print()输出到页面上
+                        3.由于表达式脚本翻译的内容都在_jspService()方法中。所以在_jspService()方法中的对象都可以直接使用
+                        4.表达式脚本中的表达式不能以分号结束
+
+                    事例：在jsp页面中操作：输出整型|输出浮点型|输出字符串|输出对象
+
+                        ```java
+                            <%=12%>
+                            <%=12.12%>
+                            <%="我是字符串"%>
+                            <%=map%>
+                            <%=request.getParameter("username")%>
+                        ```
+
+                3.代码脚本
+                    代码脚本的格式是：<% java语句 %>
+                    代码脚本的作用是：可以在jsp页面中，编写我们自己需要的功能(写的是java语句)
+                    代码脚本的特点：
+                        1.代码脚本翻译之后都在_jspService方法中
+                        2.代码脚本由于翻译到_jspService()方法中，所以在_jspService()方法中的现有对象都可以直接使用
+                        3.还可以由多个代码脚本块组合完成一个完整的java语句
+                        4.代码脚本还可以和表达式脚本一起组合使用，在jsp页面上输出数据
+
+                    事例：关于代码脚本的联系
+
+                        ```java
+                            // 1.代码脚本if...else...语句
+                            <%
+                                int i = 13;
+                                if(i == 13){
+                                    System.out.println("今天天气真好");
+                                }else{
+                                    System.out.println("哈哈哈哈哈哈哈");
+                                }
+                            %>
+                            // 2.代码脚本---for循环语句
+                            // 可以由多个代码脚本块，组合成一个完整的代码脚本
+                            <%
+                                for(int j = 0;j<10;j++){
+                            %>
+                            // 代码脚本和表达式脚本组合使用
+                                <%=j%><br>
+                            <%
+                                }
+                            %>
+
+                            // 3.翻译后java文件中_jspService方法内的代码都可以写
+                            <%
+                                String username = request.getParameter("username");
+                            %>
+                            <%="参数名username的值是"+username%>
+                        ```
+
+            3.jsp中的三种注释
+                1.jsp中的3中注释(了解即可)
+                    >html注释
+                        <!-- 这是html注释 -->
+                        html注释会被翻译到java源代码中。在_jspService方法里，以out.writer输出到客户端
+                    >java注释
+                        <%
+                            //当行java注释
+                            /*多行java注释*/
+                        %>
+                        java注释会被翻译到java源代码中
+                    >jsp注释
+                        <%-- 这是jsp注释 --%>
+                        jsp注释可以注释掉jsp页面中所有代码
+
+
+        *jsp的九大内置对象
+            概念：jsp中的内置对象，是指Tomcat在翻译jsp页面称为Servlet源代码后，内部提供的九大对象。叫内置对象
+            九大内置对象分别是：
+                    request             请求对象
+                    response            响应对象
+                    pageContext         jsp的上下文对象
+                    session             会话对象
+                    application         ServletContext对象
+                    config              ServletConfig对象
+                    out                 jsp输出流对象
+                    page                指向当前jsp的对象
+                    exception           异常对象
+
+                
+                四大域对象分别是:
+                    pageContext         (PageContextimpl类)         当前jsp页面范围内有效
+                    request             (HttpServletRequest类)      一次请求内有效
+                    session             (HttpSession类)             一个会话范围内有效(打开浏览器访问服务器，直到关闭浏览器)
+                    application         (ServletContext类)          整个web工程范围内都有效(只要web工程不停止，数据都在)
+
+                    域对象特点：
+                        域对象可以像Map一样存取数据的对象。四个域对象功能一样。不同的是他们对数据的存取范围
+
+                    四个域对象使用的优先顺序
+                        四个域对象在使用的时候，优先顺序分别是，他们从小到大的范围的顺序
+                            pageContext===>request===>session===>application
+                    
+                    事例：测试四个域对象的使用范围
+
+                        ```jsp      这是scope页面
+                            <h1>这是scope页面</h1>
+                            <%
+                                //往四个域中都分别保存了数据
+                                pageContext.setAttribute("key","pageContext");
+                                request.setAttribute("key","request");
+                                session.setAttribute("key","session");
+                                application.setAttribute("key","application");
+                            %>
+                            pageContext域是否有值：<%=pageContext.getAttribute("key")%>
+                            request域是否有值：<%=request.getAttribute("key")%>
+                            session域是否有值：<%=session.getAttribute("key")%>
+                            application域是否有值：<%=application.getAttribute("key")%>
+
+                            <%
+                                request.getRequestDispatcher("/scope2.jsp").forward(request,response);
+                            %>
+                        ```
+
+                        ```jsp      scope2.jsp页面
+                            <h1>scope2.jsp页面</h1>
+                            pageContext域是否有值：<%=pageContext.getAttribute("key")%><br>
+                            request域是否有值：<%=request.getAttribute("key")%><br>
+                            session域是否有值：<%=session.getAttribute("key")%><br>
+                            application域是否有值：<%=application.getAttribute("key")%><br>
+                        ```
+
+
+        *jsp中的out输出和response.getWriter输出的区别
+            1.概念：
+                response中表示响应，经常用于设置返回给客户端的内容(输出)
+                out也是给用户做输出使用的
+            2.jsp中的输出操作的执行流程
+                当jsp页面中所有代码执行完成后会做一下两个操作：
+                    1.执行out.flush()操作，会把out缓冲区中的数据追加写入到response缓冲区末尾
+                    2.会执行response的刷新操作。把全部数据写给客户端
+                总结：由于jsp翻译之后，底层源码都是使用out来进行输出的，所以一般情况下。我们在jsp页面中统一使用out来进行输出。避免打乱页面输出内容的顺序
+
+            3.out.write()和out.print()的对比
+                out.write() 输出字符串没有问题
+                out.print() 输出任意数据都没有问题(都转换成为字符串后调用的write输出)
+                    深入源码，浅出结论：在jsp页面中，可以统一使用out.print()来进行输出
+
+        
+        *jsp常用标签
+            1.静态包含(常用)
+                事例：静态包含的事例
+
+                    ```jsp
+                            头部信息<br>
+                            主体内容<br>
+                        <%--    
+                            <%@ 
+                            include file="/include/footer.jsp" 
+                            file 属性指定你要包含的jsp页面的路径
+                                地址中第一个斜杠 /  表示为http://ip:port/工程路径/     映射到代码的web目录
+                                
+                                静态包含的特点：
+                                    1.静态包含不会翻译被包含的jsp页面
+                                    2.静态包含其实是把被包含的jsp页面的代码拷贝到包含的位置执行输出
+                            %>
+                        --%>
+                            <%@ include file="/include/footer.jsp" %>
+                    ```
+
+            2.动态包含(不常用)
+                事例：动态包含的事例
+
+                    ```jsp  main.jsp页面的内容
+                        <%--
+                            <jsp:include page="/include/footer.jsp"></jsp:include>  这是动态包含
+                            page属性指定你要包含的jsp页面的路径
+                            动态包含也可以像静态包含一样。把被包含的内容执行输出到包含位置
+
+                            动态包含的特点：
+                                    1.动态包含会把包含的jsp页面也翻译成为java代码
+                                    2。动态包含底层代码使用如下代码去调用被包含的jsp页面执行输出
+                                        JspRuntimeLibrary.include(request, response, "/include/footer.jsp",out,false)
+                                    3.动态包含，还可以传递参数
+                        --%>
+                        <jsp:include page="/include/footer.jsp">
+                            <jsp:param name="username" value="root"></jsp:param>
+                            <jsp:param name="password" value="bbj"></jsp:param>
+                        </jsp:include>
+                    ```
+
+                    ```jsp  footer.jsp页面的内容
+                        脚页信息<br>
+                        获取的username的值=<%=request.getParameter("username")%> 
+                    ```
+                
+            3.请求转发
+                事例：请求转发
+
+                    ```jsp
+                        <jsp:forward page="/scope2.jsp"></jsp:forward>
+                        <%--  
+                            <jsp:forward page="/scope2.jsp"></jsp:forward>是请求转发标签，它的功能就是请求转发
+                            page属性设置请求转发的路径
+                            功能和request.getRequestDispatcher("/scope2.jsp").forward(request,response)一样
+                        --%>
+                    ```
+            
+        *请求转发的使用
+            事例：将数据从java代码中转发到jsp页面中
+
+            ```java     SearchServlet.java页面
+                public class SearchServlet extends HttpServlet {
+                    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+                        //获取请求的参数
+                        //发sql语句查询学生信息
+                            //使用for循环生成查询到的数据做模拟
+                        List<Student> student = new ArrayList<Student>();
+                        for(int i=0;i<10;i++){
+                            int t = i + 1;
+                            student.add(new Student(t,"name"+t,18+t,"phone"+t));
+                        }
+                        //保存数据到request域中
+                        request.setAttribute("student",student);
+                        //请求转发到showStudent.jsp页面
+                        request.getRequestDispatcher("/test/showStudent.jsp").forward(request,response);
+                    }
+                }
+            ```
+
+            ```jsp  showStudent.jsp页面
+                <%
+                    List<Student> studentList = (List<Student>)request.getAttribute("student");
+                %>
+                <table>
+                    <tr>
+                        <td>编号</td>
+                        <td>姓名</td>
+                        <td>年龄</td>
+                        <td>电话</td>
+                        <td>操作</td>
+                    </tr>
+                    <% for(Student student:studentList){ %>
+                        <tr>
+                            <td><%=student.getId()%></td>
+                            <td><%=student.getName()%></td>
+                            <td><%=student.getAge()%></td>
+                            <td><%=student.getPhone()%></td>
+                            <td>删除，修改</td>
+                        </tr>
+                    <% }%>
+                </table>
+            ```
+
+        *Listener监听器
+            概念：
+                Listener监听器它是javaweb的三大组件之一。javaweb的三大组件分别是：Servlet程序，Filter过滤器，Listener监听器
+                Listener它是javeEE的规范，就是接口
+            作用：监听某种事物的变化。然后通过回调函数，反馈给客户(程序)去做一些相应的处理
+
+            ServletContextListener监听器
+                ServletContextListener它可以监听ServletContext对象的创建和销毁
+                ServletContext对象在web工程启动的时候创建，在web工程停止的时候销毁
+                监听到创建和销毁之后都会分别调用ServletContextListener监听器的方法反馈
+                    两个方法分别是:
+                    public interface ServletContextListener extends EventListener{
+                        /*
+                            在ServletContext对象创建之后马上调用，做初始化
+                        */
+                        public void contextInitialized(ServletContextEvent sec)
+
+                        /*
+                            在ServletContext对象销毁之后调用
+                        */
+                        public void contextDestroyed(ServletContextEvent sec)
+                    }
+                使用：
+                    创建类实现ServletContextListener监听器，要在xml里面配置一下
+
+                    ```xml
+                        <listener>
+                            <listener-class>监听器类的位置</listener-class>
+                        </listener>
+                    ```
+
+
+            
