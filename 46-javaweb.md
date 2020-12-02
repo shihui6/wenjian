@@ -610,7 +610,7 @@
 
 
         *jsp的九大内置对象
-            概念：jsp中的内置对象，是指Tomcat在翻译jsp页面称为Servlet源代码后，内部提供的九大对象。叫内置对象
+            概念：jsp中的内置对象，是指Tomcat在翻译jsp页面成为Servlet源代码后，内部提供的九大对象。叫内置对象
             九大内置对象分别是：
                     request             请求对象
                     response            响应对象
@@ -678,7 +678,7 @@
 
             3.out.write()和out.print()的对比
                 out.write() 输出字符串没有问题
-                out.print() 输出任意数据都没有问题(都转换成为字符串后调用的write输出)
+                out.print() 输出任意数据都没有问题(内部实现是转换成字符串后调用的write输出)
                     深入源码，浅出结论：在jsp页面中，可以统一使用out.print()来进行输出
 
         
@@ -689,6 +689,7 @@
                     ```jsp
                             头部信息<br>
                             主体内容<br>
+                            <%@ include file="/include/footer.jsp" %>
                         <%--    
                             <%@ 
                             include file="/include/footer.jsp" 
@@ -700,7 +701,6 @@
                                     2.静态包含其实是把被包含的jsp页面的代码拷贝到包含的位置执行输出
                             %>
                         --%>
-                            <%@ include file="/include/footer.jsp" %>
                     ```
 
             2.动态包含(不常用)
@@ -818,5 +818,422 @@
                         </listener>
                     ```
 
+时间2020/12/02
 
+    
+    **EL表达式
+        概念：EL表达式的全称是：Expression Language。是表达式语言
+        作用：EL表达式主要是代替jsp页面中的表达式脚本在jsp页面中进行数据的输出。因为EL表达式在输出数据的时候，要比jsp的表达式脚本简洁很多
+        事例：EL表达式和jsp表达式的对比
+
+            ```jsp
+                <%
+                    request.setAttribute("key","值");
+                %>
+                表达式脚本输出key的值：<%=request.getAttribute("key")%><br>
+                EL表达式输出key的值是：${key}
+            ```
+
+        1.EL表达式搜索域数据的顺序
+            EL表达式的作用：EL表达式主要是在jsp页面中输出数据；主要是输出域对象中的数据
+            EL表达式在域中的作用范围：当四个域中都有相同的key的数据的时候，EL表达式会按照四个域从大到小的顺序进行搜索，找到就输出
+            事例：EL表达式在四个不同的域中的作用
+
+                ```jsp
+                    <%
+                        pageContext.setAttribute("key","pageContext");
+                        request.setAttribute("key","request");
+                        session.setAttribute("key","session");
+                        application.setAttribute("key","application");
+                    %>
+                    ${key}
+                ```
+
+            事例：EL表达式输出javaBean的普通属性，数组属性。List集合属性，map集合属性
+
+                ```jsp      输出Person类中普通睡醒，数组属性。list集合属性和map集合属性
+                    <%
+                        pageContext.setAttribute("key",person); //key对应的是一个person对象，存入域对象
+                    %>
+                    输出Person：${p}
+                    输出Person的name属性：${p.name}
+                    输出Person的phones属性值：${p.phones}
+                    输出Person的phones单个属性的值：${p.phones[0]}
+                    输出Person的cities集合中的元素值：${p.cities}
+                    输出Person的List集合中个别元素值：${p.List[2]}
+                    输出Person的Map集合：${p.Map}
+                    输出Person的Map集合中某个key的值：${p.Map.key3}
+                    输出Person的age属性：${p.age}
+                ```
+                    EL表达式输出本质：当使用EL表达式输出属性值的时候，不是直接找对应的该属性，而是找该属性对应的get方法
+                        如：${p.age}:寻找对应的age属性的getAge方法，而不是直接找person对应的age属性
+
+        2.EL表达式的运算
+            1.三种运算
+                >关系运算符
+                    ==  !=  < > <= >=
+                    如：${5==5};返回值是布尔类型的值
+                >逻辑运算符
+                    &&  ||  !
+                    如：${12==12 && 12>11};返回值是布尔类型的值
+                >算数运算
+                    +   -   *   /   %
+                    返回的是，运算之后的结果
+
+            2.empty运算
+                empty运算可以判断一个数据是否为空，如果为空，则输出true，不为空输出false
+                    以下几种情况为空：
+                        >值为null值的时候，为空
+                        >值为空串的时候，为空
+                        >值是Object类型数组，长度为零的时候
+                        >list集合，元素个数为零
+                        >map集合，元素个数为零
+
+                事例：empty运算的使用
+
+                    ```jsp
+                        ${empty emptyNull}  //判断emptyNull是否为空；是空返回true，不为空返回false
+                    ```
             
+            3.三元运算
+                格式：表达式1?表达式2:表达式3
+                    如果表达式1的值为true，返回表达式2的值，如果表达式1的值为假，返回表达式3的值
+                事例：在EL表达式中三元运算的使用
+
+                    ```jsp
+                        ${12 == 12?"今天天气真好":"今天完美"}
+                    ```
+
+            4.点运算和[]运算
+                类似于js里面的访问对象属性.或者[]方式
+
+            5.EL表达式的11个隐含对象
+                概念：EL表达式中11个隐含对象，是EL表达式中自己定义的，可以直接使用
+
+                变量                    类型                        作用
+                pageContext         PageContextImpl             它可以获取jsp中的九大内置对象
+
+                PageScope           Map<String,Object>          它可以获取pageContext域中的数据
+                requestScope        Map<String,Object>          它可以获取Request域中的数据
+                sessionScope        Map<String,Object>          它可以获取session域中的数据    
+                applicationScope    Map<String,Object>          它可以获取ServletContext域中的数据    
+
+                param               Map<String,String>          它可以获取请求参数的值
+                paramValues         Map<String,String[]>        它可以获取请求参数的值，获取多个值的时候使用
+
+                header              Map<String,String>          它可以获取请求头信息
+                headerValues        Map<String,String[]>        它可以获取请求头信息,获取多个值的时候使用
+
+                cookie              Map<String,Cookie>          它可以获取当前请求的Cookie信息
+
+                initParam           Map<String,String>          它可以获取在web.xml中配置的<context-param>上下文参数
+
+
+                1.EL获取四个特定域中的属性
+                    PageScope           ==========          pageContext域
+                    requestScope        ==========          Request域
+                    sessionScope        ==========          Session域
+                    applicationScope    ==========          ServletContext域
+
+                    事例：选择性的从四个域中输出相同的key值
+
+                        ```jsp
+                            <%
+                                pageContext.setAttribute("key","pageContext");
+                                request.setAttribute("key","request");
+                                session.setAttribute("key","session");
+                                application.setAttribute("key","application");
+                            %>
+                            ${pageScope.key}        //指定输出pageContext的key值
+                            ${requestScope.key}     //指定输出Request的key值
+                            ${sessionScope.key}     //指定输出Session的key值
+                        ```
+
+                2.EL表达式pageContext的使用
+
+                    ```jsp
+                        <%--
+                            request.getScheme()     它可以获取请求的协议
+                            request.getServerName() 获取请求的服务器ip或域名
+                            request.getServerPort() 获取请求的服务器端口号
+                            request.getContextPath()获取当前工程路径
+                            request.getMethod()     获取请求的方式
+                            request.getRemoteHost   获取客户端的ip地址
+                            session.getId()         获取会话的唯一标识
+                        --%>
+                        上面是request对象的使用，对应下面EL表达式通过pageContext获取request的使用
+                        ----------------------------------------------------------------
+                                                                                                输出结果
+                            1.协议                ${pageContext.request.scheme}                 http
+                            2.服务器ip            ${pageContext.request.serverName}             localhost
+                            3.服务器端口          ${pageContext.request.serverPort}              8088
+                            4.获取工程路径        ${pageContext.request.contextPath}            /09_ELbiao
+                            5.获取请求方式        ${pageContext.request.method}                 GET
+                            6.获取客户端ip地址       ${pageContext.request.remoteHost}          127.0.0.1
+                            7.获取会话的id编号         ${pageContext.session.id}                3B4BF8CE006BEC9AAD631C407A8C1197
+                    ```
+
+                3.其他EL表达式隐含对象的实例
+                    实例：其他EL表达式隐含对象
+
+                    ```JSP
+                        param               Map<String,String>          它可以获取请求参数的值
+                        paramValues         Map<String,String[]>        它可以获取请求参数的值，获取多个值的时候使用
+
+                        输出请求参数username的值：${param.username}
+                        --------------------------------------------------------------------------------------
+
+                        header              Map<String,String>          它可以获取请求头信息
+                        headerValues        Map<String,String[]>        它可以获取请求头信息,获取多个值的时候使用
+
+                        输出请求头的User-Agent的值：${header['User-Agent']}
+                        --------------------------------------------------------------------------------------
+
+                        cookie              Map<String,Cookie>          它可以获取当前请求的Cookie信息
+
+                        获取cookie的名称        ${cookie.JSESSIONID.name}
+                        获取cookie的值          ${cookie.JSESSIONID.value}
+                        --------------------------------------------------------------------------------------
+
+                        initParam           Map<String,String>          它可以获取在web.xml中配置的<context-param>上下文参数
+
+                        获取配置文件xml的上下文参数    ${initParam.username}
+                    ```
+
+    
+    **JSTL
+        概念：JSTL标签库 全称是指JSP Standard Tag Library JSP标准标签库。是一个不断完善的开放源代码的JSP标签库
+        作用：标签库是为了替换jsp中的代码脚本。这样使得整个jsp页面变得更加简洁
+        使用：
+            使用步骤：
+                    1.先导入JSTL标签库的jar包
+                    2.使用taglib指令引入标签库
+
+        *核心库使用
+            1.<c:set />
+                作用：set标签可以往域中保存数据
+                事例：set标签的使用
+                        <%--
+                            <c:set />
+                                作用：set标签可以往域中保存数据
+                                    JSTL的set标签和 域对象.setAttribute(key,value) 一样
+                                scope属性设置保存到哪个域
+                                    page表示PageContext域(默认值)
+                                    request表示Request域
+                                    session表示Session域
+                                    application表示ServletContext域
+                                var属性设置key
+                                value属性设置值
+                        --%>
+
+                    ```jsp
+                        <c:set scope="request" var="key" value="天气真好" />
+                        输出JSTL保存的值：${requestScope.key}
+
+                        
+                    ```
+
+            2.<c:if />
+                作用：if标签用来做if判断
+                事例：if标签的使用
+                        if标签用来做if判断
+                        test属性表示判断的条件(使用EL表达式输出)
+
+                    ```jsp
+                        <c:if test="${12 == 12}">
+                            <h1>今天天气真好</h1>     //if语句成立，则显示中间的内容
+                        </c:if>
+                        
+                    ```
+
+            3.<c:choose><c:when><c:otherwise>标签
+                作用：多路判断。跟switch...case...default非常接近
+                事例：<c:choose><c:when><c:otherwise>标签的使用
+                        <%--
+                            choose标签开始选择判断
+                            when标签表示每一种判断情况
+                                test属性表示当前这种判断情况
+                            otherwise标签表示剩下的情况
+
+                            <c:choose><c:when><c:otherwise>标签使用时注意点
+                                1.标签里不能使用html注释，要使用jsp注释
+                                2。when标签的父标签一定要是choose标签
+                        --%>
+
+                    ```jsp
+                        <%
+                            request.setAttribute("height",179);
+                        %>
+                        <c:choose>
+                            <c:when test="${requestScope.height > 190}">
+                                <h2>小巨人</h2>
+                            </c:when>
+                            <c:when test="${requestScope.height > 178}">
+                                <h2>还可以</h2>
+                            </c:when>
+                            <c:otherwise>
+                                <h2>接下来的身高就比较矮了</h2>
+                            </c:otherwise>
+                        </c:choose>
+                        
+                    ```
+
+
+            4.<c:forEach />
+                作用：遍历输出
+                    事例：遍历1-10
+                            <%--
+                                遍历1到10，输出
+                                    begin属性设置开始的索引
+                                    end属性设置结束的索引
+                                    step属性表示遍历的步长值
+                                    varStatus属性表示当前遍历到的数据的状态
+                                    var属性表示循环的变量(也是当前正在遍历到的数据)
+                                    就像forEach标签写成for(int i=1;i<10;i++)
+                            --%>
+
+                        ```jsp
+                            <c:forEach begin="1" end="10" var="i">
+                                <h1>${i}</h1>
+                            </c:forEach>
+                            
+                        ```
+
+                    事例：遍历Object数组
+                            <%--
+                                遍历Object数组
+                                    就像for(Object item:arr)
+                                    标签属性：
+                                        items表示遍历的数据源(遍历的集合)
+                                        var表示当前遍历到的数据
+                            --%>
+
+                        ```jsp
+                            <%
+                                request.setAttribute("arr",new String[]{"1111111","2222222","666666666"});
+                            %>
+                            <c:forEach items="${requestScope.arr}" var="item">
+                                ${item} <br>
+                            </c:forEach>
+                        ```
+
+                    事例：遍历Map集合(用法和遍历Object数组一样)
+
+                    事例：遍历List集合(用法和遍历Object数组一样)
+
+                    说明：varStatus属性的介绍
+
+                        ```java
+                            public interface LoopTagStatus{
+                                public Object getCurrent();     //表示获取当前遍历到的数据
+                                public int getIndex();          //表示获取遍历的索引
+                                public int getCount();          //表示遍历的个数
+                                public boolean isFirst();       //表示当前遍历的数据是否是第一条
+                                public boolean isLast();        //表示当前遍历的数据是否是最后一条
+                                public Integer getBegin();      //获取begin，end，step属性值
+                                public Integer getEnd();
+                                public Integer getStep();
+                            }
+                        ```
+                        ```jsp  varStatus属性使用
+                            <%
+                                request.setAttribute("arr",new String[]{"1111111","2222222","666666666"});
+                            %>
+                            <c:forEach items="${requestScope.arr}" var="item" varStatus="status">
+                                ${status.last}
+                            </c:forEach>
+                        ```
+
+###文件的上传和下载
+    **文件的上传
+        *编写向服务器上传文件的jsp代码，且编写服务器接收的步骤
+            1.要有一个form标签，method="post"请求
+            2.form标签的encType属性值必须为multipart/form-data值
+            3.在from标签中使用input type="file"添加上传的文件
+            4.编写服务器代码(Servlet程序)接收，处理上传的数据
+
+            encType=mutipart/form-data表示提交的数据，以多段(每一个表单项一个数据段)的形式进行拼接，然后以二进制流的形式发送给服务器
+
+            事例：通过form表单向服务器上传图片和用户名字段
+
+                ```jsp  前端上传用户信息的页面
+                    <form action="http://localhost:8088/09_ELbiao/uploadServlet" method="post" enctype="multipart/form-data">
+                        用户名：<input type="text" name="username"><br>
+                        头像：<input type="file" name="photo"><br>
+                        <input type="submit" value="上传">
+                    </form>
+                ```
+                ```java 服务器通过流的形式接收前端发过来的数据
+                    public class UploadServlet extends HttpServlet {
+                        protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+                            ServletInputStream inputStream = request.getInputStream();
+                            byte[] buffer = new byte[1024];
+                            int read = inputStream.read(buffer);
+                            System.out.println(new String(buffer,0,read));
+                        }
+                    }
+                ```
+
+        
+        *commons-fileupload.jar常用API介绍说明
+            commons-fileupload.jar需要依赖commons-io.jar这个包，所以两个包我们都需要引入
+            使用：
+                第一步：就是需要导入两个jar包
+                
+            commons-fileupload.jar和commons-io.jar包中类的说明
+                ServletFileUpload类，用于解析上传的数据
+                    boolean SerletFileUpload.isMultipartContent(HttpServletRequest request)
+                        判断当前上传的数据格式是否是多段的格式
+                    
+                FileItem类，表示每一个表单项
+                    public List<FileItem> parseRequest(HttpServletRequest request)
+                        解析上传的数据
+                    boolean FileItem.isFormField()
+                        判断当前这个表单项，是否是普通的表单项。还是上传的文件类型
+                        true表示普通类型的表单项
+                        false表示的是上传文件的类型
+                    String FileItem.getFieldName()
+                        获取表单项的name属性值
+                    String FileItem.getString()
+                        获取当前表单项的值
+                    String FileItem.getName()
+                        获取上传的文件名
+                    void FileItem.write(file)
+                        将上传的文件写到参数file所指向的磁盘位置
+
+
+            事例：服务器处理客户端上传文件的步骤
+
+                ```java
+                    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+                            //1.先判断上传的数据是否是多段数据(只有多段的数据，才是文件上传的)
+                            if(ServletFileUpload.isMultipartContent(request)){
+                                //创建FileItemFactory工厂实现类
+                                FileItemFactory fileItemFactory = new DiskFileItemFactory();
+                                //创建用于解析上传数据的工具类ServletFileUpLoad类
+                                ServletFileUpload servletFileUpload = new ServletFileUpload(fileItemFactory);
+                                try {
+                                    //解析上传的数据，得到每一个表单项FileItem
+                                    List<FileItem> list = servletFileUpload.parseRequest(request);
+                                    //循环判断，每一个表单项，是普通类型，还是上传的文件
+                                    for(FileItem fileItem:list){
+                                        if(fileItem.isFormField()){
+                                            //普通表单项
+                                            System.out.println("表单项的name属性值"+fileItem.getFieldName());
+                                            //参数UTF-8,解决乱码问题
+                                            System.out.println("表单项的value属性值"+fileItem.getString("UTF-8"));
+                                        }else{
+                                            //上传的文件
+                                            System.out.println("表单项的name属性值"+fileItem.getFieldName());
+                                            System.out.println("上传的文件名"+fileItem.getName());
+                                            fileItem.write(new File("C:\\study" + fileItem.getName()));
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                ```
+
+
