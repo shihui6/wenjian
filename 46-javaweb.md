@@ -414,7 +414,7 @@
                     4.不能访问WEB-INF下的资源
                     5.可以访问工程外的资源
 
-2020/11/30
+时间2020/11/30
 ###JSP
     **jsp
         1.概念：jsp的全称是java server pages；java的服务器页面
@@ -456,6 +456,7 @@
                         writer.writer("</html>\r\n")
                     ```
 
+时间2020/12/01
         *jsp的三种语法
             1.jsp头部的page指令
                 概念：jsp的page指令可以修改jsp页面中一些重要的属性，或者行为
