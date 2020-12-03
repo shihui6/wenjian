@@ -852,7 +852,7 @@
 
             事例：EL表达式输出javaBean的普通属性，数组属性。List集合属性，map集合属性
 
-                ```jsp      输出Person类中普通睡醒，数组属性。list集合属性和map集合属性
+                ```jsp      输出Person类中普通属性，数组属性。list集合属性和map集合属性
                     <%
                         pageContext.setAttribute("key",person); //key对应的是一个person对象，存入域对象
                     %>
@@ -1008,6 +1008,8 @@
         使用：
             使用步骤：
                     1.先导入JSTL标签库的jar包
+                        taglibs-standard-impl-1.2.1.jar
+                        taglibs-standard-spec-1.2.1.jar
                     2.使用taglib指令引入标签库
 
         *核心库使用
@@ -1017,7 +1019,7 @@
                         <%--
                             <c:set />
                                 作用：set标签可以往域中保存数据
-                                    JSTL的set标签和 域对象.setAttribute(key,value) 一样
+                                    JSTL的set标签  和 域对象.setAttribute(key,value) 一样
                                 scope属性设置保存到哪个域
                                     page表示PageContext域(默认值)
                                     request表示Request域
@@ -1180,6 +1182,8 @@
             commons-fileupload.jar需要依赖commons-io.jar这个包，所以两个包我们都需要引入
             使用：
                 第一步：就是需要导入两个jar包
+                    commons-fileupload.jar
+                    commons-io.jar
                 
             commons-fileupload.jar和commons-io.jar包中类的说明
                 ServletFileUpload类，用于解析上传的数据
@@ -1227,7 +1231,7 @@
                                             //上传的文件
                                             System.out.println("表单项的name属性值"+fileItem.getFieldName());
                                             System.out.println("上传的文件名"+fileItem.getName());
-                                            fileItem.write(new File("C:\\study" + fileItem.getName()));
+                                            fileItem.write(new File("C:\\study\\" + fileItem.getName()));
                                         }
                                     }
                                 } catch (Exception e) {
@@ -1237,4 +1241,239 @@
                         }
                 ```
 
+时间2020/12/03
 
+    **文件下载
+        事例：文件下载的事例
+
+            ```java
+                protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+                    //1.获取要下载的文件名
+                    String downLoadFileName = "penguins.jpg";
+                    //2。读取要下载的文件的内容(通过ServletContext对象可以读取)
+                    ServletContext servletContext = getServletContext();
+                    //获取要下载的文件类型
+                    String mimeType = servletContext.getMimeType("/file/" + downLoadFileName);
+                    System.out.println("文件的类型"+mimeType);
+                    //4.在回传前，通过响应头告诉客户端返回的数据类型
+                    response.setContentType(mimeType);
+                    //5.还要告诉客户端收到的数据是用于下载使用(还是使用响应头)
+                    //Content-Disposition响应头，表示收到的数据怎么处理
+                    //attachment表示附件，表示要下载
+                    //filename=表示指定下载的文件名
+                    if(request.getHeader("User-Agent").contains("Firefox")){
+                        //如果是火狐浏览器使用Base64编码
+                        response.setHeader("Content-Disposition","attachment;filename==?UTF-8?B?"+new BASE64Encoder().encode("好天气.jpg".getBytes("UTF-8"))+"?=");
+                    }else{
+                        //url编码是把汉子转换为%xx%xx的格式，转化为16进制，因为浏览器本身是不识别汉子的，所以需要使用url编码将汉子转为字符码
+                        response.setHeader("Content-Disposition","attachment;filename="+ URLEncoder.encode("好天气.jpg","UTF-8"));
+                    }
+                    //通过流读取服务器端的数据
+                    InputStream resourceAsStream = servletContext.getResourceAsStream("/file/" + downLoadFileName);
+                    System.out.println("resourceAsStream = " + resourceAsStream);
+                    //获取响应的输出流
+                    OutputStream outputStream = response.getOutputStream();
+                    System.out.println("outputStream = " + outputStream);
+                    //3.把下载的文件内容回传给客户端
+                    //读取输入流中全部的数据，复制给输出流，输出给客户端
+                    IOUtils.copy(resourceAsStream,outputStream);
+                }
+            ```
+
+
+###Cookie和Session
+    **Cookie
+        概念：
+            Cookie是服务器通知客户端保存键值对的一种技术
+            客户端有了Cookie后，每次请求都发送给服务器
+            每个Cookie的大小不能超过4kb
+
+        1.如何创建Cookie
+            事例：在服务器端创建cookie并发给客户端
+
+                ```java
+                    public void createCookie(HttpServletRequest req,HttpServletResponse res) throws ServletException,IOException{
+                        //解决post请求中的中文乱码问题
+                        //一定要在获取请求参数之前调用才有效
+                        req.setCharacterEncoding("UTF-8");
+                        //解决响应中文乱码问题
+                        res.setContentType("text/html;charset=UTF-8");
+                        //1.创建cookie对象
+                        Cookie cookie = new Cookie("key1","value1");
+                        //2.通知客户端保存cookie
+                        res.addCookie(cookie);
+                        res.getWriter().write("Cookie创建成功");
+
+                    }
+                ```
+
+        2.服务器如何获取cookie
+                服务器获取客户端的cookie只需要一行代码:req.getCookie(),即可获得cookie[]的数组
+                事例：服务器获取客户端的cookie的操作
+
+                    ```java
+                        public void getCookie(HttpServletRequest req,HttpServletResponse res) throws ServletException,IOException {
+                            Cookie[] cookies = req.getCookies();
+                            for (Cookie cookie:cookies){
+                                //getName方法返回Cookie的key
+                                //getValue方法返回Cookie的value值
+                                res.getWriter().write("Cookiename"+cookie.getName()+"cookievalue"+cookie.getValue()+"<br/>");
+                            }
+                        }
+                    ```
+
+        3.Cookie值的修改
+            方案一：
+                1.先创建一个要修改的同名的Cookie对象
+                2。在构造器，同时赋予新的Cookie值
+                3.调用response.addCookie(Cookie)
+
+                    事例：修改Cookie的值
+
+                    ```java
+                        public void updataCookie(HttpServletRequest req,HttpServletResponse res) throws ServletException,IOException{
+                        //        1.先创建一个要修改的同名的Cookie对象
+                        //        2。在构造器，同时赋予新的Cookie值
+                                //浏览器接受到cookie时的执行机制，同名就修改，不同名则创建
+                                Cookie cookie = new Cookie("key1", "xindevalue");
+                        //        3.调用response.addCookie(Cookie)
+                                res.addCookie(cookie);
+                                res.getWriter().write("key1的cookie值已经修改好了");
+
+                            }
+                    ```
+
+            方案二：
+                1.先查找到需要修改的Cookie对象
+                    Cookie cookie = CookieUtils.findCookie("key2",req.getCookies())
+                2。调用setValue()方法赋予新的Cookie值
+                    if(cookie != null){
+                        cookie.setValue("newValue2")
+                    }
+                3.调用response.addCookie()通知客户端保存修改
+                    res.addCookie(cookie)
+            
+
+        4.Cookie生命控制
+            概念：Cookie的生命控制指的是如何管理Cookie什么时候被销毁(删除)
+            使用到的方法：
+                setMaxAge()
+                    整数：表示在指定的秒数后过期
+                    负数：表示浏览器一关，Cookie就会被删除(默认值-1)
+                    零：表示马上删除
+                
+                事例：设置Cookie存活时间：指定时间删除，浏览器一关就删除，马上删除
+
+                ```java
+                    public void defaultCookie(HttpServletRequest req,HttpServletResponse res) throws ServletException,IOException{
+                        Cookie cookie = new Cookie("keyshi", "hhhhh");
+                        cookie.setMaxAge(0);
+                        res.addCookie(cookie);
+                    }
+                ```
+
+        5.Cookie有效路径Path的设置
+            具体内容：
+                Cookie的path属性可以有效的过滤哪些Cookie可以发送给服务器。哪些不发
+                path属性是通过请求的地址来进行有效的过滤
+
+                CookieA     path=/工程路径
+                CookieB     path=/工程路径/abc
+
+                请求地址如下：
+                    http://ip:port/工程路径/a.html
+                        CookieA 发送
+                        CookieB 不发送
+                    http://ip:port/工程路径/abc/a.html
+                        CookieA 发送
+                        CookieB 发送
+
+            事例：创建带有path路径cookie，客户端通过请求地址访问
+
+                ```java
+                    public void testPath(HttpServletRequest req,HttpServletResponse res) throws ServletException,IOException{
+                        Cookie cookie = new Cookie("path", "path1");
+                        //getContextPath()===>得到工程路径
+                        cookie.setPath(req.getContextPath()+"/abc");//通过请求地址：http://ip:port/工程路径/abc,才能访问到此cookie
+                        res.addCookie(cookie);
+                    }
+                ```
+
+    
+    **Session
+        概念：
+            1.Session就是一个接口
+            2.session就是会话。它是用来维护一个客户端和服务器之间关联的一种技术
+            3.每个客户端都有自己的一个Session会话
+            4.Session会话中，我们经常用来保存用户名登录之后的信息
+
+        创建Session和获取Session
+            创建和获取Session。他们的API是一样的
+            request.getSession()
+                第一次调用时：创建Session会话
+                之后调用都是：获取前面创建好的Session会话对象
+            isNew():判断到底是不是刚创建出来的
+                true：表示刚创建
+                false：表示获取之前创建
+
+            每个会话都有一个身份证号。也就是ID值。而且这个ID是唯一的
+                getID()得到Session的会话的id值
+
+            事例：创建获取session，获取session唯一标识
+
+            ```java
+                public void createorgetsession(HttpServletRequest req,HttpServletResponse res) throws ServletException,IOException{
+                        //创建和获取session会话对象
+                        HttpSession session = req.getSession();
+                        //判断当前session会话，是否是新创建出来的
+                        boolean isNew = session.isNew();
+                        //获取session会话的唯一标识id
+                        String id = session.getId();
+                    }
+            ```
+
+        Session域中的数据的存取
+            方法：
+                存：req.getSession().setAttribute("key1","value1")
+                取：req.getSession().getAttribute("key1")
+
+        
+        1.Session生命周期控制
+            生命周期控制的方法：
+                public void setMaxInactiveInterval(int interval)
+                    功能：设置Session的超时时间(以秒为单位)，超过指定的时长，Session就会被销毁
+                    值为整数的时候，设定Session的超时时长
+                    值为负数表示永不超时
+                public int getMaxInactiveInterval()
+                    功能：获取Session的超时时长
+                public void invalidate()    
+                    功能：让当前Session会话马上超时
+
+            Session默认的超时时长是多少？
+                session的超时指的是：客户端两次请求的最大间隔时长
+                Session默认的超时时间长为30分钟；因为在Tomcat服务器的配置文件web.xml中默认有以下的配置，它表示配置了当前Tomcat服务器下所有的Session超时配置默认时长为：30分钟
+                    <session-config>
+                        <session-timeout>30</session-timeout>
+                    </session-config>
+
+                若你希望你的web工程，默认的session的超时时长为其他时长。可以在自己的web.xml配置文件中做以上配置。就可以修改你的web工程所有Session的默认超时时长
+
+                若你想修改个别Session的超时时长。就可以使用上面的API。setMaxInactiveInterval(int interval)来进行单独的设置。
+                    session.setMaxInactiveInterval(int interval)单独设置超时时长
+
+
+        2.客户端和Session之间技术关联
+            本质：Session技术，底层其实是基于Cookie技术来实现的(Cookie每次请求都会携带JSESSIONID,其实是session的id)
+
+            
+###Filter过滤器
+    **Filter过滤器
+        概念：
+            Filter过滤器它是Javaweb的三大组件之一。三大组件分别是：Servlet程序，Listener监听器，Filter过滤器
+            它是javeEE的规范。也就是接口
+        作用：拦截请求，过滤响应
+            拦截请求的常见的应用场景：
+                1.权限检查
+                2。日记操作
+                3.事务管理。。。等等
+         
