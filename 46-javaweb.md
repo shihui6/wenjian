@@ -1466,6 +1466,8 @@
             本质：Session技术，底层其实是基于Cookie技术来实现的(Cookie每次请求都会携带JSESSIONID,其实是session的id)
 
             
+
+时间2020/12/04
 ###Filter过滤器
     **Filter过滤器
         概念：
@@ -1476,4 +1478,212 @@
                 1.权限检查
                 2。日记操作
                 3.事务管理。。。等等
+
+        filter过滤器的使用步骤：
+            1.编写一个类去实现Filter接口
+            2.实现过滤方法doFilter()
+            3.到web.xml中去配置Filter的拦截路径
+
+            事例：过滤器的基本使用，filter对admin目录资源下的拦截
+
+                ```java
+                    //doFilter方法，专门用来拦截请求，响应的；可以做权限检查
+                    @Override
+                    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+                        HttpServletRequest httpServletRequest = (HttpServletRequest)servletRequest;
+                        HttpSession session = httpServletRequest.getSession();
+                        Object user = session.getAttribute("user");
+                        //如果等于null，说明还没有登录
+                        if(user == null){
+                            servletRequest.getRequestDispatcher("/login.jsp").forward(servletRequest,servletResponse);
+                            return;
+                        }else{
+                            //让程序继续往下访问用户的目标资源
+                            filterChain.doFilter(servletRequest,servletResponse);
+                        }
+                    }
+                ```
+                ```xml      写完上面过滤去的java逻辑代码之后，还需要配置一下xml文件，当访问admin文件夹下所有的资源时，都会经过过滤器
+                    <filter>
+                        <!--给filter起一个别名-->
+                        <filter-name>AdminFilter</filter-name>
+                        <!--配置filter全类名-->
+                        <filter-class>com.atguigu.java.AdminFilter</filter-class>
+                    </filter>
+                        <!--filter-mapping配置filter过滤的拦截路径-->
+                    <filter-mapping>
+                        <!--filter-name表示当前的拦截路径给哪个filter使用-->
+                        <filter-name>AdminFilter</filter-name>
+                        <!--url-pattern配置拦截路径
+                            / 表示请求地址为：http://ip:port/工程路径/  映射到Idea的web目录
+                            /admin/*  表示请求地址为:http://ip:port/工程路径/admin/*
+                            /admin/*  表示当访问admin文件夹下所有的资源时，都会经过过滤器
+                        -->
+                        <url-pattern>/admin/*</url-pattern>
+                    </filter-mapping>
+                ```
          
+        
+        Filter生命周期
+            Filter的生命周期包含几个方法
+                1.构造器方法
+                2.init初始化方法
+                    第1，2步，在web工程启动的时候执行(Filter已经创建)
+                3.doFilter过滤方法
+                    第3步，每次拦截到请求，就会执行
+                4.destroy销毁
+                    第4步，停止web工程的时候，就会执行(停止web工程，也会销毁Filter过滤器)
+
+        
+        *FilterChain
+            FilterChain.doFilter()方法的作用：(可操作多个过滤器)
+                1.执行下一个Filter过滤器(如果有Filter)
+                2.执行目标资源(没有Filter)
+
+                注意点：在多个Filter过滤器执行的时候，它们执行的优先顺序是由他们在web.xml中从上到下配置的顺序决定
+
+            多个Filter过滤器执行的特点：
+                1.所有filter和目标资源默认都执行在同一个线程中
+                2.多个Filter共同执行的时候，它们都使用同一个Request对象
+
+            事例：测试FilterChain多个过滤器执行时和目标资源的执行顺序。
+
+                ```java  filter1中的代码
+                    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+                            System.out.println("filter1的前置");
+                            System.out.println("当前过滤器1执行的线程"+Thread.currentThread().getName());
+                            filterChain.doFilter(servletRequest,servletResponse);
+                            System.out.println("filter1的后置");
+                        }
+                ```
+                ```java  filter2中的代码
+                    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+                            System.out.println("filter2的前置");
+                            System.out.println("当前过滤器2执行的线程"+Thread.currentThread().getName());
+                            filterChain.doFilter(servletRequest,servletResponse);
+                            System.out.println("filter2的后置");
+                        }
+                ```
+                ```jsp  目标资源代码
+                    <%
+                        System.out.println("ceshi filter的开始");
+                    %>
+                ```
+                ```xml  xml中的配置filter1和filter2先后顺序决定了，filter1和filter2过滤器的执行顺序
+                    <filter>
+                        <filter-name>Filter1</filter-name>
+                        <filter-class>com.atguigu.java.Filter1</filter-class>
+                    </filter>
+                    <filter-mapping>
+                        <filter-name>Filter1</filter-name>
+                        <url-pattern>/ceshi.jsp</url-pattern>   //过滤器所要过滤的资源路径
+                    </filter-mapping>
+                    <filter>
+                        <filter-name>Filter2</filter-name>
+                        <filter-class>com.atguigu.java.Filter2</filter-class>
+                    </filter>
+                    <filter-mapping>
+                        <filter-name>Filter2</filter-name>
+                        <url-pattern>/ceshi.jsp</url-pattern>  //过滤器所要过滤的资源路径
+                    </filter-mapping>
+                ```
+                    执行结果：
+                                filter1的前置
+                                filter2的前置
+                                ceshi filter的开始
+                                filter2的后置
+                                filter1的后置
+
+            
+        *Filter的拦截路径
+            1.精确匹配
+                <url-pattern>/target.jsp<url-pattern>
+                以上目录的路径，表示请求地址必须为：http://ip:port/工程路径/target.jsp;Filter拦截器才起作用
+            2。目录匹配
+                <url-pattern>/admin/*</url-pattern>
+                以上目录匹配的路径，表示请求地址必须为：http://ip:port/工程路径/admin/*
+            3.后缀名匹配
+                <url-pattern>*.html</url-pattern>
+                以上目录匹配的路径，表示请求地址必须以.html结尾才会拦截到
+                <url-pattern>*.do</url-pattern>
+                以上目录匹配的路径，表示请求地址必须以.do结尾才能拦截到
+                <url-pattern>*.action</url-pattern>
+                以上目录匹配的路径，表示请求地址必须以.action结尾才能拦截到
+
+            Filter过滤器它只关心请求的地址是否匹配，不关心请求的资源是否存在
+    
+    **FilterConfig类
+        概念：FilterConfig类见名知义，它是Filter过滤器的配置文件类
+            Tomcat每次创建Filter的时候，也会同时创建一个FilterConfig类，这里包含了Filter配置文件的配置信息
+        作用：
+            1.获取Filter的名称filter-name的内容
+            2.获取Filter中配置的init-param初始化参数
+            3.获取ServletContext对象
+
+        使用：FilterConfig类获取配置文件里的信息
+
+            ```java
+                public void init(FilterConfig filterConfig) throws ServletException {
+                        System.out.println("filter-name的信息"+filterConfig.getFilterName());
+                    }
+            ```
+    
+    
+###JSON，AJAX，Iln8
+    ***JSON
+        概念：JSON是一种轻量级的数据交换格式；轻量级指的是跟xml做比较；数据交换指的是客户端和服务器之间业务数据的传递格式
+        定义：json是由键值对组成，并且由花括号(大括号)包围。每个键由引号引起来，键和值之间使用冒号进行分隔，多组键值对之间用逗号进行分隔(本身是个对象)
+
+        *json的常用两个方法
+
+            JSON.stringify() :把json对象转化成为json字符串
+            JSON.parse()    ：把json字符串转化成为json对象
+
+            json的存在有两种形式
+                一种是：对象的形式存在，我们叫它json对象
+                一种是：字符串的形式存在，我们叫它json字符串
+                
+                一般我们操作json中的数据的时候，需要json对象的格式
+                一般我们要在客户端和服务器之间进行数据交换的时候，使用json字符串
+
+        *JSON在java中的使用
+
+            ```java     JSON和java对象之间的转换
+                public void json(){
+                        Person person = new Person(1,"石惠好帅");
+                        //创建Gson对象事例
+                        Gson gson = new Gson();
+                        //toJson方法可以把java对象转换成为json字符串
+                        String personStringJson = gson.toJson(person);
+                        System.out.println(personStringJson);
+                        //fromJson把json字符串转回java对象
+                        Person person1 = gson.fromJson(personStringJson, Person.class);
+                            //第一个参数是json字符串
+                            //第二个参数是java对象类型
+                        System.out.println(person1);
+                    }
+            ```
+
+            ```java     list和json的互转
+                Gson gson = new Gson();
+                    List<Person> personList = new ArrayList<>();
+                    personList.add(new Person(1,"天气真好"));
+                    personList.add(new Person(2,"太阳真好"));
+                    String personStringJson = gson.toJson(personList);
+                    System.out.println(personStringJson);
+                    //gson.fromJson(personStringJson, new TypeToken<List<Person>>() {
+                    // }.getType());
+                    //如果将原来的简单的对象转回json，使用 类名.class即可，但是如果转化回去是一个集合的话，必须使用TypeToken这个类，这个类帮助我们把原来的集合的json字符串，转化为集合的
+                    List<Person> personListtwo  = gson.fromJson(personStringJson, new TypeToken<List<Person>>() {
+                    }.getType());
+                    System.out.println(personListtwo);
+            ```
+            map和json的互转 事例操作和list转json是一样的
+
+            
+
+    ***AJAX 
+        概念：ajax是一种浏览器通过js异步发起请求。局部更新页面的技术
+
+    ***i18国际化(了解内容)
+        
