@@ -53,7 +53,7 @@
         >查看当前所有的数据库
                 show databases;
         >打开指定的数据库
-                user 库名;
+                use 库名;
         >查看当前库的所有的表
                 show tables;
         >查看其它库的所有的表
@@ -73,15 +73,15 @@
 
     
     ***SQLyog的使用
-        图形化界面中在常见命令下吸入sql语句，并且可以把在常见命令下的sql语句保存成sql文件在本地
-        在本地上执行sql脚本文件步骤：
+        图形化界面中在常见命令下导入sql语句，并且可以把在常见命令下的sql语句保存成sql文件到本地
+        在数据库连接对象上(这里指本地)执行sql脚本文件步骤：
                 点击数据库连接对象(root@localhost)右键点击执行sql脚本->选择需要执行的sql文件点击执行即可
 
         *DQL语言的学习
             1.基础查询
                 语法：select 查询列表 from 表名;
                 特点：
-                    1.查询列表可以死活：表中的字段，常量值，表达式，函数
+                    1.查询列表可以是：表中的字段，常量值，表达式，函数
                     2。查询的结果是一个虚拟的表格
 
                 细节点：(着重号``的知识点)
@@ -132,7 +132,7 @@
                                 select 100+90; 两个操作数都为数值型，则做加法运算
                                 select '123'+90;只要其中一方为字符型，试图将字符型数值转换成数值型
                                                     如果转换成功，则继续做加法运算
-                                select 'join'_90;   如果转换失败，则将字符型数值转换成0
+                                select 'join'+90;   如果转换失败，则将字符型数值转换成0
                                 select null+100;    只要其中一方为null，则结果为null
                             
 
@@ -204,7 +204,7 @@
                                     select last_name,department_id from employees where department_id<>90;
 
                             2.按逻辑表达式筛选
-                                案例1：查询工资z在10000到20000之间的员工名，工资以及奖金
+                                案例1：查询工资在10000到20000之间的员工名，工资以及奖金
                                     select last_name,salary,commission_pct from employees where salary>=10000 and salary <= 20000;
                                 案例2：查询部门编号不是在90到110之间，或者工资高于15000的员工信息
                                     select * from employees where department_id < 90 || department_id > 110 || salary > 15000;
@@ -218,7 +218,7 @@
                                     案例3：查询员工名中第二个字符为_的员工名
                                         select last_name from  employees where last_name like '_\_%';
                                         或者
-                                        select last_name from  employees where last_name like '_$_%' escape '$';(escape作用：标识$符号在这里是转义符)
+                                        select last_name from  employees where last_name like '_$_%' escape '$';(escape作用：$符号通过escape处理成了转义符)
 
                                 between and的案例
                                     案例1：查询员工编号在100到120之间的员工信息
