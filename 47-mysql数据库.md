@@ -38,6 +38,17 @@
             退出：
                 exit或ctrl+c
 
+###重点：
+    sql语句的执行顺序
+    执行顺序：from--where--group by--having--select--order by
+ 
+        from:需要从哪个数据表检索数据 
+        where:过滤表中数据的条件 
+        group by:如何将上面过滤出的数据分组 
+        having:对上面已经分组的数据进行过滤的条件  
+        select:查看结果集中的哪个列，或列的计算结果 
+        order by :按照什么样的顺序来查看返回的数据 
+
     
 ###mysql的使用
     mysql的语法规范
@@ -237,13 +248,440 @@
                                     案例:查询工资为12000的员工信息
                                         select last_name,salary from employees where commision_pct <=> 12000;
 
+时间：2020/12/09
                                 
             3.排序查询
+                语法：select 查询列表 from 表 [where 筛选条件] order by 排序列表 [asc|desc]
+                特点：
+                    1.asc代表的是升序，desc代表的是降序，如果不写，默认是升序
+                    2.order by子句中可以支持单个字段，多个字段，表达式，函数，别名
+                    3.order by子句一般是放在查询语句的最后面，limit子句除外
+                使用：
+                    案例：查询员工信息，要求工资从高到底排序
+                        select * from employees order by salary desc;
+                    案例：查询员工信息，要求工资从低到高排序
+                        select * from employees order by salary;
+                        或者
+                        select * from employees order by salary asc;
+                    
+                    案例2：查询部门编号>=90的员工信息，按入职时间的先后进行排序【添加筛选条件】
+                        select * from employees where department_id>=90 order by hiredate asc;
+
+                    案例3：按年薪的高低显示员工的信息和年薪【按表达式排序】
+                        select *,salary*12*(1+ifnull(commission_pct,0)) 年薪 
+                        from employees 
+                        order by salary*12*(1+ifnull(commission_pct,0)) desc;
+                    
+                    案例4：按年薪的高低显示员工的信息和 年薪【按别名排序】
+                        select *,salary*12*(1+ifnull(commission_pct,0)) 年薪 
+                        from employees 
+                        order by 年薪 desc;
+
+                    案例5：按姓名的长度显示员工的姓名和工资【按函数排序】
+                        select last_name,salary
+                        from employees
+                        order by length(last_name) desc;
+
+                    案例6：查询员工信息，要求先按工资升序，再按员工编号降序【按多个字段排序】
+                        select *
+                        from employees
+                        order by salary asc,employees_id desc;
+
+
             4.常见函数
-            5.分组函数
-            6.分组查询
-            7.连接查询
-            8.子查询
+                概念：类似于java的方法，将一组逻辑语句封装在方法体重，对外暴露方法名
+                好处：1.隐藏了实现细节，2.提高代码的重用性
+                使用：select 函数名(实参列表) 【from 表】
+                分类：
+                    ##单行函数
+                        如：concat,length,ifnull等
+                        **字符函数
+                            1。length 
+                                作用：获取参数值的字节个数
+                                使用：select length('join')
+
+                            2.concat
+                                作用：拼接字符串
+                                使用：select concat(last_name,'_',first_name) 姓名 from employees;
+
+                            3.upper,lower
+                                作用：大小写转换
+                                使用：
+                                    案例：将姓变大写，名变小写，然后拼接
+                                    select concat(upper(last_name),lower(first_name)) 姓名 from employees;
+
+                            4.substr,substring
+                                作用：截取字符长度
+                                注意：索引从1开始，跟java中的索引从0开始不一样
+                                使用：
+                                    案例：截取从指定索引处后面所有字符
+                                    select substr('今天天气真好是吧',7) out_put;
+
+                                    案例：截取从指定索引处指定字符长度的字符
+                                    select substr('今天天气真好',1，3) out_put;
+                            
+                            5.instr
+                                作用：返回子串第一次出现的索引，如果找不到返回0
+                                使用：
+                                    案例：返回太阳在instr参数1中首次出现的位置的索引
+                                    select instr('今天天气真好呀太阳好大','太阳') as out_put
+                            
+                            6.trim
+                                作用：去除字符前后的空格或者指定的字符
+                                使用：
+                                    案例：去除天气好前后的空格
+                                    select trim('   天气真好    ') as out_put;
+                                    案例：去除天气好前后的字母a
+                                    select trim('a' from 'aaaaa天气真好aaaaaa') as out_put;
+
+                            7.lpad
+                                作用：用指定的字符实现左填充指定长度
+                                使用：select lpad('殷素素',10,'*') as out_put; 输出结果：********殷素素
+
+                            8.rpad
+                                作用：用指定的字符实现左填充指定长度
+                                使用：select rpad('殷素素',6,'ab') as out_put;输出结果：殷素素aba
+
+                            9.replace
+                                作用：全部替换
+                                使用：select replace('周芷若周芷若张无忌爱上周芷若','周芷若','赵敏') as out_put;
+                                        输出结果：赵敏赵敏张无忌赵敏
+                                    
+
+                        **数学函数
+                            1.round
+                                作用：四舍五入
+                                使用:
+                                    案例：
+                                    select round(-1.55);输出结果-2
+                                    select round(1.567,2);四舍五入小数点后保留2位，输出结果1.57
+
+                            2.ceil
+                                作用：向上取整，返回>=该参数的最小整数
+                                使用：select ceil(1.002);输出：2
+                            
+                            3.floor
+                                作用：向下取整，返回<=该参数的最大整数
+                                使用：select floor(9.9);输出：9
+                            
+                            4.truncate
+                                作用：截断
+                                使用：select truncate(1.69999,1);输出：1.6
+                            
+                            5.mod
+                                作用：取余(和c，java中的取余是一样的)
+                                使用：select mod(-10,-3);输出：1
+
+
+                        **日期函数
+                            1.now 
+                                作用：返回当前系统的日期+时间
+                                使用：select now(); 输出：2020-12-09 12:19:05
+                            
+                            2.curdate
+                                作用：返回当前系统日期，不包含时间
+                                使用：select curdate();输出：2020-12-09
+                            
+                            3.curtime
+                                作用：返回当前时间，不包含日期
+                                使用：select curtime();输出：12:19:05
+
+                            4.可以获取指定的部分，年，月，日，小时，分钟，秒
+                                select year(now()) 年;      输出：2020
+                                select year('1998-1-1') 年; 输出：1998
+                                select month(now()) 月;     输出：12
+                                select monthname(now()) 月; 输出：December
+
+                            5.str_to_date
+                                作用：将字符通过指定的格式转换成日期
+                                使用：
+                                    格式符          功能
+                                    %Y              四位的年份
+                                    %y              2位的年份
+                                    %m              月份(01,02...11,12)
+                                    %c              月份(1,2...11,12)
+                                    %d              日
+                                    %H              小时(24小时制)
+                                    %h              小时(12小时制)
+                                    %i              分钟
+                                    %s              秒
+
+
+                                    select str_to_date('1998-3-2','%Y-%c-%d') as out_put; 输出1998-03-02
+                                    select str_to_date('3-2-1998','%c-%d-%Y') as out_put; 输出1998-03-02
+
+                            6.date_format
+                                作用：将日期转换成字符
+                                使用：
+                                    select date_format(now(),'%Y年%m月%d日') as out_put; 输出：2020年12月09日
+
+                        **其他函数(指的是系统函数)
+                            select version();   查看当前数据库版本
+                            select database();  查看当前使用的数据库
+                            select user();      查看当前用户
+
+
+                        **流程控制函数
+                            1.if函数
+                                作用：if else的效果
+                                使用：select if(10<5,'大','小'); 输出：小
+
+                            2.case函数
+                                作用：
+                                    作用1：switch...case的效果
+                                        mysql中的写法：
+                                            case 要判断的字段或表达式
+                                            when  常量1  then 要显示的值1或语句1
+                                            when  常量2  then 要显示的值2或语句2
+                                            .....
+                                            else  要显示的值n或语句n
+                                            end
+                                        使用：案例：查询员工的工资，要求：
+                                                    部门号=30，显示的工资为1.1倍
+                                                    部门号=40，显示的工资为1.2倍
+                                                    部门号=50，显示的工资为1.3倍
+                                                    其他部门，显示的工资为原工资
+
+                                            select salary 原始工资,department_id,
+                                            case department_id
+                                            when 30 then salary*1.1
+                                            when 40 then salary*1.2
+                                            when 50 then salary*1.3
+                                            else salary
+                                            end as 新工资
+                                            from employees;
+
+
+                                    作用2：类似于，多重if
+                                        mysql中的写法：
+                                            case 
+                                            when  条件1  then 要显示的值1或语句1
+                                            when  条件2  then 要显示的值2或语句2
+                                            .....
+                                            else  要显示的值n或语句n
+                                            end
+
+                                        使用：案例：查询员工的工资的情况
+                                                如果工资>20000，显示A级别
+                                                如果工资>15000，显示B级别
+                                                如果工资>10000，显示C级别
+                                                否则，显示D级别
+                                            
+                                            select salary,
+                                            case 
+                                            when salary>20000 then 'A'
+                                            when salary>15000 then 'B'
+                                            when salary>10000 then 'C'
+                                            else 'D'
+                                            end as 工资级别
+                                            from employees;
+
+                                    
+
+                    ##分组函数
+                        作用：做统计使用，又被称为统计函数，聚合函数，组函数
+                        分类：sum求和，avg平均值，max最大值，min最小值，count计算个数
+                        特点：
+                            1.参数支持哪些类型
+                                sum，avg只处理数值型
+                                max，min，count可以处理任何类型
+                            2.以上分组函数都忽略null值
+                            3.可以和distinct搭配(distinct作用：去重的效果)
+                            4.count函数单独介绍
+                                一般使用count(*)用作统计行数
+                            5.和分组函数一同查询的字段要求是group by后的字段
+
+
+                        使用：
+                            select sum(salary) from employees;
+                            select avg(salary) from employees;
+                            select max(salary) from employees;
+                            select min(salary) from employees;
+                            select count(salary) from employees;
+                            或者
+                            select sum(salary),avg(salary),max(salary),min(salary),count(salary) from employees;
+
+                            3.和distinct搭配使用
+                                select sum(distinct salary),sum(salary) from employees;
+
+                            4.count函数的详细介绍
+                                select count(*) from employees;用来统计表的行数，机制：只要有一列不为null，则统计行数加1
+                                select count(1) from employees;相当于给表的每一个行添加一个1，然后统计表的行数
+                            
+                            5.和分组函数一同查询的字段有限制
+                                select avg(salary),employee_id from employees;
+                                分析：分组函数avg查询结果是一行，而employee_id查询结果为107行，表格不一致，没有意义
+
+                        案例：查询出生的天数，用到datediff函数(datediff函数参数支持日期类型，datediff作用：时间日期相减)
+                            select datediff(now(),'1993-11-16')
+
+
+            5.分组查询
+                语法：
+                    select 分组函数,列(要求出现在group by的后面)
+                    from 表
+                    [where 筛选条件]
+                    group by 分组的列表
+                    [order by 子句]
+
+                注意：查询列表比较特殊：要求是分组函数和group by后出现的字段一致
+                特点：
+                    1.分组查询中的筛选条件分为两类
+                                            数据源                  位置                    关键字
+                        分组前筛选：        原始表                  group by子句的前面        where
+                        分组后筛选：        分组后的结果集           group by子句的后面        having
+                    
+                    2.group by子句支持单个字段分组，多个字段分组(多个字段之间用逗号隔开没有顺序要求)，表达式或函数(用的较少)
+                    3.也可以添加排序(排序放在整个分组查询的最后)
+
+                使用1：group by后面跟字段：意思是按照该字段进行分组查询
+                    1.简单的分组查询：
+                        案例1：查询每个工种的最高工资
+                            select max(salary),job_id from employees group by job_id;
+                        案例2：查询每个位置上的部门个数
+                            select count(*),location_id from employees group by location_id;
+                    
+                    2.添加分组前的筛选
+                        案例1：查询邮箱中包含a字符的，每个部门的平均工资
+                            select avg(salary),department_id 
+                            from employees
+                            where email like '%a%'
+                            group by department_id;
+
+                        案例2：查询有奖金的每个领导手下员工的最高工资
+                            select max(salary),manager_id
+                            from employees
+                            where commission_pct is not null
+                            group by manager_id;
+
+                    3.添加分组后的筛选
+                        案例1：查询那个部门的员工个数>2
+                                思考步骤：
+                                    一：查询每个部门的员工个数
+                                        select count(*),department_id
+                                        from employees
+                                        group by department_id;
+                                    二：根据一的结果进行筛选，查询那个部门的员工个数>2
+                                        select count(*),department_id
+                                        from employees
+                                        group by department_id
+                                        having count(*) > 2;
+
+                        案例2：查询每个工种有奖金的员工的最高工资>12000的工种编号和最高工资
+                                思考步骤：
+                                    一：查询每个工种有奖金的最高工资
+                                        select max(salary),job_id
+                                        from employees
+                                        where commission_pct is not null
+                                        group by job_id;
+                                    二：根据一的结果继续筛选，最高工资>12000
+                                        select max(salary),job_id
+                                        from employees
+                                        where commission_pct is not null
+                                        group by job_id
+                                        having max(salary) > 12000;
+
+                        案例2：查询领导编号>102的每个领导手下的最低工资>5000的领导编号是哪个，以及其最低工资
+                                思考步骤：
+                                    一：查询每个领导手下的员工固定最低工资
+                                        select min(salary),manager_id
+                                        from employees
+                                        group by manager_id;
+                                    二：添加筛选条件：编号>102
+                                        select min(salary),manager_id
+                                        from employees
+                                        where manager_id > 102
+                                        group by manager_id;
+                                    三：添加筛选条件：最低工资>5000
+                                        select min(salary),manager_id
+                                        from employees
+                                        where manager_id > 102
+                                        group by manager_id
+                                        having min(salary) > 5000;
+
+
+                使用2：group by后面跟照表达式或函数：意思是按照表达式或函数分组
+                    案例：按员工姓名的长度分组，查询每一组的员工个数，筛选员工个数>5的有哪些
+                        思考步骤：
+                            一：查询每个长度的员工个数
+                                select count(*),length(last_name) len_name
+                                from employees
+                                group by length(last_name);
+                            二：添加筛选条件
+                                select count(*),length(last_name) len_name
+                                from employees
+                                group by length(last_name)
+                                having count(*) > 5
+
+                使用3：按多个字段分组
+                    案例：查询每个部门每个工种的员工的平均工资
+                        select avg(salary),department_id,job_id
+                        from employees
+                        group by department_id,job_id;
+
+                    案例：添加排序，查询每个部门的每个工种的平均工资，并且按照平均工资的高低显示
+                        select avg(salary) a,department_id,job_id
+                        from employees
+                        where department_id is not null
+                        group by department_id,job_id
+                        having a > 10000
+                        order by a desc;
+
+                
+
+            6.连接查询
+                概念：多表查询，当查询的字段来自于多个表时，就会用到连接查询
+                分类：
+                    按年代分
+                        sq192标准：仅仅支持内连接
+                        sq199标准(推荐)：支持内连接+外连接(左外和右外)+交叉连接
+                    按功能分
+                        内连接：
+                                等值连接
+                                非等值连接
+                                自连接
+
+                        外连接：
+                                左外连接
+                                右外连接
+                                全外连接
+
+                        交叉连接
+                
+                使用：sq192标准
+                    等值连接：
+                        特点：
+                            >多表等值连接的结果为多表的交集部分
+                            >n表连接，至少需要n-1个连接条件
+                            >多表的顺序没有要求
+                            >一般需要为表起别名
+                            >可以搭配前面介绍的所有子句使用：比如：排序，分组，筛选
+                            
+                        案例：查询员工名和对应的部门名
+                            select last_name,department_name
+                            from employees,departments
+                            where employees.department_id = departments.department_id;
+
+                        案例：查询员工名，工种号， 工种名(涉及知识点：为表起别名)
+                            select last_name,e.job_id,job_title
+                            from employees e,jobs j
+                            where e.job_id = j.job_id
+
+                        案例：查询有奖金的员工名，部门名(涉及知识点：可以添加筛选)
+                            select last_name,department_name,commission_pct
+                            from employees e,departments d
+                            where e.department_id = d.department_id
+                            and e.commission_pct is not null;
+
+                        案例：查询每个城市的部门的个数(涉及知识点：分组查询)
+                            select count(*) 个数,city
+                            from departments d,locations l
+                            where d.location_id = l.location_id
+                            group by city;
+
+
+
+            7.子查询
             9.分页查询
             10.union联合查询
         
