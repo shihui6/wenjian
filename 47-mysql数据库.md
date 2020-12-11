@@ -859,7 +859,7 @@
                             4.子查询的执行优先于主查询执行，因为：主查询的条件用到了子查询的结果
 
                         **标量子查询：
-                            非法使用标量子查询的情况：标量子查询的结果不是一样一列即为非法标量子查询
+                            非法使用标量子查询的情况：标量子查询的结果不是一行一列即为非法标量子查询
 
                             案例：查询员工的工资比Abel高的员工的信息【标量子查询】
                                 select *
@@ -1066,7 +1066,311 @@
                         select t_id,tName,tGender from t_ua where tGender = 'male';
 
 
-        
+时间：2020/12/11
 
 ###DML语言
-    
+    ***DML语言
+        概念：数据库操作语言
+            分类：插入：insert
+                  修改：update
+                  删除：delete
+        
+        **插入语句
+            第一种插入语句的方式：经典的插入语句
+                语法：insert into 表明(列名,...) values(值1,...);
+                使用：
+                    1：插入的值的类型要与列的类型一致或兼容
+                        insert into beauty(id,name,sex,borndate,phone,photo,boyfriend_id) 
+                        value(12,'唐一星','女','1990-4-23','188115522562',null,2);
+
+                    2：不是null的列必须插入值。可以为null的列插入值有两种做法
+                        方式一：
+                            insert into beauty(id,name,sex,borndate,phone,photo,boyfriend_id)
+                            value(13,'唐毅行','女','1990-5-23','18922569988',null,2);
+                        
+                        方式二：可以为null的列，不写列名的同时，省去赋值
+                            insert into beauty(id,name,sex,phone)
+                            value(15,'娜扎','女','18818899888');
+                    
+                    3：列的顺序可以调换，同时赋值的顺序要和列的顺序一致
+                        insert into beauty(name,sex,id,phone)
+                        value('姜星','女',16,'110');
+
+                    4：列数和指的个数必须一致
+                        insert into beauty(name,sex,id,phone)
+                        value('关晓彤','女',17,'119');
+
+                    5：可以省略列名，默认所有列，而且列的顺序和表中的列的顺序一致,为null的部门也必须写出来
+                        insert into beauty value(18,'张飞','男',null,'119',null,null)
+
+            第二种插入语句的方式：
+                语法：insert into 表明 set 列名=值,列名=值,....
+                使用：
+                    1.insert into beauty set id=19,name='刘涛',phone='999';
+
+            插入语句第一种方式和第二方式对比：
+                方式一支持插入多行，方式二不支持
+                    insert into beauty value(18,'张飞','男',null,'119',null,null),
+                    (19,'张飞1','男',null,'119',null,null),
+                    (20,'张飞2','男',null,'119',null,null);
+
+                方式一支持子查询，方式二不支持
+                    insert into beauty(id,name,phone)
+                    select 26,'宋茜','1866666666';
+                       
+
+        **修改语句
+            修改语句的第一种方式：修改单表的记录
+                语法：
+                    update 表明                 步骤一
+                    set 列=新值,列=新值          步骤三
+                    where 筛选条件              步骤二
+
+                使用：
+                    事例：修改beauty表中姓唐的女生的电话为166555996688
+                        update beauty set phone = '166555996688' 
+                        where name like '%唐%';
+                    
+                    事例：修改boys表中id为2的名字为张飞，魅力值10
+                        update boys set boyname='张飞',usercp=10
+                        where id = 2;
+
+            修改语句的第一种方式：修改多表的记录
+                语法：
+                    sq99语法：
+                    update 表1 别名
+                    inner|left|right join 表2 别名
+                    on 连接条件
+                    set 列=值
+                    where 筛选条件
+
+                使用：
+                    事例：修改张无忌的女朋友的手机号的为114
+                        update boys bo
+                        inner join beauty b on bo.id=b.boyfriend_id
+                        set b.phone='114'
+                        where bo.boyname='张无忌';
+                    
+                    事例：修改没有男朋友的女生的男朋友的编号都为2号
+                        update boys bo
+                        right join beauty b on bo.id=b.boyfriend_id
+                        set b.boyfriend_id=2
+                        where bo.id is null;
+
+        **删除语句
+            删除语句的第一种方式：使用delete关键字删除
+                
+                使用：
+                    1.单表的删除
+                        语法：delete from 表名 筛选条件
+                        事例：删除手机号以9结尾的女神信息
+                            delete from beauty where phone like '%9';
+
+                    2.多表的删除
+                        语法：
+                            sq99语法：
+                            delete 表1的别名，表2的别名
+                            from 表1 别名
+                            inner|left|right join 表2 别名 on 连接条件
+                            where 筛选条件
+
+                        事例：删除张无忌的女朋友的信息(两表连接，删除其中的1张表的记录)
+                            delete bo
+                            from beauty bo
+                            inner join boys b on bo.id=b.boyfriend_id
+                            where b.boyname = '张无忌';
+
+                        事例：删除黄晓明以及他女朋友的信息(两表连接，删除其中的2张表的记录)
+                            delete b,bo
+                            from beauty bo
+                            inner join boys b on bo.id=b.boyfriend_id
+                            where b.boyname = '黄晓明';
+            
+            删除语句的第二种方式：使用truncate关键字删除
+                语法：truncate table 表名
+
+            delete和truncate两种方式对比
+                1。delete可以加where条件，truncate不能加
+                2.truncate删除，效率高一丢丢
+                3.假如要删除的表中有自增长列，如果用delete删除后，再插入数据，自增长列的值从断点开始，而truncate删除后，再插入数据，自增长列的值从1开始
+                4.truncate删除没有返回值（提示信息）；delete删有返回值（提示信息）
+                5.truncate删除不能回滚，delete删除可以回滚
+
+
+###DDL语言
+    概念：数据定义语言，库和表的管理
+    ***库的管理
+        内容：创建(create)，修改(alter)，删除(drop)
+        
+        使用：
+            1.库的创建
+                语法：create database [if not exists]库名
+                事例：创建books库
+                    create database if not exists books;
+                    if not exists作用：当books库存在则不创建，当books库不存在则创建
+            2。库的修改
+                目前库名的修改，在本地把相应的文件夹手动修改即可，使用语句修改则库会丢失数据
+                修改库的字符集：
+                    alter database books character set gbk;
+            
+            3.库的删除
+                语法：drop database [if exists] 库名
+
+
+    ***表的管理
+        内容：创建(create)，修改(alter)，删除(drop)
+        使用：
+            1.创建表
+                语法：
+                    create table [if exists]表名(
+                        列名 列的类型【(长度) 约束】,
+                        列名 列的类型【(长度) 约束】,
+                        列名 列的类型【(长度) 约束】,
+                        ......
+                        列名 列的类型【(长度) 约束】
+                    )
+                事例：创建表book
+                    create table book(
+                        id int,
+                        bname varchar(20),
+                        price double,
+                        authorId int,
+                        publishDate datetime
+                    )
+
+            2.修改表
+                语法：alter table 表名 add|drop|modify|change column 列名 【列类型 约束】
+                内容:
+                    1.修改列名
+                        alter table 表名 change column 旧列名 新列名 新列名类型
+                        
+                    2.修改列的类型或约束
+                        alter table 表名 modify column 列名 列类型
+
+                    3.添加新列
+                        alter table 表名 add column 列名 类型
+
+                    4.删除列
+                        alter table 表名 drop column 列名
+
+                    5.修改表名
+                        alter table 表名 rename to 新表名
+
+                使用：
+                    事例:修改列名
+                        alter table book change column publishdate pubdate datetime;
+                    事例：修改列的类型或约束
+                        alter table book modify column publishdate timestamp;
+                    事例：添加新列
+                        alter table author add column annual double;
+                    事例：删除列
+                        alter table author drop column annual;
+                    事例：修改表名
+                        alter table author rename to book_author;
+                    
+            3.删除表
+                语法：drop table [if exists]表名
+            
+            4.表的复制
+                1.仅仅复制表的结构
+                    create table 复制生成的表 like 旧表
+
+                    事例：create table copy like author
+
+                2.复制表的结构+数据
+                    create table 复制生成的表
+                    select * from 旧表
+
+                    事例：create table copy2 selete * from author
+
+                3.只复制部分数据
+                    create table 复制生成的表
+                    select 列名,列名
+                    from 旧表
+                    where 条件
+
+                    事例：
+                        create table copy3 
+                        select id,au_name from author
+                        where nation='中国'
+
+                4.仅仅复制某些结构
+                    create table 复制生成的表
+                    select id,au_name from 旧表
+                    where 0;
+                    
+
+
+    ***常见的数据类型
+        **数值型
+            *整型
+                分类：
+                        tinyint、 smallint、mediumint、int/integer、bigint
+                占字节数:   1         2          3           4          8
+                特点：
+                    1.若不设置无符号还是有符号，默认是有符号(即可以是正数也可以是负数),若想设置无符号(即只能是正数),则需要添加unsigned关键字
+                    2.若插入的数值超出了整型的范围，会报out of range异常，自动插入临界值
+                    3.若不设置长度，会有默认的长度
+                        长度的解释：长度代表了显示的最大宽度，若不够会用0在左侧填充，但必须搭配zerofill使用
+
+            *小数：
+                分类：
+                    浮点型
+                        float(M,D)
+                        double(M,D)
+                    定点型
+                        dec(M,D)
+                        decimal(M,D)
+
+                解释：
+                    1.
+                        M：整数+小数部分的长度
+                        D：小数部分的长度
+                        如果超出范围，则插入临界值
+                    
+                    2.
+                        M和D都可以省略，如果是decimal,则M默认是10，D默认是0；
+                        若果是float和double，则会根据插入的数值的精度来决定精度
+                    
+                    3.定点型的精确度高，如果要求插入数值的精度较高如货币运算等则考虑使用定点型
+
+
+        **字符型
+            较短的文本：char,varchar
+                char(M)
+                varchar(M)
+                其他的字符类型:
+                    binary和varbinary用于保存较短的二进制
+                    enum用于保存枚举
+                    set用于保存集合
+
+                char和varchar对比：
+                               写法            M的意思                          特点             空间的消耗    效率
+                    char      char(M)       最大的字符数，可以省略，默认为1      固定长度字符       比较消耗      高
+                    varchar   varchar(M)    最大的字符数，不可以省略             可变长度的字符     比较节省      低
+
+            较长的文本：text,blob(较长的二进制数据)
+
+        **日期型
+            分类：
+                date只保存日期
+                time只保存时间
+                year只保存年
+
+                datetime保存日期+时间
+                timestamp保存日期+时间
+
+                datetime和timestamp对比：
+                                        字节        范围           时区等影响
+                        datetime         8          1000-9999      不受
+                        timestamp        4          1970-2038      受
+
+
+
+                    
+                    
+
+
+
+
+
