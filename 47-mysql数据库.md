@@ -1407,11 +1407,59 @@
                         在从表添加外键约束，用于引用主表中某列的值
                         如：学生的专业编号，员工表的部门编号，员工表的工种编号
 
-            1.添加约束的时机：
-                1.创建表时
-                2.修改表时
 
-            2.约束的添加分类：
+                    主键和唯一键的对比：
+                                    是否保证唯一性     是否允许为空    一个表中可以有多个     是否允许组合
+                        主键           是                不允许            至少有1个           允许,但不推荐    
+                        唯一键         是                允许              可以有多个          允许,但不推荐
+
+                        说明：组合的含义
+
+                    外键的特点：
+                        1.要求在从表设置外键关系
+                        2.从表的外键列的类型和主表的关联列的类型要求一致或兼容，名称无要求
+                        3.主表的关联列必须是一个key(一般是主键或唯一键)
+                        4.插入数据时，先插入主表，再插入从表；删除数据时，先删除从表，再删除主表
+
+
+            1.添加约束的时机：
+                1.创建表时(上述讲的是创建表时添加约束)
+                2.修改表时
+                    修改表时添加约束
+                        1.添加非空约束
+                            alter table stuinfo modify column stuname varchar(20) not null;
+                        2.添加默认约束
+                            alter table stuinfo modify column age int default 18;
+                        3.添加主键
+                            1.列级约束方式
+                                alter table stuinfo modify column id int primary key;
+                            2.表级约束方式
+                                alter table stuinfo add primary key(id);
+                        4.添加唯一键
+                            1.列级约束
+                                alter table stuinfo modify column seat int unique;
+                            2.表级约束
+                                alter table stuinfo add unique(seat);
+                        5.添加外键
+                            alter table stuinfo add [constraint fk_stuinfo_major] foreign key(majorid) references major(id);
+                        
+                        总结：
+                            1.添加列级约束
+                                alter table 表名 modify column 字段名 字段类型 新约束
+                            2.添加表级约束
+                                alter table 表名 add  约束类型(字段名) 
+
+                    修改表时删除约束
+                        1.删除非空约束
+                            alter table stuinfo  modify column stuname varchar(20) null;
+                        2.删除默认约束
+                            alter table stuinfo  modify column age int;
+                        3.删除主键
+                            alter table stuinfo drop primary key;
+                        4.删除唯一
+                            alter table stuinfo drop index seat;
+
+            2.约束的添加方式分类：
                 1.列级约束
                     概念：创建表的时候添加的约束
                         如：
@@ -1478,52 +1526,9 @@
                                 #设置外键的机制：为majorid设置外键，关联到major表中的id
                         )   
 
-                主键和唯一键的对比：
-                                是否保证唯一性     是否允许为空    一个表中可以有多个     是否允许组合
-                    主键           是                不允许            至少有1个           允许,但不推荐    
-                    唯一键         是                允许              可以有多个          允许,但不推荐
+                
 
-                    说明：组合的含义
-
-                外键的特点：
-                    1.要求在从表设置外键关系
-                    2.从表的外键列的类型和主表的关联列的类型要求一致或兼容，名称无要求
-                    3.主表的关联列必须是一个key(一般是主键或唯一键)
-                    4.插入数据时，先插入主表，再插入从表；删除数据时，先删除从表，再删除主表
-
-                修改表时添加约束
-                    1.添加非空约束
-                        alter table stuinfo modify column stuname varchar(20) not null;
-                    2.添加默认约束
-                        alter table stuinfo modify column age int default 18;
-                    3.添加主键
-                        1.列级约束方式
-                            alter table stuinfo modify column id int primary key;
-                        2.表级约束方式
-                            alter table stuinfo add primary key(id);
-                    4.添加唯一键
-                        1.列级约束
-                            alter table stuinfo modify column seat int unique;
-                        2.表级约束
-                            alter table stuinfo add unique(seat);
-                    5.添加外键
-                        alter table stuinfo add [constraint fk_stuinfo_major] foreign key(majorid) references major(id);
-                    
-                    总结：
-                        1.添加列级约束
-                            alter table 表名 modify column 字段名 字段类型 新约束
-                        2.添加表级约束
-                            alter table 表名 add  约束类型(字段名) 
-
-                修改表时删除约束
-                    1.删除非空约束
-                        alter table stuinfo  modify column stuname varchar(20) null;
-                    2.删除默认约束
-                        alter table stuinfo  modify column age int;
-                    3.删除主键
-                        alter table stuinfo drop primary key;
-                    4.删除唯一
-                        alter table stuinfo drop index seat;
+                
                         
 
 
