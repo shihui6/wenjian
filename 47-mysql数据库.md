@@ -1114,13 +1114,13 @@
                     (19,'张飞1','男',null,'119',null,null),
                     (20,'张飞2','男',null,'119',null,null);
 
-                方式一支持子查询，方式二不支持
+                方式一支持子查询，方式二不支持(将宋茜的信息通过子查询的方式，添加到beauty表中)
                     insert into beauty(id,name,phone)
                     select 26,'宋茜','1866666666';
                        
 
         **修改语句
-            修改语句的第一种方式：修改单表的记录
+            1.修改语句的第一种方式：修改单表的记录
                 语法：
                     update 表明                 步骤一
                     set 列=新值,列=新值          步骤三
@@ -1135,7 +1135,7 @@
                         update boys set boyname='张飞',usercp=10
                         where id = 2;
 
-            修改语句的第一种方式：修改多表的记录
+            2.修改语句的第一种方式：修改多表的记录
                 语法：
                     sq99语法：
                     update 表1 别名
@@ -1158,7 +1158,7 @@
                         where bo.id is null;
 
         **删除语句
-            删除语句的第一种方式：使用delete关键字删除
+            1.删除语句的第一种方式：使用delete关键字删除
                 
                 使用：
                     1.单表的删除
@@ -1186,10 +1186,10 @@
                             inner join boys b on bo.id=b.boyfriend_id
                             where b.boyname = '黄晓明';
             
-            删除语句的第二种方式：使用truncate关键字删除
+            2.删除语句的第二种方式：使用truncate关键字删除
                 语法：truncate table 表名
 
-            delete和truncate两种方式对比
+            3.delete和truncate两种方式对比
                 1。delete可以加where条件，truncate不能加
                 2.truncate删除，效率高一丢丢
                 3.假如要删除的表中有自增长列，如果用delete删除后，再插入数据，自增长列的值从断点开始，而truncate删除后，再插入数据，自增长列的值从1开始
@@ -1344,6 +1344,21 @@
                     enum用于保存枚举
                     set用于保存集合
 
+                    事例：enum类型的例子
+                        create table tab_char(
+                            c1 enum('a','b','c');
+                        )
+                        表tab_char只能选择a,b,c里面的一个值插入
+                    
+                    事例：set类型的例子
+                        create table tab_set(
+                            c1 enum('a','b','c');
+                        )
+                        表tab_set插入一个值，也可以插入多个值
+                        insert into tab_set value('a');
+                        insert into tab_set value('a','b');
+
+
                 char和varchar对比：
                                写法            M的意思                          特点             空间的消耗    效率
                     char      char(M)       最大的字符数，可以省略，默认为1      固定长度字符       比较消耗      高
@@ -1364,6 +1379,155 @@
                                         字节        范围           时区等影响
                         datetime         8          1000-9999      不受
                         timestamp        4          1970-2038      受
+
+时间2020/12/14
+
+        **常见约束
+            概念：一种限制，用于限制表中的数据，为了保证表中的数据的准确和可靠性
+            语法：
+                create table 表名(
+                    字段名 字段类型 约束
+                )
+            分类：六大约束
+                    NOT NULL：非空，用于保证该字段的值不能为空
+                        如：姓名，学号等
+                    
+                    DEFAULT:默认，用于保证该字段有默认值
+                        如：性别
+                    
+                    PRIMARY KEY：主键，用于保证该字段的值具有唯一性，并且非空
+                        如：学号，员工编号
+                    
+                    UNIQUE：唯一，用于保证该字段的值具有唯一性，可以为空
+                        如：座位号
+
+                    CHECK：检查约束【mysql中不支持,语法支持,但是没效果,orcal里面有效果】
+
+                    FOREIGN KEY：外键，用于限制两个表的关系，用于保证该表字段的值，必须来自于主表的关联列的值
+                        在从表添加外键约束，用于引用主表中某列的值
+                        如：学生的专业编号，员工表的部门编号，员工表的工种编号
+
+            1.添加约束的时机：
+                1.创建表时
+                2.修改表时
+
+            2.约束的添加分类：
+                1.列级约束
+                    概念：创建表的时候添加的约束
+                        如：
+                            create table 表名(
+                                字段名 字段类型 列级约束
+                            )
+                    
+                    注意点:对于列级约束而言六大约束语法上都支持，但外键约束没有效果
+
+                    使用：
+                        事例：创建表，并添加列级约束
+                            create table stuinfo(
+                                id int primary key,#主键
+                                stuName varchar(20) not null,#非空
+                                gender char(1) check(gender='男' or gender='女'),#检查
+                                seat int unique,#唯一
+                                age int default 18,#默认约束
+                                majorId int references major(id) #外键
+                                    #设置外键的机制：为majorid设置外键，关联到major表中的id
+                            )
+
+                        用法总结：直接在字段名和字段类型后面追加，约束类型即可
+                                  只支持：默认，非空，主键，唯一
+
+                2.表级约束
+                    概念：表级约束指，创建表的时候没有添加约束，而是在字段名最后一行添加的约束，没有指明对具体哪个字段进行的约束
+                        如：
+                            create table 表名(
+                                字段名 字段类型,
+                                表级约束
+                            )
+                    
+                    注意点：对于表级约束而言六大约束，除了非空，默认，其他的都支持
+                    语法：在各个字段的最下面添加
+                            【constraint 约束名】 约束类型(字段名)
+
+                    使用：
+                        事例：创建表，添加表级约束
+                            create table stuinfo(
+                                id int,
+                                stuname varchar(20),
+                                gender char(1),
+                                seat int,
+                                age int,
+                                majorid int,
+
+                                constraint pk primary key(id),#给id字段添加主键
+                                constraint uq unique(seat),#给seat字段添加唯一键
+                                constraint ck check(gender='男' or gender='女'),#检查
+                                constraint fk_stuinfo_major foreign key(majorid) references major(id),#外键
+                                    #设置外键的机制：为majorid设置外键，关联到major表中的id
+                            );
+                    
+                总结：表级约束结合列级约束的通用的写法：
+                        因为，外键约束对于列级约束没有效果，所以外键约束用表级约束，其他约束用列级约束
+                        create table if not exists stuinfo(
+                            id int primary key,#主键
+                            stuName varchar(20) not null,#非空
+                            sex char(1),
+                            age int default 18,
+                            seat int unique,
+                            majorid int,
+                            constraint fk_stuinfo_major foreign key(majorid) references major(id)
+                                #设置外键的机制：为majorid设置外键，关联到major表中的id
+                        )   
+
+                主键和唯一键的对比：
+                                是否保证唯一性     是否允许为空    一个表中可以有多个     是否允许组合
+                    主键           是                不允许            至少有1个           允许,但不推荐    
+                    唯一键         是                允许              可以有多个          允许,但不推荐
+
+                    说明：组合的含义
+
+                外键的特点：
+                    1.要求在从表设置外键关系
+                    2.从表的外键列的类型和主表的关联列的类型要求一致或兼容，名称无要求
+                    3.主表的关联列必须是一个key(一般是主键或唯一键)
+                    4.插入数据时，先插入主表，再插入从表；删除数据时，先删除从表，再删除主表
+
+                修改表时添加约束
+                    1.添加非空约束
+                        alter table stuinfo modify column stuname varchar(20) not null;
+                    2.添加默认约束
+                        alter table stuinfo modify column age int default 18;
+                    3.添加主键
+                        1.列级约束方式
+                            alter table stuinfo modify column id int primary key;
+                        2.表级约束方式
+                            alter table stuinfo add primary key(id);
+                    4.添加唯一键
+                        1.列级约束
+                            alter table stuinfo modify column seat int unique;
+                        2.表级约束
+                            alter table stuinfo add unique(seat);
+                    5.添加外键
+                        alter table stuinfo add [constraint fk_stuinfo_major] foreign key(majorid) references major(id);
+                    
+                    总结：
+                        1.添加列级约束
+                            alter table 表名 modify column 字段名 字段类型 新约束
+                        2.添加表级约束
+                            alter table 表名 add  约束类型(字段名) 
+
+                修改表时删除约束
+                    1.删除非空约束
+                        alter table stuinfo  modify column stuname varchar(20) null;
+                    2.删除默认约束
+                        alter table stuinfo  modify column age int;
+                    3.删除主键
+                        alter table stuinfo drop primary key;
+                    4.删除唯一
+                        alter table stuinfo drop index seat;
+                        
+
+
+
 
 
 
