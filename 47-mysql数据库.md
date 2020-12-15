@@ -1307,6 +1307,7 @@
                 分类：
                         tinyint、 smallint、mediumint、int/integer、bigint
                 占字节数:   1         2          3           4          8
+
                 特点：
                     1.若不设置无符号还是有符号，默认是有符号(即可以是正数也可以是负数),若想设置无符号(即只能是正数),则需要添加unsigned关键字
                     2.若插入的数值超出了整型的范围，会报out of range异常，自动插入临界值
@@ -1382,6 +1383,7 @@
 
 时间2020/12/14
 
+    ***约束
         **常见约束
             概念：一种限制，用于限制表中的数据，为了保证表中的数据的准确和可靠性
             语法：
@@ -1420,46 +1422,7 @@
                         2.从表的外键列的类型和主表的关联列的类型要求一致或兼容，名称无要求
                         3.主表的关联列必须是一个key(一般是主键或唯一键)
                         4.插入数据时，先插入主表，再插入从表；删除数据时，先删除从表，再删除主表
-
-
-            1.添加约束的时机：
-                1.创建表时(上述讲的是创建表时添加约束)
-                2.修改表时
-                    修改表时添加约束
-                        1.添加非空约束
-                            alter table stuinfo modify column stuname varchar(20) not null;
-                        2.添加默认约束
-                            alter table stuinfo modify column age int default 18;
-                        3.添加主键
-                            1.列级约束方式
-                                alter table stuinfo modify column id int primary key;
-                            2.表级约束方式
-                                alter table stuinfo add primary key(id);
-                        4.添加唯一键
-                            1.列级约束
-                                alter table stuinfo modify column seat int unique;
-                            2.表级约束
-                                alter table stuinfo add unique(seat);
-                        5.添加外键
-                            alter table stuinfo add [constraint fk_stuinfo_major] foreign key(majorid) references major(id);
-                        
-                        总结：
-                            1.添加列级约束
-                                alter table 表名 modify column 字段名 字段类型 新约束
-                            2.添加表级约束
-                                alter table 表名 add  约束类型(字段名) 
-
-                    修改表时删除约束
-                        1.删除非空约束
-                            alter table stuinfo  modify column stuname varchar(20) null;
-                        2.删除默认约束
-                            alter table stuinfo  modify column age int;
-                        3.删除主键
-                            alter table stuinfo drop primary key;
-                        4.删除唯一
-                            alter table stuinfo drop index seat;
-
-            2.约束的添加方式分类：
+            1.约束的添加方式分类：
                 1.列级约束
                     概念：创建表的时候添加的约束
                         如：
@@ -1526,7 +1489,126 @@
                                 #设置外键的机制：为majorid设置外键，关联到major表中的id
                         )   
 
+
+            2.添加约束的时机：
+                1.创建表时(上述讲的是创建表时添加约束)
+                2.修改表时
+                    修改表时添加约束
+                        1.添加非空约束
+                            alter table stuinfo modify column stuname varchar(20) not null;
+                        2.添加默认约束
+                            alter table stuinfo modify column age int default 18;
+                        3.添加主键
+                            1.列级约束方式
+                                alter table stuinfo modify column id int primary key;
+                            2.表级约束方式
+                                alter table stuinfo add primary key(id);
+                        4.添加唯一键
+                            1.列级约束
+                                alter table stuinfo modify column seat int unique;
+                            2.表级约束
+                                alter table stuinfo add unique(seat);
+                        5.添加外键
+                            alter table stuinfo add [constraint fk_stuinfo_major] foreign key(majorid) references major(id);
+                        
+                        总结：
+                            1.添加列级约束
+                                alter table 表名 modify column 字段名 字段类型 新约束
+                            2.添加表级约束
+                                alter table 表名 add  约束类型(字段名) 
+
+                    修改表时删除约束
+                        1.删除非空约束
+                            alter table stuinfo  modify column stuname varchar(20) null;
+                        2.删除默认约束
+                            alter table stuinfo  modify column age int;
+                        3.删除主键
+                            alter table stuinfo drop primary key;
+                        4.删除唯一
+                            alter table stuinfo drop index seat;
+
+            
+
                 
+时间2020/12/15
+
+        **标识列
+            概念：又称自增长列，含义：可以不用手动的插入值，系统提供默认的序列值
+            特点：
+                1.标识列必须和主键搭配吗？不一定，但要求是一个key
+                2.一个表可以有多个标识列？至多一个
+                3.标识列的类型只能是数值型
+                4.标识列可以通过set auto_increment_increment=3；设置步长，可以通过手动插入值，设置起始值
+
+            1.创建表时设置标识列
+                create table tab_identity(
+                    id int primary key auto_increment,
+                    name varchar(20)
+                )
+                给表添加标识列，插入数据的两种方式：
+                    1. insert into tab_identity(id,name) values(null,'john');
+                    2. insert into tab_identity(name) values('lucy');
+                查看系统变量里关于自增长的信息：
+                    show variables like '%auto_increment%';
+                设置标识列的增长步长：
+                    set auto_increment_increment=3;
+
+            2.修改表时设置标识列
+                alter table tab_indentity modify column id int primary key auto_increment;
+
+            3.修改表时删除标识列
+                alter table tab_indentity modify column id int;
+
+
+
+
+###TCL语言
+    ***事务
+        概念：一个或一组sql语句组成一个执行单元，这个执行单元要么全部执行，要么全部不执行
+
+        事务的特性(ACID):
+            >原子性：一个事物不可再分割，要么都执行要么都不执行
+            >一致性：一个事物执行会使数据从一个一致状态切换到另外一个一致状态
+            >隔离性：一个事物的执行不受其他事物的干扰
+            >持久性：一个事物一旦提交，则会永久的改变数据库的数据
+        
+        事务的创建
+            隐式事务：事务没有明显的开启和结束的标记(即，我们常见的sql语句中每一行都是一个事物)
+                如：insert,update,delete语句
+            
+            显式事物：事物具有明显的开启和结束的标记(显式事务，可以设置一组sql语句为一个事务)
+                前提：必须先设置自动提交功能为禁用
+
+                用显式事务设置一组sql语句为一组事务
+                    步骤1:开启事务
+                        set autocommit = 0;必须的
+                        start transaction;可选的（不写会自动添加）
+                    步骤2：编写事务中的sql语句
+                        语句1;
+                        语句2;
+                    步骤3：结束事务(提交事务和回滚事务只能用其中一个)
+                        commit;提交事务
+                        rollback;回滚事务
+
+                
+                使用：演示事务的使用步骤
+                    步骤一：开启事务
+                        set autocommit = 0;
+                        start transaction;
+                    步骤二：编写事务的sql语句
+                        update account set balance = 500 where username = '张无忌'；
+                        update account set balance = 1500 where username = '赵敏';
+                    步骤三：结束事务
+                        commit;
+                    
+
+
+
+
+
+
+            
+
 
                 
                         
