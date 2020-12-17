@@ -1565,18 +1565,19 @@
 ###TCL语言
     ***事务
         概念：一个或一组sql语句组成一个执行单元，这个执行单元要么全部执行，要么全部不执行
+        作用：几个人同时操作数据库，每个人执行一组sql语句，为了保证成员在执行一组当中的一句sql语句时不影响数据库的变化，直到执行一组sql语句提交之后，相应的数据库里面的信息才会更改。
 
-        事务的特性(ACID):
+        1.事务的特性(ACID):
             >原子性：一个事物不可再分割，要么都执行要么都不执行
             >一致性：一个事物执行会使数据从一个一致状态切换到另外一个一致状态
             >隔离性：一个事物的执行不受其他事物的干扰
             >持久性：一个事物一旦提交，则会永久的改变数据库的数据
         
-        事务的创建
-            隐式事务：事务没有明显的开启和结束的标记(即，我们常见的sql语句中每一行都是一个事物)
+        2.事务的创建
+            1.隐式事务：事务没有明显的开启和结束的标记(即，我们常见的sql语句中每一行都是一个事物)
                 如：insert,update,delete语句
             
-            显式事物：事物具有明显的开启和结束的标记(显式事务，可以设置一组sql语句为一个事务)
+            2.显式事物：事物具有明显的开启和结束的标记(显式事务，可以设置一组sql语句为一个事务，这一组sql语句执行完提交之后才算执行完成，对数据库才有影响)
                 前提：必须先设置自动提交功能为禁用
 
                 用显式事务设置一组sql语句为一组事务
@@ -1600,7 +1601,379 @@
                         update account set balance = 1500 where username = '赵敏';
                     步骤三：结束事务
                         commit;
+
+时间2020/12/17
+
+
+        3.数据库的4中隔离级别
+            概念：对于不同的隔离级别，可能出现脏读，不可重复读，幻读
+                                    脏读        不可重复读          幻读
+                read uncommitted:   出现            出现            出现
+                read committed:     不出现          出现            出现
+                repeatable read:    不出现          不出现          出现
+                serializable:       不出现          不出现          不出现
+                mysql中默认 第三个隔离级别 repeatable read
+                oracle中默认 第二个隔离级别 read commited
+                查看隔离级别：select @@tx_isolation
+                设置隔离级别：set session | global transaction isalation level 隔离级别;
+
+            隔离级别和事务的使用：
+                set session transaction isolation level repeatable read; 步骤一：设置隔离级别
+                set autocommit = 0;             步骤二：打开一个事物
+                select * from account;          步骤三：操作sql语句
+                commit;                         步骤四：事务结束提交
+
+            演示savepoint的使用
+                set autocommit = 0;
+                delete from account where id = 25;
+                savepoint a;#设置保存点，取名为a
+                delete from accoutn where id = 29;
+                rollback to a;#回滚到保存点a
+
+                结果：回滚到保存点a，即id=29的信息没有删除，id=25的信息删除了
+                注意点：保存点savepoint只能搭配rollback使用，不可以搭配commit使用
+
+        4.delete和truncate在事务使用时的区别
+            涉及到回滚的操作，delete删除是可以回滚的，但是truncate不可以回滚
+
+            演示：delete的回滚操作
+                    set autocommit = 0;
+                    delete from accout;
+                    rollback;
+                    使用delete回滚之后，被delete删除掉的数据还能够还原
+            演示：truncate的回滚操作
+                    set autocommit = 0;
+                    truncate table account;
+                    rollback;
+                    使用truncate回滚之后，被删除的数据不能够还原
+
+###视图
+        概念：视图是一种虚拟存在的表，行和列的数据来自定义视图的查询中使用的表，并且是在使用视图时动态生成的，只保存了sql逻辑，不保存查询结果
+        应用场景：
+            多个地方用到相同的查询结果
+            该查询结果使用的sql语句比较复杂
+
+        使用：
+            1.视图的创建：
+                语法：
+                    create view 视图名
+                    as
+                    查询语句;(一般是比较复杂的查询语句;简单的查询语句不需要用视图)
+
+                案例：查询姓名中包含a字符的员工名，部门名和工种信息
+                步骤一:创建视图myview1,这里的视图myview1相当于生成的一个虚拟的表
+                    CREATE VIEW myview1
+                    AS 
+                    SELECT last_name,department_name,job_title
+                    FROM employees e
+                    JOIN departments d ON e.department_id = d.department_id
+                    JOIN jobs j ON j.job_id = e.job_id;`myview1`;
+                
+                步骤二：使用视图
+                    select * from myview1 where last_name = '%a%';
+
+            2.视图的修改
+                方法一：
+                    概念：如果视图存在则修改视图，若视图不存在则创建
+                    语法：
+                        create or replace view 视图名
+                        as
+                        查询语句;
+                
+                方法二：
+                    语法：
+                        alter view 视图名
+                        as
+                        查询语句;
+
+            3.视图的删除
+                语法：可删除多个视图名
+                    drop view 视图名,视图名,....;
+
+            4.查看视图结构
+                语法：
+                    desc 视图名;
+                    show create view 视图名;
+
+            5.视图的更新
+                概念：更改视图中的数据，本质还是要概念原始表中的数据
+                1.插入
+                    insert into myv1 values('张飞','11111@aa.com',100000)
+
+                2.修改
+                    update myv1 set last_name = '张无忌' where last_name = '张飞';
+                
+                3.删除
+                    delete from myv1 where last_name = '张无忌';
+
+                具备以下特点的视图不允许更新
+                    有些不能该，不是说绝对不能改
+                    1.包含以下关键字的sql语句(生成视图的组成语句)：分组函数，distinct,group by,having,union或者union all
+                    2.常量视图
+                    3.select中包含子查询
+                    4.连接表的操作
+                    5.from一个不能更新的视图
+                    6.where紫玉的子查询引用了from子句中的表
+
+        视图的好处：
+            1.重用sql语句
+            2.简化复杂的sql操作，不必知道它的查询细节
+            3.保护数据，提高安全性
+
+###变量
+    分类：
+        **系统变量
+            概念：变量由系统提供，不是用户定义，属于服务器层面
+
+            注意：如果是全局级别，则需要加GLOBAL，如果是会话级别，则需要加SESSION，如果不写，则默认SESSION
+
+            使用的语法：
+                1.查看所有的系统变量：show global | session variables;
+                2.查看满足条件的部分系统变量：show global | 【session】 variables like '%char%';
+                3.查看指定的某个系统变量的值：select @@global | 【session].系统变量名;
+                4.为某个系统变量赋值
+                    方式一：set global | 【session】 系统变量名 = 值;
+                    方式二：set @@global | 【session].系统变量名 = 值;
+
+            系统变量又可以分类：
+                        1.全局变量
+                            作用域：服务器每次启动将为所有的全局变量赋初始值，针对于所有的会话(连接)有效，但不能跨重启
+                            用法：
+                                1.查看所有的全局变量：show global variables;
+                                2.查看部分的全局变量:show global variables like '%char%';
+                                3.查看指定的全局的变量:
+                                    select @@global.autocommit;
+                                    select @@tx_isolation;
+                                4.为某个指定的全局变量赋值:set @@global.autocommit = 0
+
+                        2.会话变量
+                            作用域：仅仅针对于当前会话(连接)有效,即在当前会话窗口有效，重开窗口就没用了
+                            用法：
+                                1.查看所有的会话变量：show session variables;
+                                2.查看部分的会话变量：
+                                    show variables like '%char%';
+                                    show session variables like '%char%';
+                                3.查看指定的某个会话变量：
+                                    select @@tx_isolation;
+                                    select @@session.tx_isolation;
+                                4.为某个会话变量赋值：
+                                    方式一：set @@tx_isolation = 'read-uncommitted'
+                                    方式二：set session tx_isolation = 'read-commited'
+
+            
+        **自定义变量
+            说明：变量是用户自定义的，不是由系统提供的
+            使用步骤：
+                声明
+                赋值
+                使用(查看，比较，运算等)
+
+            自定义变量的分类：
+                    用户变量
+                        作用域：正对于会话(连接)有效，同于会话变量的作用域
+                        使用步骤：
+                            1.声明并初始化：三种方式
+                                set @用户变量名=值;
+                                set @用户变量名:=值;
+                                select @用户名变量名:=值;
+                            2.赋值(更新用户变量的值)
+                                方式一：通过set或select；三种方式
+                                    set @用户变量名=值;
+                                    set @用户变量名:=值;
+                                    select @用户名变量名:=值;
+                                方式二：通过select into
+                                    select 字段 into 变量名 from 表;
+                            3.使用(查看用户变量名)
+                                select @用户变量名;
+
+                    局部变量
+                        作用域：仅仅在定义它的begin end中有效
+                        注意点：应用在begin end中的第一句话
+                        使用步骤：
+                            1.声明
+                                declare 变量名 类型;
+                                declare 变量名 类型default 值
+                            2.赋值
+                                方式一：通过set或select；三种方式
+                                    set 用户变量名=值;
+                                    set 用户变量名:=值;
+                                    select @用户名变量名:=值;
+                                方式二：通过select into
+                                    select 字段 into 变量名 from 表;
+                            3.使用
+                                select 局部变量名;
+                
+                    用户变量和局部变量的对比：
+                                        作用域          定义和使用的位置                语法
+                        用户变量        当前会话         会话中的任何地方               必须加@符号,不用限定类型  
+                        局部变量        begin end中    只能在begin end中,且为第一句话   一般不用加@符号，需要限定类型
                     
+                    使用案例：声明两个变量并赋初始值，求和，并且打印
+                        1.用户变量
+                                set @m=1;
+                                set @=2;
+                                set @sum = @m + @n;
+                                select @sum;
+                        2.局部变量
+                                
+
+###存储过程和函数
+    概念：存储过程和函数：类似于java中的方法
+
+        **存储过程
+            概念：一组预先编译好的sql语句的集合，理解成批处理语句
+            好处：
+                1.提高代码的重用性
+                2。简化操作
+                3.减少了编译次数并且减少了和数据库服务器的链接次数，提高了效率
+
+            *创建存储过程的用法：
+                1.创建语法
+                    create procedure 存储过程名(参数列表)
+                    begin
+                        存储过程体(一组合法的sql语句)
+                    end
+                    注意点：
+                        1.参数列表包含三部分
+                            参数模式    参数名      参数类型
+                            
+
+                            参数模式分为：
+                                    in：该参数可以作为输入，也就是该参数需要调用方传入值
+                                    out：改参数可以作为输出，也就是该参数可以作为返回值
+                                    inout：该参数既可以作为输入也可以作为输出，也就是该参数既需要传入值，又可以返回值
+                        
+                        2.如果存储过程体仅仅只有一句话，begin end可以省略
+                            存储过程体重的每条sql语句的结尾要求必须加分号。
+                            存储过程的结尾可以使用delimiter重新设置
+                            语法：
+                                delimiter 结束标记   意思是：存储过程要以该标记结束
+                                案例：
+                                delimiter $;
+
+                2.调用语法
+                    call 存储过程名(实参列表);
+
+                使用：
+                    1.创建带有in模式的存储过程
+                        案例：插入到admin表中五条记录
+                            delimiter $
+                            create procedure myp()
+                            begin
+                                insert into admin(username,password)
+                                values('join','0000'),('lili','0000'),('rose','0000'),('jack','0000'),('tom','0000');
+                            end $;
+
+                            //空参列表的调用
+                            //注意：以后都要以$符号结尾
+                            call myp() $;
+
+                        案例1：创建存储过程实现 根据女生名，查询对应的男生信息(一个参数的例子)
+                            delimiter $
+                            create procedure myp2(in beautyName varchar(20))
+                            begin
+                                select bo.*
+                                from boys bo
+                                right join beauty b on bo.id = b.boyfriend_id
+                                where b.name = beautyName;
+                            end $;
+
+                            调用：call myp2('柳岩')$;
+                        
+                        案例2：创建存储过程实现，用户是否登录成功(两个参数，变量声明和使用，区分表的字段还是参数名)
+                            create procedure myp4(in username varchar(20),in password varchar(20))
+                            begin
+                                declare result int default 0;#声明并初始化
+                                select count(*) into result #赋值
+                                from admin
+                                where admin.username = username
+                                and admin.password = password;
+
+                                select if(result>0,'成功','失败');#使用变量
+                            end $;
+
+                            调用: 
+                                call myp4('张飞','8888')$;
+
+                    2.创建带out模式的存储过程
+                        案例1：根据女生名，返回对应的男生名(多个参数，并且返回参数)
+                            create procedure myp5(in beautyName varchar(20),out boyName varchar(20))
+                            begin
+                                select bo.boyName into boyName
+                                from boys bo
+                                inner join beauty b on bo.id = b.boyfriend_id
+                                where b.name = beautyName;
+                            end $;
+
+                            调用：
+                                set @bName$ #定义的变量可以省略
+                                call myp5('小昭',@bName)$
+                                select @bname;
+
+                        案例2：根据女生名，返回对应的男生名和男生魅力值(多个参数，多个参数返回)
+                            create procedure myp5(in beautyName varchar(20),out boyName varchar(20),out userCP int)
+                            begin
+                                select bo.boyName,bo.userCP into boyName,userCP
+                                from boys bo
+                                inner join beauty b on bo.id = b.boyfriend_id
+                                where b.name = beautyName;
+                            end $
+
+                            调用：
+                                call myp5('小昭',@bName,@userCP)$
+                                select @bname,@userCP;
+
+                    3.创建带inout模式参数的存储过程
+                        create procedure myp6(inout a int,inout b int)
+                        begin
+                            set a=a*2;
+                            set b=b*2;
+                        end $
+
+                        调用：
+                            set @m=10$
+                            set @n=20$
+                            call myp6(@m,@n)$
+                        查看结果：select @m,@n$
+
+            
+            *删除存储过程
+                语法：drop procedure 存储过程名
+                事例：drop procedure p1;只可以一个一个删
+
+            *查看存储过程的信息
+                show create procedure 存储过程名;
+            
+
+    
+        
+        **函数
+            概念：一组预先编译好的sql语句的集合，理解成批处理语句
+            好处：
+                1.提高代码的重用性
+                2。简化操作
+                3.减少了编译次数并且减少了和数据库服务器的链接次数，提高了效率
+
+            函数和存储过程的区别：
+                存储过程：可以有0个返回，也可以有多个返回，适合做批量的插入，批量更新
+                函数：有且仅有一个返回，适合做处理数据后返回一个结果
+            
+            
+            创建语法：
+                create function 函数名(参数列表) returns 返回类型
+                begin
+                    函数体
+                end
+
+                注意点;
+                    1.参数列表 包含两部分:参数名 参数类型
+                    2.函数体：肯定会有return语句，如果没有会报错
+                    3.函数体内仅有一句话，可以省略begin end
+                    4.使用delimiter语句设置结束标记
+                
+                调用语法:
+                    select 函数名(参数列表)
+
 
 
 
