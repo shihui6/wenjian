@@ -652,8 +652,263 @@
                             return 0;
                         }
                 ```
-```java  java代码演示数据库事务的隔离级别
 
-```
+                ```java  java代码演示数据库事务的隔离级别
+                    @Test  
+                    public void testTransactionSelect() throws Exception {
+                        Connection conn = TCommon.setConnect();
+                        String sql = "select user,password,balance from user_table where user = ?";
+                        User user = getInstance(conn, User.class, sql, "CC");
+                        System.out.println(user);
+                    }
+
+                    @Test
+                    public void testTransaction() throws Exception {
+                        Connection conn = TCommon.setConnect();
+                        //获取当前连接的隔离级别
+                        System.out.println(conn.getTransactionIsolation());
+                        //设置数据库的隔离级别
+                        conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+                        //取消自动提交数据
+                        conn.setAutoCommit(false);
+
+                        String sql = "select user,password,balance from user_table where user = ?";
+
+                        User user = getInstance(conn, User.class, sql, "CC");
+                        System.out.println(user);
+                    }
+
+
+
+                    //通用的查询操作可用于返回数据表中的一条记录
+                    public <T> T getInstance(Connection conn,Class<T> clazz,String sql,Object ...args) throws Exception {
+                        PreparedStatement ps = conn.prepareStatement(sql);
+                        //填充占位符
+                        for(int i=0;i<args.length;i++){
+                            ps.setObject(i+1,args[i]);
+                        }
+                        //执行查询语句，并返回结果
+                        ResultSet rs = ps.executeQuery();
+                        //获取结果集的元数据:ResultSetMetaData(元数据的作用：修饰结果集的数据即元数据)
+                        ResultSetMetaData rsmd = rs.getMetaData();
+                        //通过ResultSetMetaData获取结果集中的列数
+                        int columnCount = rsmd.getColumnCount();
+
+                        if(rs.next()){
+                            T t = clazz.newInstance();
+                            //处理结果集一行数据中的每一列
+                            for(int i=0;i<columnCount;i++){
+                                //获取列值
+                                Object columnValue = rs.getObject(i + 1);
+                                //获取每个列的列名
+                                String columnLabel = rsmd.getColumnLabel(i + 1);
+                                //给t对象指定的columnName属性，赋值为columnValue；通过反射
+                                Field field = clazz.getDeclaredField(columnLabel);
+                                field.setAccessible(true);
+                                field.set(t,columnValue);
+                            }
+                            return t;
+                        }
+                        TCommon.shutDownquan(null,ps,rs);
+                        return null;
+                    }
+
+                ```
     
+###数据库连接池
+    概念：为了解决传统开发中的数据库连接问题，可以采用数据库连接池技术
+    数据库连接池的基本思想：
+            就是为数据库连接建立一个"缓冲池"。预先在缓冲池中放入一定数量的连接，当需要建立数据库连接时，只要从"缓冲池"中取一个，使用完毕后再放回去
+    数据库连接池的作用：
+            负责分配，管理和释放数据库连接，它允许引用程序重复使用一个现有的数据库连接，而不是重新建立一个
+    
+    数据库连接池的基本思路解析：
+            数据库连接池在初始化时将创建一定数量的数据库连接放到连接池中，这些数据库连接的数量是由最下数据库连接数来设定的。无论这些数据库连接是否被使用，连接池都将一直保证至少拥有这么多的连接数量。连接池的最大数据库连接数量限定了这个连接池能占有最大的连接数，当应用程序向连接数超过最大连接数量时，这些请求将被加入到等待队列中。
+
+
+    ***多种开源的数据库连接池
+        概念：JDBC的数据库连接池使用javax.sql.DataSource来表示，DataSource只是一个接口，该接口通常由服务器(Weblogic,WebSphere,Tomcat)提供实现，也有一些开源组织提供的实现
+
+        具体的数据库连接吃技术：
+            DBCP：是Apache提供的数据库连接池。tomcat服务器自带dbcp数据库连接池。速度相对c3p0较快，但因自身存在BUG,Hibernate3已不再提供支持
+            C3P0：是一个开源组织提供的一个数据库连接池，速度相对较慢，稳定性还可以。hibernate官方推荐使用
+            Proxool：是sourceforge下的一个开源项目数据库连接池，有监控连接池状态的功能，稳定性较c3p0差一点
+            BoneCP：是一个开源阻止提供的数据库连接池，速度快
+            Bruid：是阿里提供的数据库连接池，速度快且稳定
+
+        使用：
+            事例：c3p0连接池的使用
+                步骤一：在src目录下新建xml配置文件，用于读取文件中的配置信息
+
+                ```xml
+                    <?xml version="1.0" encoding="UTF-8" ?>
+                    <c3p0-config>
+                        <!-- This app is massive! -->
+                        <named-config name="helloc3p0">
+                            <!--        提供获取连接的4个基本信息-->
+                            <property name="driverClass">com.mysql.jdbc.driver</property>
+                            <property name="jdbcUrl">jdbc:mysql://localhost:3306/test</property>
+                            <!--        端口号默认的3306可以省略掉-->
+                            <property name="user">root</property>
+                            <property name="password">wossh1423875545</property>
+                            <!--        进行数据库连接池管理的基本信息-->
+                            <!-- 当数据库连接池中的连接数不够时，c3p0一次性向数据库服务器申请的连接数 -->
+                            <property name="acquireIncrement">5</property>
+                            <!-- c3p0数据库连接池中初始化时的连接数 -->
+                            <property name="initialPoolSize">100</property>
+                            <!-- c3p0数据库连接池维护的最少连接数 -->
+                            <property name="minPoolSize">50</property>
+                            <!-- c3p0数据库连接池维护的最多的连接数 -->
+                            <property name="maxPoolSize">100</property>
+                            <!-- c3p0数据库连接池最多维护的Statement的个数 -->
+                            <property name="maxStatements">50</property>
+                            <!-- 每个连接中可以最多使用Statement的个数 -->
+                            <property name="maxStatementsPerConnection">5</property>
+                        </named-config>
+                    </c3p0-config>
+                ```
+                步骤二：读取配置文件信息，创建c3p0连接池,创建连接
+
+                ```java
+                    private  static ComboPooledDataSource cpds = new ComboPooledDataSource("helloc3p0");
+                    public static Connection testGetConnection1() throws Exception {
+                        Connection conn = cpds.getConnection();
+                        return conn;
+                    }
+                ```
+
+
+
+            事例：使用DBCP连接池技术
+
+                ```java
+                    @Test
+                        public void testGetConnection() throws Exception {
+                            //创建了DBCP的数据库连接池,最好是放在方法外，添加静态的连接池
+                            BasicDataSource source = new BasicDataSource();
+                            //设置基本信息
+                            source.setDriverClassName("com.mysql.jdbc.Driver");
+                            source.setUrl("jdbc:mysql:///test");
+                            source.setUsername("root");
+                            source.setPassword("wossh1423875545");
+
+                            //还可以设置其他涉及数据库连接池管理的相关属性
+                            source.setInitialSize(10);
+                            source.setMaxActive(10);
+
+                            Connection conn = source.getConnection();
+                            System.out.println(conn);
+                        }
+                ```
+
+            事例：使用Druid连接池技术
+
+                ```java
+                        private static DataSource source1; //数据库连接池
+                        static {
+                            try {
+                                Properties pros = new Properties();
+                                InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream("druid.properties");
+                                pros.load(is);
+                                source1 = DruidDataSourceFactory.createDataSource(pros);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        public static Connection getConnection3() throws Exception {
+                            Connection conn = source1.getConnection();
+                            return conn;
+                        }
+
+                        //使用QueryRunner对数据表进行操作
+                            //QueryRunner的作用：QueryRunner是ommons-dbutils是Apache组织提供的一个开源的JDBC工具类库
+
+                        /**
+                        * 先导入commons-dbutils-1.3.jar包
+                        * commons-dbutils是Apache组织提供的一个开源的JDBC工具类库，封装了针对于数据库的增删改查操作
+                        */
+                        //测试插入
+                        public void testInsert() throws Exception {
+                            //runner核心原理和之前的PrepareStatement预编译源码是一样的
+                            QueryRunner runner = new QueryRunner();
+                            Connection conn = TCommon.getConnection3();//调用上面Druid连接技术
+                            String sql = "insert into customers(name,email,birth)values(?,?,?)";
+                            runner.update(conn,sql,"蔡徐坤","caixukun@qq.com","1997-11-11");
+                            conn.close();
+                        }
+
+                         /**查询单个记录  QueryRunner是ommons-dbutils是Apache组织提供的一个开源的JDBC工具类库
+                        *BeanHander:是ResultSetHandler接口的实现类，用于封装表中的一条记录
+                        */
+                        @Test
+                        public void testSearch() throws Exception {
+                            QueryRunner runner = new QueryRunner();
+                            Connection conn = TCommon.getConnection3();
+                            String sql = "select id,name,email,birth from customers where id =?";
+                            BeanHandler<Customer> handler = new BeanHandler<>(Customer.class);
+                            Customer queryResult = runner.query(conn, sql, handler, 24);
+                            System.out.println(queryResult);
+                            conn.close();
+                        }
+
+                        /**查询多条记录  QueryRunner是ommons-dbutils是Apache组织提供的一个开源的JDBC工具类库
+                        *BeanListHander:是ResultSetHandler接口的实现类，用于封装表中的多条记录
+                        */
+                        @Test
+                        public void testSearch2() throws Exception {
+                            QueryRunner runner = new QueryRunner();
+                            Connection conn = TCommon.getConnection3();
+                            String sql = "select id,name,email,birth from customers ";
+                            BeanListHandler<Customer> handler = new BeanListHandler<>(Customer.class);
+                            List<Customer> queryResult = runner.query(conn, sql, handler);
+                            queryResult.forEach(System.out::println);
+                            conn.close();
+                        }
+
+
+                        /**查询单个记录   QueryRunner是ommons-dbutils是Apache组织提供的一个开源的JDBC工具类库
+                        *MapHander:是ResultSetHandler接口的实现类，对应封装表中的一条记录
+                        * 将字段及相应字段的值作为map中的key和value
+                        */
+                        @Test
+                        public void testSearch3() throws Exception {
+                            QueryRunner runner = new QueryRunner();
+                            Connection conn = TCommon.getConnection3();
+                            String sql = "select id,name,email,birth from customers where id =?";
+                            MapHandler mapHandler = new MapHandler();
+                            Map<String, Object> queryResult = runner.query(conn, sql, mapHandler, 24);
+                            System.out.println(queryResult);
+                            conn.close();
+                        }
+
+                        /**查询单个记录    QueryRunner是ommons-dbutils是Apache组织提供的一个开源的JDBC工具类库
+                        *MapListHander:是ResultSetHandler接口的实现类，对应封装表中的多条记录
+                        * 将字段及相应字段的值作为map中的key和value，将这些map添加到list中
+                        */
+                        @Test
+                        public void testSearch4() throws Exception {
+                            QueryRunner runner = new QueryRunner();
+                            Connection conn = TCommon.getConnection3();
+                            String sql = "select id,name,email,birth from customers";
+                            MapListHandler mapHandler = new MapListHandler();
+                            List<Map<String, Object>> queryResult = runner.query(conn, sql, mapHandler);
+                            System.out.println(queryResult);
+                            conn.close();
+                        }
+
+                        /**
+                        *ScalarHandler:用于查询特殊值
+                        */
+                        @Test
+                        public void testSearch5() throws Exception {
+                            QueryRunner runner = new QueryRunner();
+                            Connection conn = TCommon.getConnection3();
+                            String sql = "select count(*) from customers";
+                            ScalarHandler handler = new ScalarHandler();
+                            Long queryResult = (Long) runner.query(conn, sql, handler);
+                            System.out.println(queryResult);
+                            conn.close();
+                        }
+                ```
+
 

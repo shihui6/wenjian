@@ -1782,7 +1782,7 @@
             ```java
                 //自定义泛型类或泛型接口
                 public class GenericTest1 {
-                    //如果定义了泛型类，实例化没有指名类的泛型，则认为此此泛型类型为Object类型
+                    //如果定义了泛型类，实例化没有指名类的泛型，则认为此泛型类型为Object类型
                     //要求：如果大家定义了类的泛型的，建议在实例化时要指名类的泛型
                     //建议：实例化时指名类的泛型
                     Order<String> order = new Order<>();
@@ -1803,7 +1803,7 @@
                而下面是错误的：public GenericClass<T>{}
             3：实例化后，操作原来泛型位置的结构必须与指定的泛型类型一致
             4：泛型不同的引用不能相互赋值
-                但是尽管在编译时ArrayList<String>和ArrayList<Integer>是两种类型，但是，在运行时只有一个ArrayList被加载带JVM中
+                但是尽管在编译时ArrayList<String>和ArrayList<Integer>是两种类型，但是，在运行时只有一个ArrayList被加载到JVM中
             5：泛型如果不指定，将被擦除，泛型对应的类型均按照Object处理，但不等价于Object。泛型要使用一路都用，要不用，一路都不用
             6：如果泛型结构是一个接口或抽象类，则不可创建泛型类的对象
             7：jdk1.7，泛型的简化操作：ArrayList<String> first = new ArrayList<>{}，自定补充
