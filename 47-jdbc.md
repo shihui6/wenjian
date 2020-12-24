@@ -1,7 +1,5 @@
 时间2020/12/15
 ###JDBC
-    ***数据的持久化
-
         1.获取数据库的连接对象的方式
             事例：通过mysql驱动，连接数据库，即通过驱动直接操作，该驱动是对sun公司定义规范的实现
                 注意点：需要导入mysql的驱动
@@ -147,8 +145,9 @@
                                 //6.执行操作
                                 ps.execute();
                                 //7.关闭资源
-                                ps.close();
+                                ps.close();    
                                 conn.close();
+                                //ps和conn需要关闭的原因是：因为ps和conn都是以对象的形式在内存中出现的，手动关闭，释放内存
                             }
                     ```
 
@@ -230,6 +229,7 @@
             4.查询操作
                 注意点：java与sql对应数据类型转换表
                             java类型                    sql类型
+
                             boolean                     BIT
                             byte                        TINYINT
                             short                       SMALLINT
@@ -248,7 +248,7 @@
                         public class SelectTest {
                             @Test
                             public void Selecttestv() throws Exception {
-                                Connection conn = TCommon.setConnect(); //自己疯转的连接方法
+                                Connection conn = TCommon.setConnect(); //自己封装的连接方法
                                 String sql = "select id,name,email,birth from customers where id = ?";
                                 PreparedStatement ps = conn.prepareStatement(sql);
                                 //填充占位符
@@ -301,7 +301,7 @@
                                 }
                                 //执行查询语句，并返回结果
                                 ResultSet rs = ps.executeQuery();
-                                //获取结果集的元数据:ResultSetMetaData(元数据的作用：修饰结果集的数据即元数据)
+                                //获取结果集的元数据:ResultSetMetaData(元数据的作用：修饰结果集的数据)
                                 ResultSetMetaData rsmd = rs.getMetaData();
                                 //通过ResultSetMetaData获取结果集中的列数
                                 int columnCount = rsmd.getColumnCount();
@@ -345,7 +345,7 @@
                                 }
                                 //执行查询语句，并返回结果
                                 ResultSet rs = ps.executeQuery();
-                                //获取结果集的元数据:ResultSetMetaData(元数据的作用：修饰结果集的数据即元数据)
+                                //获取结果集的元数据:ResultSetMetaData(元数据的作用：修饰结果集的数据的作用)
                                 ResultSetMetaData rsmd = rs.getMetaData();
                                 //通过ResultSetMetaData获取结果集中的列数
                                 int columnCount = rsmd.getColumnCount();
@@ -714,7 +714,8 @@
                     }
 
                 ```
-    
+时间2020/12/23
+
 ###数据库连接池
     概念：为了解决传统开发中的数据库连接问题，可以采用数据库连接池技术
     数据库连接池的基本思想：
@@ -909,6 +910,14 @@
                             System.out.println(queryResult);
                             conn.close();
                         }
+
+
+                        /**
+                            DbUtils也提供了关闭操作
+                            DbUtils.closeQuietly(conn);
+                            DbUtils.closeQuietly(ps);
+                            DbUtils.closeQuietly(rs);
+                        */
                 ```
 
 
