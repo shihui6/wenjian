@@ -43,7 +43,7 @@
                         info.setProperty("password","wossh1423875545");
                         //获取连接
                         Connection con = driver.connect(url,info);
-                        System.out.println(con);
+                        System.out.println(con);  
                     }
 
 
