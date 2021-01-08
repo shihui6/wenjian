@@ -187,5 +187,230 @@
 
         原理：在AOP实际上是基于java动态代理来实现的
             java中动态代理有两种实现方法:jdk,cglib
-            
+
         
+-----------------------------------------------------------------------------------------------------------------------
+
+尚硅谷
+时间2021/1/8
+
+***IOC
+    概念：Inversion(反转) of control，控制反转
+        概念解释：
+                控制：指的是资源的获取方式
+                        主动式：(要什么资源都自己创建)
+                            BookServlet{
+                                BookService = new BookService();//简单对象的创建
+                                AirPlane ap = new AirPlane();//复杂对象的创建时比较庞大的工程
+                            }
+                        被动式：指的是资源的获取不是我们自己创建，而是交给一个容器来创建和设置
+                            BookServlet{
+                                BookService bs;
+                                public void test01(){
+                                    bs.checkout();
+                                }
+                            }
+    容器：
+        管理所有的组件(组件指:有功能的类)；假设,BookServlet受容器管理，BookService也受容器管理，容器可以自动的探查出哪些组件(类)需要用到另一个组件(类);容器帮我们创建BookService对象，并把BookService对象赋值过去
+
+        主动的new资源变为被动的接受资源
+        只要容器管理的组件，都能使用容器提供强大的功能
+    
+    DI：(Dependency Injection)依赖注入
+        容器能知道哪个组件(类)运行的时候，需要另外一个类(组件);容器通过反射的形式，如：将容器中准备好的BookService对象注入(利用反射给属性赋值)到BookServket中
+
+    使用：
+        容器的使用步骤：
+            idea通过maven创建项目->在pom.xml中引入spring依赖(即将spring框架导入进maven工程里面)->在目录resources下创建xml配置文件(在pom.xml里面添加spring依赖的时候才可以在resources文件下创建xml配置，否则右击resources时是没有xml该选项的)
+        
+        细节点：
+            1.ApplicationContext(IOC容器的接口)
+            2.给容器中注册一个组件；我们也从容器中按照id拿到这个组件的对象？
+                组件的创建工作，是容器完成的
+                Person对象是什么时候创建好了呢？
+                容器中对象的创建在容器创建完成的时候就已经创建好了。
+            3.同一个组件在ioc容器中是单实例的；容器启动完成都已经创建准备好了。
+            4.容器中如果没有这个组件，当获取组件的时候，会报异常
+            5.ioc容器在创建这个组件对象的时候,(property)会利用setter方法为javaBean的属性进行赋值
+            6.javaBean的属性名是由什么决定的？getter/setter方法是属性名
+            7.内部bean是不能用id获取的，可以通过name获取
+
+
+            事例：通过配置xml文件向spring容器里添加类
+
+                    ```xml
+                        <!-- 注册一个Person对象，Spring会自动创建这个Person对象 -->
+                        <!-- 
+                            一个Bean标签可以注册一个组件(对象，类)
+                            class：写要注册的组件的全类名
+                            id：这个对象的唯一标识
+                        -->
+                        <bean id="person01" class="com.atguigu.bean.Person">
+                            <!-- 使用property标签为Person对象的属性赋值
+                            name=""lastName"(指定属性名)
+                            value="张三"(给指定的属性名赋值)
+                            -->
+                            <properrty name="lastName" value="张三" />
+                            <properrty name="age" value="18" />
+                            <properrty name="email" value="zhangsan@atgugu.com" />
+                            <properrty name="gender" value="男" />
+                        </bean>
+                    ```
+                    ```java     从容器中拿到这个组件
+                        //ApplicationContext：代表IOC容器
+                        //ClassPathXmlApplicationContext：当前应用的xml配置文件(ioc容器的配置文件)在ClassPath(类路径)下
+                        //FileSystemXmlApplicationContext：ioc容器的配置文件放在磁盘路径下(参数用的绝对路径)
+                        //根据spring的配置文件(指的是ioc.xml配置文件)得到ioc容器对象
+                        ApplicationContext ioc = new ClassPathXmlApplicationContext("ioc.xml"); //这一步：创建容器
+                        //容器帮我们创建好了对象，我们可以直接拿到
+                        Person bean = (Person)ioc.getBean("person01");
+                        Person bean2 = (Person)ioc.getBean("person01");
+                        bean == bean2；//true 表示同一个组件在容器中只有一份
+                    ```
+
+        *使用情景
+            1.根据bean的类型从IOC容器中获取bean事例
+                ioc.getBean(Person.class)：如果ioc容器中这个类型的bean有多个，用类型查找就会报错
+                ioc.getBean("person1",Person.class)：如果ioc容器中这个类型的bean有多个，用指定id和类型的查找是可行的
+            2.通过构造器为bean的属性赋值
+                方式一：
+                    <bean id="person01" class="com.atguigu.bean.Person">
+                        <constructor-arg name="email" value="xiaoming@atguigu.com"></constructor-arg>
+                        <constructor-arg name="gender" value="男"></constructor-arg>
+                        <constructor-arg name="age" value="18"></constructor-arg>
+                    </bean>
+                方式二：
+                    <bean id="person02" class="com.atguigu.bean.Person">
+                        <constructor-arg value="xiaoming@atguigu.com"></constructor-arg>
+                        <constructor-arg value="男"></constructor-arg>
+                        <constructor-arg value="18"></constructor-arg>
+                    </bean>
+                    注意点：必须按照javabean中有参构造器参数属性的顺序书写。也可通过index指定为指定索引
+                方式三：
+                    <bean id="person03" class="com.atguigu.bean.Person">
+                        <constructor-arg value="xiaoming@atguigu.com"></constructor-arg>
+                        <constructor-arg value="男"></constructor-arg>
+                        <constructor-arg value="18" index="2" type="java.lang.Integer"></constructor-arg>
+                    </bean>
+                    注意点：重载的情况下type可以指定参数类型
+
+            3.正确的为各种属性赋值
+                情况一：赋null空值
+                    <bean id="person01" class="com.atguigu.bean.Person">
+                        <property name="lastName">
+                            <!-- 进行复杂的复制 -->
+                            <null />  //即给lastName属性名赋值null空
+                        </property>
+                    </bean>
+                情况二：引用类型赋值(引用外部bean，引用内部bean)
+                    方式一：引用外部bean
+                        <bean id="car01" class="com.atguigu.bean.car">
+                            <property name="carName" value="宝马"></property>
+                            <property name="color" value="绿色"></property>
+                            <property name="price" value="3000"></property>
+                        </bean>
+                        <bean id="person01" class="com.atguigu.bean.Person">
+                            <!-- ref：代表引用外面的一个值，等值引用 -->
+                            <property name="car" ref="car01"></property>
+                        </bean>
+
+                        使用容器中的引用类型
+                            Person bean = (Person)ioc.getBean("person01");
+                            System.out.println("person的car"+bean.getCar());
+                            Car bean2 = (Car)ioc.getBean("caro1");
+                            System.out.println(bean2 == bean.getCar()); //true，表明指向的是容器里面的同一个对象
+
+                    方式二：引用内部bean
+                        <bean id="person01" class="com.atguigu.bean.Person">
+                            <property name="car">
+                                <bean class="com.atguigu.bean.car">
+                                    <property name="carName" value="宝马"></property>
+                                    <property name="color" value="绿色"></property>
+                                    <property name="price" value="3000"></property>
+                                </bean>
+                            </property>
+                        </bean>
+
+                        使用容器中的对象
+                            Person person01 = (Person)ioc.getbean("person01")
+                            Car car = person01.getCar();
+
+                情况三：集合类型赋值(List,Map,Properties)
+                    util名称空间创建集合类型的bean
+
+                    给类型List赋值
+                        <bean id="person01" class="com.atguigu.bean.Person">
+                            <property name="bookName" value="东游记"></property>
+                        </bean>
+                        <bean id="person01" class="com.atguigu.bean.Person">
+                            <property name="books">
+                                <!-- list标签表示(意思是创建对象)：book = new ArrayList<Book>() -->
+                                <list>
+                                    <!-- list标签体中添加每一个元素 -->
+                                    <bean class="com.atguigu.bean.Book" p:bookName="西游记"></bean>
+                                    <!-- 引用外部一个元素 -->
+                                    <ref bean="book01"/>
+                                </list>
+                            </property>
+                        </bean>
+                    
+                    给Map类型赋值
+                        <bean id="person01" class="com.atguigu.bean.Person">
+                            <property name="maps">
+                                <!-- maps = new LinkedHashMap<>() -->
+                                <map>
+                                    <!-- 一个entry代表一个键值对 -->
+                                    <entry key="key01" value="张三"></entry>
+                                    <entry key="key02" value="18"></entry>
+                                    <entry key="key01">
+                                        <bean class="com.atguigu.bean.Car">
+                                            <property name="carName" value="宝马"></property>
+                                        </bean>
+                                    </entry>
+                                </map>
+                            </property>
+                        </bean>
+
+                    给Properties类型赋值
+                        <bean id="person01" class="com.atguigu.bean.Person">
+                            <property name="properties">
+                                <!-- properties = new Properties() -->
+                                <props>
+                                    <!-- k=v都是String；值直接写在标签体中 -->
+                                    <prop key="username">root</prop>
+                                    <prop key="password">123456</prop>
+                                </props>
+                            </property>
+                        </bean>
+
+                    util名称空间创建集合类型的bean
+                        util命名空间的作用：公共的部分方便别人引用
+
+                        <!-- 相当于new LinkedHashMap<>() -->
+                        <util:map id="myMap">
+                            <!-- 添加元素 -->
+                            <entry key="key01" value="张三"></entry>
+                            <entry key="key02" value="18"></entry>
+                            <entry key="key01">
+                                <bean class="com.atguigu.bean.Car">
+                                    <property name="carName" value="宝马"></property>
+                                </bean>
+                            </entry>
+                        </util>
+                        <!-- 使用命名空间util -->
+                        <bean id="person01" class="com.atguigu.bean.Person">
+                            <property name="maps" ref="myMap"></property>
+                        </bean>
+
+                        可以在java类中直接获取命名空间里的内容
+                        Object bean = ioc.getBean("myMap");
+
+
+
+
+
+                    
+
+
+
+***AOP
