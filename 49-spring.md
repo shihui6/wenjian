@@ -229,7 +229,7 @@
                 组件的创建工作，是容器完成的
                 Person对象是什么时候创建好了呢？
                 容器中对象的创建在容器创建完成的时候就已经创建好了。
-            3.同一个组件在ioc容器中是单实例的；容器启动完成都已经创建准备好了。
+            3.同一个组件在ioc容器中是单实例的；容器启动完成都已经创建准备好了。(单实例解释:一个组件类，只创建一次实例对象)
             4.容器中如果没有这个组件，当获取组件的时候，会报异常
             5.ioc容器在创建这个组件对象的时候,(property)会利用setter方法为javaBean的属性进行赋值
             6.javaBean的属性名是由什么决定的？getter/setter方法是属性名
@@ -269,7 +269,7 @@
                     ```
 
         *使用情景
-            1.根据bean的类型从IOC容器中获取bean事例
+            1.根据bean的类型从IOC容器中获取bean实例
                 ioc.getBean(Person.class)：如果ioc容器中这个类型的bean有多个，用类型查找就会报错
                 ioc.getBean("person1",Person.class)：如果ioc容器中这个类型的bean有多个，用指定id和类型的查找是可行的
             2.通过构造器为bean的属性赋值
@@ -338,7 +338,7 @@
                 情况三：集合类型赋值(List,Map,Properties)
                     util名称空间创建集合类型的bean
 
-                    给类型List赋值
+                    1.给类型List赋值
                         <bean id="person01" class="com.atguigu.bean.Person">
                             <property name="bookName" value="东游记"></property>
                         </bean>
@@ -354,7 +354,7 @@
                             </property>
                         </bean>
                     
-                    给Map类型赋值
+                    2.给Map类型赋值
                         <bean id="person01" class="com.atguigu.bean.Person">
                             <property name="maps">
                                 <!-- maps = new LinkedHashMap<>() -->
@@ -371,7 +371,7 @@
                             </property>
                         </bean>
 
-                    给Properties类型赋值
+                    3.给Properties类型赋值
                         <bean id="person01" class="com.atguigu.bean.Person">
                             <property name="properties">
                                 <!-- properties = new Properties() -->
@@ -383,8 +383,8 @@
                             </property>
                         </bean>
 
-                    util名称空间创建集合类型的bean
-                        util命名空间的作用：公共的部分方便别人引用
+                    4.util名称空间创建集合类型的bean
+                        util命名空间的作用：公共的部分方便别人引用(相当于函数封装的单独的功能模块)
 
                         <!-- 相当于new LinkedHashMap<>() -->
                         <util:map id="myMap">
@@ -405,6 +405,150 @@
                         可以在java类中直接获取命名空间里的内容
                         Object bean = ioc.getBean("myMap");
 
+                    
+
+时间2021/11/1
+                    5.级联属性
+
+                        ```xml  
+                            <!--级联属性赋值，级联属性的概念：属性的属性-->
+                            <!-- 级联属性的作用：可以修改属性的值，注意：原来的bean的值可能会被修改   -->
+                            <bean id="person04" class="com.atguigu.bean.Person">
+                                <!--为car赋值的时候。改变car的价格-->
+                                <property name="car" ref="car01"></property>
+                                <!--修改car中的price为90000-->
+                                <property name="car.price" value="900000"></property>
+                            </bean>
+                        ```
+                        ```java     在xml中配置的级联属性在java类中的使用
+                            public static void main(String[] args) {
+                                    ApplicationContext ioc = new ClassPathXmlApplicationContext("springconfigContext.xml");
+                                    Object car01 = ioc.getBean("car01");
+                                    System.out.println("容器中的car"+car01);
+                                    Object person04 = ioc.getBean("person04");
+                                    System.out.println("person中的car"+person04);
+                                }
+                        ```
+
+                    6.通过继承实现bean配置信息的重用
+
+                        ```xml  重用在xml中配置的bean
+                            <bean id="person05" class="com.atguigu.bean.Person">
+                                <property name="lastName" value="张三"></property>
+                                <property name="age" value="18"></property>
+                                <property name="gender" value="男"></property>
+                                <property name="email" value="zhangsan@atguigu.com"></property>
+                            </bean>
+                            <!--parent:指定当前bean的配置信息继承于哪个bean-->
+                            <!-- 注意点：
+                                    person06的bean，可以省略class
+                                    person06继承于person05，把需要修改的属性值在person06中通过property写上即可，如这里的lastName属性
+                             -->
+                            <bean id="person06" parent="person05">
+                                <property name="lastName" value="李四"></property>
+                            </bean>
+                        ```
+                        ```java   
+                            public static void main(String[] args) {
+                                    ApplicationContext ioc = new ClassPathXmlApplicationContext("springconfigContext.xml");
+                                    Object person06 = ioc.getBean("person06");
+                                    System.out.println(person06);
+                                }
+                        ```
+
+                    7.通过abstract属性创建一个模板bean
+
+                        ```xml
+                            <!--abstract="true"，指定这个bean的配置是一个抽象的，不能获取他的实例，只能被别人用来继承  -->
+                            <bean id="person05" class="com.atguigu.bean.Person" abstract="true">
+                                <property name="lastName" value="张三"></property>
+                                <property name="age" value="18"></property>
+                                <property name="gender" value="男"></property>
+                                <property name="email" value="zhangsan@atguigu.com"></property>
+                            </bean>
+                        ```
+
+                    8。bean之间的依赖
+                        概念：
+                            只是改变创建顺序，没有真实的依赖关系
+                            原来bean实例的创建是按照配置的顺序创建bean的
+                        使用：通过depends-on指定创建的先后顺序
+                            <bean id="car" class="com.atguigu.bean.Car" depends-on="book,person">
+                            意思是：在创建car之前，先创建book在创建person
+
+                    9.bean作用域，分别创建单实例和多实例的bean
+                        bean的作用域：指定bean是否单实例，默认是单实例的；即通过属性scope指定单实例或多实例
+
+                        ```xml
+                            prototype:多实例的
+                                1.容器启动默认不会去创建多实例bean
+                                2.获取的时候创建这个bean
+                                3.每次获取都会创建一个新的对象
+                            singleton:单实例的：默认的
+                                1.在容器启动完成之前就已经创建好对象，保存在容器中了
+                                2.任何获取都是获取之前创建好的那个对象，即单实例对象只创建一次
+                            <bean id="car" class="com.atguigu.bean.Car" scope="prototype">
+                        ```
+
+                    10.静态工厂与实例工厂
+                        静态工厂使用：
+
+                            ```xml
+                                    <!--    
+                                    工厂模式
+                                            概念：工厂帮我们创建对象；有一个专门帮我们创建对象的类，这个类就是工厂
+                                            下面是根据：AirPlane ap = AirPlaneFactory.getAirPlane(String jzName);来执行的
+                                            分类：
+                                                静态工厂：工厂本身不用创建对象；通过静态方法调用，对象 = 工厂类.工厂方法名()
+                                                实例工厂：工厂本身需要创建对象
+                                                        工厂类 工厂对象 = new 工厂类();
+                                                        工厂对象.getAirPlane("张三")
+                                    -->
+                                    <!--    
+                                        1.静态工厂(不需要创建工厂本身)
+                                            静态工厂在xml中的配置
+                                                在类中指定哪个方法是工厂方法
+                                                class：指定静态工厂全类名
+                                                factory-method:指定工厂方法
+                                                constructor-arg：此标签可以为方法传参
+                                    -->
+                                <bean id="airplane" class="com.atguigu.bean.AirPlaneStaticFactory"
+                                    factory-method="getAirPlane">
+                                    <!--可以为方法指定参数-->
+                                    <constructor-arg value="李四"></constructor-arg>
+                                </bean>
+
+                                在java中的执行机制：在java中启动容器的时候，此时AirPlaneStaticFactory不实例化，而AirPlaneStaticFactory里面的静态方法getAirPlane会被调用
+                            ```
+                        
+                        实例工厂使用：
+
+                            ```xml
+                                <!-- 实例工厂，先创建工厂实例 -->
+                                <bean id="airPlaneInstance" class="com.atguigu.bean.AirPlaneInstanceFactory"></bean>
+                                <!--  factory-bean:指定当前对象创建使用哪个工厂
+                                        1.先配置出实例工厂对象
+                                        2.配置我们要创建的AirPlane使用哪个工厂创建
+                                            1.factory-bean:指定使用哪个工厂实例
+                                            2.factory-method:使用哪个工厂方法
+                                -->
+                                <bean id="airplane2" class="com.atguigu.bean.Airplane"
+                                    factory-bean="airPlaneInstance"
+                                    factory-method="getAirPlane"
+                                >
+                                    <constructor-arg value="王五"></constructor-arg>
+                                    
+                                </bean>
+                            ```
+                            ```java
+                                ApplicationContext ioc = new ClassPathXmlApplicationContext("springconfigContext.xml");
+                                Object airplane2 = ioc.getBean("airplane2");
+                                    //airplane2不是容器通过反射创建的，而是通过工厂的factory-bean和factory-method帮我们创建的这个对象。
+                                System.out.println(airplane2);
+                            ```
+
+
+                    
 
 
 
