@@ -491,7 +491,7 @@
                         ```
 
                     10.静态工厂与实例工厂
-                        静态工厂使用：
+                        1.静态工厂使用：
 
                             ```xml
                                     <!--    
@@ -521,7 +521,7 @@
                                 在java中的执行机制：在java中启动容器的时候，此时AirPlaneStaticFactory不实例化，而AirPlaneStaticFactory里面的静态方法getAirPlane会被调用
                             ```
                         
-                        实例工厂使用：
+                        2.实例工厂使用：
 
                             ```xml
                                 <!-- 实例工厂，先创建工厂实例 -->
@@ -543,18 +543,424 @@
                             ```java
                                 ApplicationContext ioc = new ClassPathXmlApplicationContext("springconfigContext.xml");
                                 Object airplane2 = ioc.getBean("airplane2");
-                                    //airplane2不是容器通过反射创建的，而是通过工厂的factory-bean和factory-method帮我们创建的这个对象。
+                                    //airplane2不是容器通过反射创建的，而是通过工厂的factory-bean和factory-method属性帮我们创建的这个对象。
                                 System.out.println(airplane2);
                             ```
 
+                        3.Spring的工厂->FactoryBean的工厂
+                            概念：是Spring规定的一个接口
+                            作用：只要是这个接口的实现类，Spring都认为是一个工厂
+
+                            用法：
+                                步骤：
+                                    1.编写一个FactoryBean的实现类，这个实现类就是一个工厂
+                                    2.在Spring配置文件中注册
+                                
+                                特点：
+                                    1.ioc容器启动的时候不会创建工厂实例
+                                    2.FactoryBean；获取的时候才创建对象，不管是否是单实例，FoctoryBean工厂，在容器启动的时候都不会创建工厂实例
+
+                                ```java     MyFactoryBeanImple实现FactoryBean接口的类都是工厂类
+                                    /**
+                                    * 实现了FactoryBean接口的类是Spring可以认识的工厂类
+                                    * Spring会自动的调用工厂方法创建实例
+                                    */
+
+                                    public class MyFactoryBeanImple implements FactoryBean<Book> {
+                                        /**
+                                        * getObject就是工厂方法，自动会调动
+                                        * 返回创建的对象
+                                        *
+                                        * 即：当创建容器的时候，会自动嗲用getObject方法，自动调用生成相应的对象
+                                        */
+                                        public Book getObject() throws Exception {
+                                            System.out.println("Book对象创建完成了");
+                                            Book book = new Book();
+                                            book.setBookName(UUID.randomUUID().toString());
+                                            return book;
+                                        }
+
+                                        /**getObjectType的作用：
+                                        * 返回创建的对象的类型
+                                        * Spring会自动调用这个方法来确认创建的对象是什么类型
+                                        */
+                                        public Class<?> getObjectType() {
+                                            return Book.class;
+                                        }
+
+                                        /**
+                                        * 作用：用来判断是单例吗？
+                                        * 返回false表明不是单例
+                                        * 返回true表明是单例
+                                        */
+                                        public boolean isSingleton() {
+                                            return false;
+                                        }
+                                    }
+                                ```
+                                ```xml  FactoryBean工厂类写完之后，需要在xml配置文件中配置一下
+                                    <bean id="MyFactoryBeanImple" class="com.atguigu.bean.MyFactoryBeanImple"></bean>
+                                ```
+                                ```java     在java中使用spring的工厂
+                                    public static void main(String[] args) {
+                                        ApplicationContext ioc = new ClassPathXmlApplicationContext("springconfigContext.xml");
+                                        Object MyFactoryBeanImple = ioc.getBean("MyFactoryBeanImple");
+                                        System.out.println(MyFactoryBeanImple);
+                                    }
+                                ```
+
+
+时间2020/1/13
+
+                    11.创建都有生命周期方法的bean
+                        生命周期：概念：bean的创建到销毁
+                        ioc容器中注册的bean
+                            1.单例bean，容器启动的时候就会创建好，容器关闭也会销毁创建的bean
+                                容器启动(构造器)调用初始化方法->(容器关闭)调用bean的销毁方法
+                            2.多实例bean，获取的时候才创建
+                                获取bean(构造方法)调用初始化方法-->容器关闭不会调用bean的销毁方法
+
+                        使用：
+
+                            ```java
+                                /*
+                                    在类里面添加需要在xml配置中用到的销毁方法和初始化方法
+                                */
+                                public class Book {
+                                    public void Myinit(){
+                                        System.out.println("book创建了");
+                                    }
+                                    public void myDestory(){
+                                        System.out.println("book销毁了");
+                                    }
+                                }
+                            ```
+                            ```xml  在xml配置中添加容器的初始化和销毁时调用类中的方法
+                                <bean id="book002" class="com.atguigu.bean.Book"
+                                    destroy-method="myDestory"
+                                    init-method="Myinit"
+                                ></bean>
+                            ```
+                            ```java 测试容器的创建和销毁
+                                public static void main(String[] args) {
+                                        //容器的创建
+                                        ClassPathXmlApplicationContext ioc = new ClassPathXmlApplicationContext("springconfigContext.xml");
+                                        Object MyFactoryBeanImple = ioc.getBean("book002");
+                                        //容器的销毁
+                                        ioc.close();
+                                    }
+                            ```
+
+
+                    12.测试bean的后置处理器
+                        概念：Spring有一个接口(BeanPostProcessor)为后置处理器，可以在bean的初始化前后调用方法
+                        使用：
+                            步骤：
+                                1.编写后置处理器的实现类
+                                2.将后置处理器注册在配置文件中
 
                     
+                    13.引用外部属性文件
+                        通过引入外部数据库连接池
+
+                    14.基于xml的自动装配(自定义类型自动赋值)
+                            javaBean是基本类型
+                            自定义类型的属性是一个对象，这个对象在容器中可能存在
+
+                            使用：
+
+                                ```xml  在容器中配置自动装配
+                                    <bean id="car" class="com.atguigu.bean.Car">
+                                        <property name="carName" value="宝马"></property>
+                                        <property name="color" value="白色"></property>
+                                    </bean>
+                                    <!--
+                                        为Person里面的自定义类型的属性赋值
+                                        property：即通过property标签进行属性赋值的方法叫：手动赋值
+                                        自动赋值(自动装配)
+                                            特点：自动赋值仅限于对自定义类型(Person类里面引用了Car类，这里的Car类就是自定义类型)的属性有效；对基本类型(Integer,String等等)是没办法赋值的
+                                            方式：给bean添加属性autowire就可以自动赋值
+
+                                            自动装配
+                                                autowire="default/no";默认不自动装配；不自动为car属性赋值
+
+                                                按照某种规则自动装配
+                                                    autowire="byName"：按照名字
+                                                        以属性名作为id去容器中找到这个组件，给他赋值；如果找不到就装配null
+                                                        解释：以属性名为id意思是以Person类里面的自定义属性名作为id去查找
+                                                    autowire="byType"：按照类型
+                                                        以属性的类型作为查找依据去容器中找到这个组件，即是找class；如果容器中有多个这个类型的组件，会报错；如果没找到装配null
+                                                    autowire="constructor"：按照构造函数
+                                                        按照构造器进行赋值；
+                                                            步骤：
+                                                                1.先按照有参构造器的类型进行装配(成功)；没有就直接为组件装配null
+                                                                2.如果按照类型找到了多个；参数的名作为id继续匹配；找到就装配，找不到就null
+                                                                3。不管怎么样都不会报错
+                                    -->
+                                    <bean id="person" class="com.atguigu.bean.Person" autowire="byName">
+                                        <!--<property name="car" ref="car"></property>  这里是手动赋值-->
+                                    </bean>
+                                ```
+
+                    15。SpEL表达式(Spring Expression Language)
+                        概念：
+                            Spring表达式语言
+                            和jsp页面上的el表达式一样，spEL根据javaBean风格getxxx(),setxxx()方法定义的属性访问对象图，完全符合我们熟悉的操作习惯
+                        基本语法：SpEL使用#(...)作为定界符，所有在大括号中的字符都将被认为是SpEL表达式
+                        使用：
+
+                            ```xml  SPEL表达式在容器中的使用
+                                <!--
+                                在SpEL中使用字面量
+                                引用其他bean
+                                引用其他bean的某个属性值
+                                调用非静态方法
+                                调用静态方法
+                                使用运算符；
+                                -->
+                                <bean id="person04" class="com.atguigu.bean.Person">
+                                    <!--字面量:${}；#{}-->
+                                    <property name="age" value="#{123456}"></property>
+                                    <!--引用其他bean的某个属性值-->
+                                    <property name="lastName" value="#{person.lastName}"></property>
+                                    <!--引用其他bean，即和ref的功能一样-->
+                                    <property name="car" value="#{car}"></property>
+                                    <!--调用非静态方法
+                                        语法：#{T(全类名).静态方法名()}
+                                    -->
+                                    <property name="email" value="#{T(java.util.UUID).randomUUID().toString()}"></property>
+                                    <!--调用静态方法-->
+                                    <property name="gender" value="#{person.getLastName()}"></property>
+                                </bean>
+                            ```
+
+        *注解
+            概念：
+                通过给bean上添加某些注解，可以快速的将bean加入到ioc容器中
+                某个类上添加任何一个注解都能快速的将这个组件加入到ioc容器的管理中
+                Spring注解分类：
+                    @Controller：控制器；我们推荐给控制器层(servlet包下的这些组件加这个注解)
+                    @Service：业务逻辑；我们推荐业务逻辑层的组件添加这个注解；
+                    @Repository：给数据库层的组件添加这个注解
+                    @Component：给不属于以上几层的组件添加这个注解
+            
+            注意点：
+                注解可以随便加；Spring底层不会去验证你加的这个注解；我们推荐各自层加各自的注解
+                使用注解加入到容器中的组件，和使用配置加入到容器中的组件行为都是默认一样的
+                    1.组件的id。默认就是组件的类名首字母小写；也可修改组件id的名字，如@Service("修改之后的名字")
+                    2.组件的作用域，默认就是单例的
+            
+            使用：使用注解将组件快速的加入到容器中需要几步
+                1.给要添加的组件上标四个注解的任何一个
+                2.在xml配置中通过属性base-package告诉Spring要自动扫描加了注解的组件；需要依赖context名称空间
+                        context名称空间解释：   
+                            需要在xml中用到标签context:component-scan
+                            context:component-scan：自动扫描组件
+                            base-package：指定扫描的基础包；把基础包及他下面所有的包的所有加了注解的类都会自动扫描进ioc容器中
+                            <context:component-scan base-package="com.atguigu"></context:component-scan>
+                3.一定要导入aop包，因为aop包是支持加注解模式的
 
 
+                事例：
+
+                    ```xml 先在xml中配置
+                        <!-- 
+                            context:component-scan标签的作用是：将base-package属性指定的包里面的类，添加到容器中
+                        -->
+                        <context:component-scan  base-package="com.atguigu"></context:component-scan>
+                    ```
+                    ```java 在com.atguigu.Dao包里面创建DaoService类，并且添加注解@Service，意思是：将类DaoService添加到容器当中了
+                        //这些注解相当于之前xml标签里的属性，如Scope注解可以是该组件变成多实例
+                        @Service        //将该组件标记为可添加到容器中的类
+                        @Scope(value="prototype") //通过此注解可以改组件成为多实例
+                        public class DaoService {
+                        }
+                    ```
+                    ```java   使用容器中的类
+                        public static void main(String[] args) {
+                                ApplicationContext ioc = new ClassPathXmlApplicationContext("applicationContext.xml");
+                                DaoService bean1 = (DaoService) ioc.getBean("daoService");
+                                DaoService bean2 = (DaoService) ioc.getBean("daoService");
+                                System.out.println(bean1 == bean2);
+                            }
+                    ```
 
 
+            有了注解为什么要学bean配置呢？
+                因为：我们使用的依赖包如：java.Math里的包我们就不可以用注解将它添加到容器中，但是可以用bean配置；
+
+            
+            1.使用context:exclude-filter
+                作用：指定扫描的时候可以排除一些不要的组件
+                使用：
+
+                    ```xml
+                        <!-- 
+                            type="annotation" ：指定排除规则；按照注解进行排除。标注了指定不要注解的组件
+                                    expression="类的全类名":
+                            type="assignable"：指定排除某个具体的类，按照类排除
+                                    expression="类的全类名"：
+                        -->
+                        <context:component-scan  base-package="com.atguigu">
+                            <context:exclude-filter type="assignable" expression=""></context:exclude-filter>
+                        </context:component-scan>
+                    ```
+                    
+            2.使用context:include-filter
+                作用：只扫描进入哪些组件；默认都是全部扫描进来(要使用这个标签，必须要禁掉默认的过滤规则才行：use-default-filters="false")
+                使用：
+
+                    ```xml
+                        <context:component-scan  base-package="com.atguigu" use-default-filters="false">
+                            <!-- 指定只扫描哪些组件 -->
+                            <context:include-filter type="assignable" expression=""></context:include-filter>
+                        </context:component-scan>
+                    ```
+
+时间2021/1/14
+            3.DI(依赖注入)
+                1.自动装配注解
+                    概念：使用@Autowired注解实现根据类型实现自动装配
+                        概念解释：@Autowired底层是通过xml里的自动装配属性进行操作，即给类中用到的自定义属性自动赋值
+                                @Autowired原理：
+                                    1.先按照类型去容器中找到对应的组件；即bookService = ioc.getBean(BookService.class)
+                                        1.找到一个就赋值
+                                        2.没找到：抛异常
+                                        3.找到多个(例如：BookService的子类BookServiceExt,子类BookServiceExt的类型也可以是BookService父类)
+                                            1.按照变量名作为id继续匹配(默认id为类名首字母小写，即BookService(bookService))，找到就匹配上;
+                                                1.匹配上
+                                                2.没有匹配上就报错，没有匹配上：
+                                                    原因：因为我们按照变量名作为id继续匹配的
+                                                    可以使用@Qualifier("bookService")注解指定一个新的id
+                                                        1.找到匹配
+                                                        2.找不到，报错
+                    
+                    注意点：
+                        通过@Autowired注解的依赖或者自定义属性的类，需要在容器中能够找到
+                        只要通过@Autowired标注的自动装配的属性默认是一定要装配上的，否则就会报错；所以需要设置找不到就赋值null
+                            @Autowired(required=false)
                     
 
+                    自动装配的注解有：
+                        @Autowired,@Resource;都是自动装配的意思
+                            @Autowired：最强大，Spring自己的注解
+                            @Resource：是java自己的标注
+                            两者的区别：@Resource：扩展性更强；因为是java的标准。如果切换成另外一个容器框架，@Resource还可以使用。@Autowired只能在Spring容器中使用
+                        
+                    使用：
 
+                        ```xml  先在xml容器中配置，那些包里面的类需要添加到容器中
+                            <context:component-scan  base-package="com.atguigu"></context:component-scan>
+                        ```
+                        ```java  将相应包里需要添加到容器中的类，添加上注解，并且在类中使用依赖注入
+                            //DaoService类中的内容
+                            @Service
+                            public class DaoService {
+                                public void daosay(){
+                                    System.out.println("这里是DaoService类");
+                                }
+                            }
+
+                            //Service类中的内容
+                            @Service
+                            public class Serivce {
+                                @Qualifier("bookService") //此时就不用daoService了就用bookService作为id进行查找
+                                @Autowired
+                                private DaoService daoService;
+
+                                /*
+                                    方法上有@Autowired的话，有以下几种特点
+                                        1.这个方法也会在bean创建的时候自动运行
+                                        2.这个方法上的每一个参数都会自动注入值，并且每个参数可以用注解@Qualifier重新指定id名
+                                */
+                                @Autowired(required=false)
+                                public void SayHello(Book bookDao,@Qualifier("bookService")BookService bookService){
+                                    System.out.println("service被调用了");
+                                    daoService.daosay();
+                                }
+                            }
+                        ```
+                        ```java 测试使用依赖注入
+                            public static void main(String[] args) {
+                                    ApplicationContext ioc = new ClassPathXmlApplicationContext("applicationContext.xml");
+                                    Serivce bean1 = (Serivce) ioc.getBean("serivce");
+                                    bean1.SayHello();
+                                }
+                        ```
+
+                2.泛型依赖注入
+
+                        ```java 创建各种类
+                            public class Book {
+                            }
+                            public class User {
+                            }
+
+                            --------------------------------------------------
+                            //抽象类BaseDao
+                            public abstract class BaseDao<T> {
+                                public abstract void save();
+                            }
+
+                            //类BookDao
+                            @Repository
+                            public class BookDao extends BaseDao<Book>{
+                                public void save() {
+                                    System.out.println("是Bookdao保存图书");
+                                }
+                            }
+
+                            //类UserDao
+                            @Repository
+                            public class UserDao extends BaseDao<User>{
+                                public void save() {
+                                    System.out.println("保存用户Userdao");
+                                }
+                            }
+
+                            ------------------------------------------------------
+                            //类BaseService<T>可以不写注解的原因：因为BookService和UserService两个类有注解，并且都继承了BaseService<T>泛型类，相当于把父类BaseService<T>里的内容都继承过来了，毕竟BookService和UserService都有注解，所以正常运行
+                            //类BaseService
+                            public class BaseService<T> {   
+                                @Autowired
+                                BaseDao<T> baseDao;
+                                public void save(){
+                                    baseDao.save();
+                                }
+                            }
+
+                            //类BookService
+                            @Service
+                            public class BookService  extends BaseService<Book>{
+                            //    @Autowired
+                            //    BookDao bookDao;
+                            //    public void save(){
+                            //        bookDao.save();
+                            //    }
+                            }
+
+                            //类UserService
+                            @Service
+                            public class UserService extends BaseService<User>{
+                            //    @Autowired
+                            //    UserDao userDao;
+                            //    public void save(){
+                            //        userDao.save();
+                            //    }
+                            }
+                            -----------------------------------------------------------
+
+                            //测试类
+                            public class Test {
+                                public static void main(String[] args) {
+                                    ApplicationContext ioc = new ClassPathXmlApplicationContext("applicationContext.xml");
+                                    BookService bookService = ioc.getBean(BookService.class);
+                                    UserService userService = ioc.getBean(UserService.class);
+                                    bookService.save();
+                                    userService.save();
+                                }
+                            }
+                            //执行流程：从容器中获取bookService实例，bookService.save()方法调用，bookService调用父类BaseService<Book>里面的save方法，执行到BaseDao<Book>的时候，会从容器中根据类型找BaseDao<Book>的组件，通过注解@Repository注册到容器中的组件是BookDao且类型也是BaseDao<Book>，最后BookDao的组件实例调用相应的方法。
+                        ```
 
 ***AOP
