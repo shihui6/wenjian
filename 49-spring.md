@@ -826,7 +826,7 @@
                                     1.先按照类型去容器中找到对应的组件；即bookService = ioc.getBean(BookService.class)
                                         1.找到一个就赋值
                                         2.没找到：抛异常
-                                        3.找到多个(例如：BookService的子类BookServiceExt,子类BookServiceExt的类型也可以是BookService父类)
+                                        3.找到多个(例如：BookService的子类是BookServiceExt,通过BookService类找的话(ioc.getBean(BookService.class)，会报错，因为子类BookServiceExt的类型也可以是BookService，因此遇到同样类型的两个类时要通过id来进行区分，既ioc.getBean("指定id",BookService.class))
                                             1.按照变量名作为id继续匹配(默认id为类名首字母小写，即BookService(bookService))，找到就匹配上;
                                                 1.匹配上
                                                 2.没有匹配上就报错，没有匹配上：
