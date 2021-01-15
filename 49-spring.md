@@ -963,4 +963,207 @@
                             //执行流程：从容器中获取bookService实例，bookService.save()方法调用，bookService调用父类BaseService<Book>里面的save方法，执行到BaseDao<Book>的时候，会从容器中根据类型找BaseDao<Book>的组件，通过注解@Repository注册到容器中的组件是BookDao且类型也是BaseDao<Book>，最后BookDao的组件实例调用相应的方法。
                         ```
 
+时间2021/1/15
 ***AOP
+    AOP：面向切面的编程
+        面向切面编程：
+            是基于OOP(面向对象的编程)基础之上新的编程思想
+        核心概念：
+            指在程序运行期间，将某段代码动态的切入到指定方法的指定位置进行运行的这种编程方式，叫面向切面编程
+        理解面向切面编程的一种运用：加日志记录(即在计算机运行计算方法的时候进行日志记录，例如js中的console.log功能)
+            1.直接编写在方法内部；
+                缺点：这种方法不推荐，修改维护麻烦，因为如果需要改的话要一个个改；是耦合的，我们要做到解耦
+            2.我们希望的是：
+                业务逻辑(核心模块)；日志模块；在核心功能运行期间，自己动态的加上
+                运行的时候，日志功能可以加上
+
+        jdk默认的动态代理：
+                可以使用动态代理来将日志代码动态的在目标方法执行前后先进行执行
+                动态代理的缺点：
+                    1。写起来难
+                    2.jdk默认的动态代理，如果目标对象没有实现任何接口，是无法为他创建代理对象的；因为代理对象和被代理对象之间唯一的联系就是接口
+                
+        Spring动态代理
+            概念：Spring实现了AOP功能；底层就是动态代理
+            特点：
+                1.可以利用Spring一句代码都不写的去创建动态代理；
+                2.实现简单，而且没有强制要求目标代理对象实现接口；将某段代码(日志)动态的切入(不把日志代码写死在业务逻辑方法中)到指定方法(加减乘除)的指定位置(方法的开始，结束，异常。。。)进行运行的这种编程方式(Spring简化了面向切面编程)
+        Spring的AOP    
+            AOP的术语：
+                连接点：每一个方法的每一个位置都是一个连接点
+                切入点：我们真正需要执行日志记录的地方
+                切入点表达式：在众多连接点中选出我们感兴趣的地方；
+                    类似于下面例子中的execution(public int com.atguigu.impl.MyMathCalcultor.*(int,int))
+                横切关注点：连接每个方法的线
+                通知方法：每个方法
+                切面类：
+
+            使用步骤：
+                1.导包
+                2.写配置
+                    1.将目标类和切面类(封装了通知方法(在目标方法执行前后执行的方法))加入到ioc容器中
+
+                        ```xml
+                            <context:component-scan  base-package="com.atguigu"></context:component-scan>
+                            <!--开启基于注解的AOP功能：aop名称空间-->
+                            4.开启基于注解的AOP模式
+                            <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+                        ```
+                    2.告诉Spring到底哪个类是切面类(加注解@Aspect)
+
+                        ```java
+                            @Aspect   //此注解的作用：将此类定性成切面类；这里要加Aspect依赖，可以在maven官方输入Aspect后可找到;
+                            @Component  //作用：将LogUtils类添加到容器中
+                            public class LogUtils {
+                                3.告诉Spring，切面类里面的每一个方法，都是何时何地运行
+                                /**
+                                * 告诉Spring每个方法都是什么时候运行
+                                * @Before：在目标方法之前运行                        前置通知
+                                * @After：在目标方法运行结束之后运行                 后置通知
+                                * @AfterReturning：在目标方法正常返回之后            返回通知
+                                * @AfterThrowing：在目标方法抛出异常之后运行         异常通知
+                                * @Around：环绕                                     环绕通知
+                                */
+
+                                //在执行目标方法之前运行:需要在前置通知注解里面写切入点表达式
+                                    //切入点表达式的作用：执行在哪些方法执行的时候调用该通知方法
+
+                                    细节点3
+                                    /**
+                                    * 切入点表达式的写法：
+                                    *  固定格式：execution(访问权限符 返回值类型 方法全类名(参数列表))
+                                    *  通配符：
+                                    *      *:
+                                    *          1.匹配一个或者多个字符:execution(public int com.atguigu.impl.MyMath*.*(int,int))
+                                    *          2.匹配任意一个参数;第一个是int，第二个参数任意类型;(匹配两个参数)
+                                    *              execution(public int com.atguigu.impl.MyMathCalcultor.*(int,*))
+                                    *          3.权限位置(public)上不能用*；权限位置上不写*，会自动添加上public权限
+                                    *      ..:
+                                    *          1.匹配任意多个参数，任意类型参数
+                                    *              execution(public int com.atguigu.impl.MyMathCalcultor.*(..))
+                                    *          2.匹配任意多层路径
+                                    *              execution(public int com.atguigu..MyMathCalcultor.*(..))
+                                    *
+                                    *      &&：要切入的位置满足这两个表达式
+                                    *          execution(public int com.atguigu..MyMath*.*(..)&&execution(* *.*(int,double)))
+                                    *      ||：满足任意一个表达式即可切入
+                                    *          execution(public int com.atguigu..MyMath*.*(..)||execution(* *.*(int,double)))
+                                    *      !：只要不是这个位置都切入
+                                    *          !execution(public int com.atguigu..MyMath*.*(..)&&execution(* *.*(int,double)))
+                                    */
+
+                                    细节点4
+                                    /**
+                                    * 细节点4：我们可以在通知方法运行的时候，拿到目标方法的详细信息
+                                    *  1.只需要为通知方法的参数列表上加上一个参数
+                                    *      JoinPoint joinPoint：这个类封装了当前目标方法的详细信息
+                                    *  2.告诉Spring哪个参数是用来接收异常 注意点：返回值只有在@AfterReturning，@AfterThrowing才会有
+                                    *      throwing="exception"：告诉Spring，exception参数是用来接收异常的
+                                    *      returning = "result":告诉Spring，result参数是用来接收返回值的
+                                    *  3.Exception exception：指定通知方法可以接受哪些异常；
+                                    *
+                                    * 解释点：
+                                    *      Spring对通知方法的要求不严格
+                                    *          唯一的要求就是方法的参数列表一定不能乱写
+                                    *          通知方法是Spring利用反射调用的，每次方法调用得确定这个方法的参数表的值
+                                    *          参数表上的每一个参数，Spring都得知道是什么；JoinPoint类型参数Spring是认识的，不知道的参数一定要告诉Spring是什么
+                                    */
+
+                                    细节点5
+                                        抽取可重用的切入点表达式
+                                            1.随便声明一个没有实现的返回void的空方法
+                                            2.给方法上标注@Pointcut注解
+                                        事例：
+                                            @Pointcut("execution(public int com.atguigu.impl.MyMathCalcultor.*(int,int))")
+                                            public void hhhMypoint(){};
+                                            然后在下面的@Before("hhhMypoint()")即可
+
+                                //execution(访问权限 返回值类型 方法签名);解释：方法签名，即是方法的全类名.方法名(*表示在任何方法执行时都执行切面方法)
+                                @Before("execution(public int com.atguigu.impl.MyMathCalcultor.*(int,int))")
+                                public static void logStart(JoinPoint joinPoint){ //细节点4的使用
+                                    String name = joinPoint.getSignature().getName();//获取方法名
+                                    Object[] args = joinPoint.getArgs();//获取参数列表
+                                    System.out.println(""+name+"方法开始执行"+ Arrays.asList(args)+"");
+                                }
+                                //在目标方法正常执行完成之后执行
+                                @AfterReturning(value = "execution(public int com.atguigu.impl.MyMathCalcultor.*(int,int)))",returning = "result") //returning = "result"此处就是告诉Spring，result是返回值
+                                public static void logReturn(JoinPoint joinPoint,Object result){
+                                    System.out.println("方法正常执行，计算结果是"+result+"");
+                                }
+                                //在目标方法结束的时候运行(在finally中执行的代码)
+                                @After("execution(public int com.atguigu.impl.MyMathCalcultor.*(int,int)))")
+                                public static void logEnd(){
+                                    System.out.println("方法执行结束");
+                                }
+                                //在目标方法出现异常的时候执行
+                                @AfterThrowing(value = "execution(public int com.atguigu.impl.MyMathCalcultor.*(int,int)))",throwing = "exception") //throwing = "exception"此处就是告诉Spring，exception是抛异常
+                                public static void logYIchang(JoinPoint joinPoint,Exception exception){
+                                    System.out.println("方法抛出异常"+exception+"");
+                                }
+
+                                ----------------------------------------------------------------------------------------- 
+                                环绕通知@Around         
+                                /**
+                                * Throwable:环绕通知
+                                *      环绕是Spring中强大的通知
+                                *      环绕的基本原理是：动态代理
+                                *
+                                * 环绕通知和普通通知的执行顺序
+                                *       环绕通知---普通通知---目标方法执行---环绕正常返回/出现异常---环绕后置---普通后置---普通方法返回
+
+                                注意点：使用环绕通知之后，其他普通通知可以不写。一个环绕通知可以取代其他4个普通通知
+
+                                */
+
+                                @Around("execution(public int com.atguigu.impl.MyMathCalcultor.*(int,int)))")
+                                public Object myAround(ProceedingJoinPoint pjp) throws Throwable{
+                                    Object[] args = pjp.getArgs();//获取参数列表
+                                    String name = pjp.getSignature().getName();//获取方法名
+                                    Object proceed = null;
+                                    try{
+                                        System.out.println("【环绕前置通知】"+name+"方法开始");
+                                        //这行代码就是利用反射调用目标即可，就是method.invoke(obj,args)
+                                        proceed = pjp.proceed(args); //执行方法且返回值
+                                        System.out.println("【环绕返回通知】"+name+"方法返回值"+proceed+"");
+                                    }catch (Exception e){
+                                        System.out.println("【环绕异常通知】"+name+"方法出现异常"+e);
+                                    }finally {
+                                        System.out.println("【环绕后置通知】"+name+"方法结束");
+                                    }
+                                    return proceed;
+                                }
+                            }
+                        ```
+                    3.告诉Spring，切面类里面的每一个方法，都是何时何地运行(在第二步中)
+                    4.开启基于注解的AOP模式(在第一步中)
+
+                3.测试
+
+                    ```java
+                        public static void main(String[] args) {
+                                ApplicationContext ioc = new ClassPathXmlApplicationContext("applicationContext.xml");
+                                //从ioc容器中拿到目标对象；注意：如果想要用类型，一定用他的接口类型，不要用他本类
+                                    /**
+                                    * 原因：AOP的底层是动态代理，而动态代理在创建对象的时候，是创建的代理的对象，而代理对象的类型是com.sun.proxy.$Proxy12
+                                    * 本类的对象并没有创建,容器中保存的组件是他的代理对象;$Proxy12。当然不是本类的类型;但是同样的代理对象用到了接口的类型
+                                    */
+                                Calculator bean =  ioc.getBean(Calculator.class);
+                                bean.add(1,2);
+
+                            细节点2
+                            //情况二：
+                                //如果类没有实现的接口则获取到的bean的类型就是本类类型(即MyMathCalcultor类没有实现Calculator接口)
+                                MyMathCalcultor bean1 = ioc.getBean(MyMathCalcultor.class);
+                                //运行能成功；因为cglib帮我创建好了代理对象，此bean1的类型是com.atguigu.impl.MyMathCalculator$$EnhancerByCGLIB$$fe279f4;
+
+                            /**
+                            * 通知方法的执行顺序
+                            *      正常执行：@Before(前置通知)===>@After(后置通知)===>@AfterReturning(正常返回通知)
+                            *      异常执行：@Before(前置通知)===>@After(后置通知)===>@AfterThrowing(方法异常通知)
+                            */
+                            }
+                    ```  
+
+            
+                
+
