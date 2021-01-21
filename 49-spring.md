@@ -998,9 +998,24 @@
                 横切关注点：连接每个方法的线
                 通知方法：每个方法
                 切面类：
+        
+        基于注解的AOP步骤：
+            1.将目标类和切面类都加入到ioc容器中。@component
+            2.告诉Spring哪个类是切面类，通过@Aspect注解
+            3.在切面类中使用五个通知注解来配置切面中的这些通知方法都何时运行
+            4.开启基于注解的AOP功能
 
             使用步骤：
-                1.导包
+                1.导包(导入相应的依赖)
+
+                    ```xml
+                        <!-- 此依赖是Aspect依赖 -->
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-aop</artifactId>
+                            <version>2.2.2.RELEASE</version>
+                        </dependency>
+                    ```
                 2.写配置
                     1.将目标类和切面类(封装了通知方法(在目标方法执行前后执行的方法))加入到ioc容器中
 
@@ -1166,5 +1181,10 @@
                     ```  
 
             
-                
+时间2021/1/20
+        AOP使用场景
+            1.AOP加日志保存到数据库
+            2.AOP做权限验证
+            3.AOP做安全检查
+            4.AOP做事务控制
 
