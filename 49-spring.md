@@ -976,6 +976,12 @@
             2.我们希望的是：
                 业务逻辑(核心模块)；日志模块；在核心功能运行期间，自己动态的加上
                 运行的时候，日志功能可以加上
+        
+        AOP使用场景
+            1.AOP加日志保存到数据库
+            2.AOP做权限验证
+            3.AOP做安全检查
+            4.AOP做事务控制
 
         jdk默认的动态代理：
                 可以使用动态代理来将日志代码动态的在目标方法执行前后先进行执行
@@ -1181,9 +1187,46 @@
 
             
 时间2021/1/20
-        AOP使用场景
-            1.AOP加日志保存到数据库
-            2.AOP做权限验证
-            3.AOP做安全检查
-            4.AOP做事务控制
+        注解和配置适合
+            异同点：两个方法思路是一样的，步骤也差不多
+            注解：快速方便
+            配置：功能完善;重要的用配置，不重要的用注解
+
+        
+        基于配置的AOP步骤
+            1.将目标类和切面类都加入到ioc容器中
+            2.告诉Spring哪个类是切面类
+            3.在切面类中使用五个通知注解来配置切面中的这些通知方法都何时运行
+
+            事例：
+
+                ```xml
+                    <!--基于配置的AOP-->
+                        <bean id="myMathCalcultor" class="com.atguigu.impl.MyMathCalcultor"></bean>
+                        <bean id="logUtils" class="com.atguigu.uitils.LogUtils"></bean>
+                    <!--需要AOP名称空间-->
+                    <!-- aop:config属性order可以指定切面的执行顺序
+                        <aop:config order="1"></aop:config>
+                    -->
+                        <aop:config>
+                            <!--指定切面:相当于切面加了@Aspect注解-->
+                            <aop:aspect ref="logUtils">
+                                    <!--配置哪个方法是前置通知：method指定方法名
+                                        logStart方法名是切面类里面定义的切面类中的方法，@Before("切入点表达式")是一样的
+                                    -->
+                                    <aop:before method="logStart" pointcut="execution(* com.atguigu.impl.*.*(..))"></aop:before>
+                                    <!--通过配置的方式将切入点表达式封装-->
+                                    <aop:pointcut expression="execution(* com.atguigu.impl.*.*(..))" id="mypoint"></aop:pointcut>
+                                    <aop:after-returning method="logReturn" pointcut-ref="mypoint" returning="result"></aop:after-returning>
+                                    <aop:after-throwing method="logYIchang" pointcut-ref="mypoint" throwing="exception"></aop:after-throwing>
+                                    <aop:after method="logEnd" pointcut-ref="mypoint"></aop:after>
+                            </aop:aspect>
+                        </aop:config>
+                    <!-- 
+                        切面方法的执行顺序：环绕通知---普通通知---目标方法执行---环绕正常返回/出现异常---环绕后置---普通后置---普通方法返回
+                    -->
+                ```
+
+
+        
 
