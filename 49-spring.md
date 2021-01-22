@@ -32,7 +32,7 @@
                             <property name="username" value="石惠"></property>
                         </bean>
                 ```
-                ```java 在java类里通过使用容器的上下文，来获取对象
+                ```java 在java类里通过使用容器的上下文，来获取容器
                     //构造方法的属性注入
                         public void first(){
                             //ClassPathXmlApplicationContext类是容器的上下文
@@ -213,11 +213,12 @@
     容器：
         管理所有的组件(组件指:有功能的类)；假设,BookServlet受容器管理，BookService也受容器管理，容器可以自动的探查出哪些组件(类)需要用到另一个组件(类);容器帮我们创建BookService对象，并把BookService对象赋值过去
 
-        主动的new资源变为被动的接受资源
-        只要容器管理的组件，都能使用容器提供强大的功能
+        作用：
+            主动的new资源变为被动的接受资源
+            只要容器管理的组件，都能使用容器提供强大的功能
     
     DI：(Dependency Injection)依赖注入
-        容器能知道哪个组件(类)运行的时候，需要另外一个类(组件);容器通过反射的形式，如：将容器中准备好的BookService对象注入(利用反射给属性赋值)到BookServket中
+        容器能知道哪个组件(类)运行的时候，需要另外一个类(组件);容器通过反射的形式将依赖的组件注入到运行的类中，如：将容器中准备好的BookService对象注入(利用反射给属性赋值)到BookServket中
 
     使用：
         容器的使用步骤：
