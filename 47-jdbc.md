@@ -730,7 +730,7 @@
     ***多种开源的数据库连接池
         概念：JDBC的数据库连接池使用javax.sql.DataSource来表示，DataSource只是一个接口，该接口通常由服务器(Weblogic,WebSphere,Tomcat)提供实现，也有一些开源组织提供的实现
 
-        具体的数据库连接吃技术：
+        具体的数据库连接池技术：
             DBCP：是Apache提供的数据库连接池。tomcat服务器自带dbcp数据库连接池。速度相对c3p0较快，但因自身存在BUG,Hibernate3已不再提供支持
             C3P0：是一个开源组织提供的一个数据库连接池，速度相对较慢，稳定性还可以。hibernate官方推荐使用
             Proxool：是sourceforge下的一个开源项目数据库连接池，有监控连接池状态的功能，稳定性较c3p0差一点
@@ -859,7 +859,7 @@
                         public void testSearch2() throws Exception {
                             QueryRunner runner = new QueryRunner();
                             Connection conn = TCommon.getConnection3();
-                            String sql = "select id,name,email,birth from customers ";
+                            String sql = "select id,name,email,birth from customers";
                             BeanListHandler<Customer> handler = new BeanListHandler<>(Customer.class);
                             List<Customer> queryResult = runner.query(conn, sql, handler);
                             queryResult.forEach(System.out::println);
