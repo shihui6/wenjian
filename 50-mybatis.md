@@ -213,7 +213,323 @@
                         }
                     }
                 ```
+时间：2021、1、27
+        全局配置文件解析：
 
-        
-        
+            ```xml mybatis-config.xml(全局配置文件)
+                <configuration>
+                    <!--
+                    1.标签properties：作用：引入外部文件，可以将配置连接池的信息放到dbconfig.properties文件中，通过${}引用即可
+                        如<properties resource="dbconfig.properties"></properties>
 
+                    2.标签typeAliases：作用：为常用的类型javabean其别名(还是推荐使用全类名)
+                        如：
+                        <typeAliases>
+                            //标签typeAlias：作用：一个typeAlias标签为了给一个javaBean起别名,别名默认为类名(不区分大小写)，在配置文件中直接可以使用类名
+                            <typeAlias type="com.atguigu.bean.Employee" alias="指定别名"/>
+                            //package标签，作用：为指定包名下的所有的类，减少全类名。默认为类名，可以通过@Alias注解指定别名
+                            <package name="写包名，这个包下的所有的类">
+                        </typeAliases>
+
+                    3.typeHandlers标签；作用：类似于prepareStatement发送预编译sql，给sql语句设置值的时如setString(1,"天气真好"),typeHandlers在设置setString(),
+                    setInteger()等等，设置预编译sql语句时的参数用的
+
+                    4.objectFactory对象工厂：作用：mybatis跟数据库交互之后，通过sql语句查询出来审计局，把这些数据封装在一个对象里面，这个对象就是由objectFactory对象工厂创建的
+
+                    5.插件是mybatis中的强大功能
+                    -->
+                    <!--
+                    6.environments配置环境  属性default="development"指默认使用哪个环境，值对应下面的id
+                        6.environment：配置一个具体的环境。都需要一个事务管理器和一个数据源；属性id="development"是当前环境的唯一标识
+                            transactionManager：
+                        数据源，和事物管理都是Spring来做
+                    -->
+                    <environments default="development">
+                        <environment id="development">
+                            <transactionManager type="JDBC"/>
+                            <!--配置连接池-->
+                            <dataSource type="POOLED">
+                                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                                <property name="url" value="jdbc:mysql://localhost:3306/girls"/>
+                                <property name="username" value="root"/>
+                                <property name="password" value="wossh1423875545"/>
+                            </dataSource>
+                        </environment>
+                    </environments>
+
+                    <!--
+                    6.databaseIdProvider标签，作用：是mybatis用来考虑数据库移植性的
+                    -->
+                    <databaseIdProvider type="DB_VENDOR">
+                        <!--
+                        name：数据库厂商标识，value：给这个标识起一个自己习惯的名字
+                        -->
+                        <property name="MySQL" value="mysql"></property>
+                        <property name="Oracle" value="orcl"></property>
+                    </databaseIdProvider>
+
+                    <!--引入我们自己编写的每一个接口的实现文件：即编写的实现接口的文件-->
+                    <mappers>
+                        <!--
+                        mapper属性：url,resource,class
+                        url:可以从磁盘或者网络路径引用
+                        resource:在类路径下找sql映射
+                        class：直接引用接口的全类名
+                                要将xml放在和dao接口同目录下，而且文件名和接口名一致，否则会报错
+                                class的另外一种用法：在接口里的方法中通过注解写sql语句，不需要在xml配置文件中写了
+
+                        配合使用：重要的dao写在配置文件里
+                                简单的dao就直接标注解就可以
+                        -->
+                        <!--resource：表示从类路径下找关于接口实现的xml资源-->
+                        <mapper resource="EmployeeDao"/>
+                        <!--
+                        批量注册  name=""值是dao所在的包名
+                            作用：将包下所有的接口都可以注册到全局配置中来，就可以用该包下所有的接口对应的sql查询语句了
+                            注意点：注册接口的时候，需要将每个接口的xml配置文件也同样移植到该包下，或者将包对应的配置文件的包名改成和接口包名一样的名字
+                        -->
+                        <package name="com.atguigu.dao"></package>
+                    </mappers>
+                </configuration>
+            ```
+            ```xml  EmployeeDao.xml 接口配置文件
+                <mapper namespace="com.atguigu.dao.EmployeeDao">
+                <!--
+                    默认这个查询是不区分环境的
+                    如果能精确匹配就精确，不能就用模糊
+                    select标签属性databaseId可以指定具体在哪个环境下执行sql语句，对应全局全局配置的databaseIdProvider标签里面设置的value值
+                -->
+                    <select id="getEmpById" resultType="com.atguigu.bean.Employee" databaseId="mysql">
+                        select `name`,sex,boyfriend_id from beauty where id = #{id}
+                    </select>
+                    <update id="updateEmployee" >
+                        update beauty set name=#{name},sex=#{sex} where id = #{id}
+                    </update>
+                    <delete id="deleteEmployee" >
+                        delete from beauty where id = #{id}
+                    </delete>
+                    <insert id="insertEmployee" resultType="Integer">
+                        insert into beauty(`name`,sex,phone) values(#{name},#{sex},#{phone})
+                    </insert>
+                </mapper>
+            ```
+
+        映射文件解析
+
+            ```xml      EmployeeDao.xml文件(即接口的映射文件)
+                <?xml version="1.0" encoding="UTF-8" ?>
+                <!DOCTYPE mapper
+                        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                <!--namespace：是名称空间；要是接口的全类名。作用：告诉Mybatis这个配置文件是实现哪个接口的-->
+                <mapper namespace="com.atguigu.dao.EmployeeDao">
+                <!--
+                    mapper标签中能写的所有的标签
+                        cache:和缓存有关
+                        cache-ref:和缓存有关
+                        parameterMap:参数map；废弃的。。原来是做复杂参数映射的
+                        resultMap:结果映射，自定义结果集的封装规则
+                        sql：抽取可重用的sql
+                        delete,update,insert,select：增删改查
+                -->
+                    <select id="getEmpById" resultType="com.atguigu.bean.Employee">
+                        select * from boys where id = #{id}
+                    </select>
+                    <update id="updateEmployee" >
+                        update boys set name=#{name}where id = #{id}
+                    </update>
+                    <delete id="deleteEmployee" >
+                        delete from boys where id = #{id}
+                    </delete>
+                    <insert id="insertEmployee" resultType="Integer">
+                        insert into boys(`name`) values(#{name})
+                    </insert>
+                </mapper>
+
+                    <!-- 
+                        delete,update,insert增删改的标签的属性有：
+                            id：命名空间的唯一标识符
+                            parameterType：将要传入的语句的参数的完全限定类名或别名。这个属性是可选的，因为Mybatis可以通过TypeHandler推断出具体传入语句的参数类型，默认值为unset（解释：id对应方法的参数）
+
+                            flushCache：
+                            timeout：这个设置是在抛出异常之前，驱动程序等待数据库返回请求结果的描述，默认值为unset(依赖驱动)
+                            statementType：通过使用什么来执行sql语句，这个属性会让Mybatis分别使用Statement,PreparedStatement或CallableStatement，默认值:Prepared;
+                            useGeneratedKeys
+                            keyProperty
+                            keyColumn
+                            databaseId
+                    -->
+
+                    <!-- 
+                        属性的使用：useGeneratedKeys，keyProperty
+
+                            让Mybatis自动的将自增id赋值给传入的employee对象的id属性
+                                useGeneratedKeys="true":告诉Mybatis已经自动使用生成的主键，通过原生jdbc获取自增主键
+                                keyProperty="id":将刚才自增的id封装给哪个属性,这里即是Employee对象的id属性
+
+                                <insert id="insertEmployee" useGeneratedKeys="true" keyProperty="id">
+                                    insert into boys(boyName,userCP) values(#{boyName},#{userCP})
+                                </insert>
+
+                                java发送测试代码
+                                    Employee employee = new Employee(null,"底特律",600);
+                                    Integer empById = mapper.insertEmployee(employee);
+                                    System.out.println(empById);
+                                    openSession.close();
+                                    System.out.println(employee.getId());
+
+                        获取非自增主键的值
+                            <insert id="insertEmployee">
+                                /*
+                                    order="BEFORE"
+                                        在核心sql语句之前执行查到id，将查到的id赋值给javabean的id属性，即selectKey标签的keyProperty属性指定的id
+
+                                        执行机制：selectKey查询出来的值赋值给javabean的id属性，在核心sql执行的时候，将id赋值给sql语句
+                                */
+                                <selectKey order="BEFORE" resultType="integer" keyProperty="id">
+                                    select max(id)+1 from boys
+                                </selectKey>
+                                insert into boys(id,boyName,userCP) values(#{id},#{boyName},#{userCP})
+                            </insert>
+
+                            java发送测试代码
+                                    Employee employee = new Employee(null,"底特律",600);
+                                    Integer empById = mapper.insertEmployee(employee);
+                                    System.out.println(empById);
+                                    openSession.close();
+                                    System.out.println(employee.getId());
+
+                        参数的各种取值
+                            1.单个参数
+                                基本类型
+                                    取值：#{随便写}
+                                    <insert id="insertEmployee">
+                                        insert into boys(boyName) values(#{boyName})
+                                    </insert>
+                                传入javabean
+                            2.多个参数
+                                public Employee getEmpByIdAndEmpName(Integer id,String empName)
+                                sql映像文件xml中取值：#{参数名}是无效的
+                                可用：0,1(参数的索引)或者param1,param2(第几个参数paramN)
+                                原因：只要传入多个参数，Mybatis会自动的将这些参数封装在一个map中，封装时使用key就是参数的索引和参数的第几个标识
+                                    #{key}就是从这个map中取值
+
+                                    **.@Param：为参数指定key；告诉mybatis，封装参数map的时使用我们指定的key(推荐这么做)
+                                    如：public Employee getEmpByIdAndEmpName(@Param("boyName")Integer boyName,@Param("userCP")String userCP)
+                                        在映射文件xml中就可以使用我们自己定义的key值
+                                        <insert id="insertEmployee">
+                                            insert into boys(boyName,userCP) values(#{boyName},#{userCP})
+                                        </insert>
+
+                            3.传入pojo(javaBean)
+                                取值：#{pojo的属性名}
+                            
+                            4.传入map
+                                如：public Employee getEmpByIdAndEmpName(Map<String,Object> map)
+                                xml:
+                                    <select id="getEmpByIdAndEmpName" resultType="com.atguigu.bean.Employee">
+                                        select * from boys where id = #{id} and boyName=#{boyName}
+                                    </select>
+                                java类：
+                                    Map<String,Object> map = new HashMap<>()
+                                    map.put("id",1);
+                                    map.put("boyName","张无忌");
+                                    Integer empById = mapper.getEmpByIdAndEmpName(map);
+                                    System.out.println(empById);
+                                    openSession.close();
+                                    System.out.println(employee.getId());
+
+
+                        两种取值方式
+                            #{属性名}：是参数预编译的方式，参数的位置都是用?代替，参数后来都是预编译设置进去的;安全,不会有sql注入问题
+                            ${属性名}：不是参数预编译，而是直接和sql语句进行拼串；不安全
+
+                                id=${id} amd empname=#{empName}
+                                select * from boys where id=1 and empname=?
+
+                                id=#{id} amd empname=#{empName}
+                                select * from boys where id=? and empname=?
+
+                                一般情况下使用#{}的方式，sql语句只有参数位置是支持预编译的
+                                使用${}的情况：数据表是动态的，这时使用预编译的方式取值就不行，必须的用${}
+                    -->
+            ```
+        映射文件解析2
+            查询返回list列表(多条记录)
+
+                ```xml    
+                    <!--    
+                        public List<Employee> getAllEmps();
+                        resultType="":如果返回的是集合，写的是集合里面的类型
+                    -->
+                    <select id="getAllEmps" resultType="com.atguigu.bean.Employee">
+                        select * from boys
+                    </select>
+                ```
+                ```java
+                    public void test() throws IOException {
+                            //2.获取和数据库的一次会话，相当于获取了和数据库的一次连接
+                            SqlSession openSession = sqlSessionFactory.openSession(true);
+                            //3.获取到dao接口的映射，使用SqlSesson操作数据库
+                            EmployeeDao mapper = openSession.getMapper(EmployeeDao.class);
+                            List<Employee> allEmps = mapper.getAllEmps();
+                            for(Employee employee : allEmps){
+                                System.out.println(employee);
+                            }
+                            openSession.close();
+                        }
+                ```
+                
+            查询返回map(一条记录)
+
+                ```xml
+                    <!--public Map<String,Object> getEmpByIdreturnMap(Integer id);-->
+                    <select id="getEmpByIdreturnMap" resultType="map">
+                        select * from boys where  id= #{id}
+                    </select>
+                ```
+                ```java 接口
+                    public Map<Integer,Employee> getAllreturnMap();
+                ```
+                ```java 测试调用
+                    public void test() throws IOException {
+                            //2.获取和数据库的一次会话，相当于获取了和数据库的一次连接
+                            SqlSession openSession = sqlSessionFactory.openSession(true);
+                            //3.获取到dao接口的映射，使用SqlSesson操作数据库
+                            EmployeeDao mapper = openSession.getMapper(EmployeeDao.class);
+                            Map<String, Object> empByIdreturnMap = mapper.getEmpByIdreturnMap(1);
+                            System.out.println(empByIdreturnMap);
+                            openSession.close();
+                        }
+                ```
+
+            查询返回map(map里有多条记录)
+
+                ```java     接口
+                    /**
+                    * key是记录的主键，value是这条记录封装好的对象
+                    * 把查询的记录的id的值作为key封装这个map
+                    */
+                    @MapKey("id")
+                    public Map<Integer,Employee> getAllreturnMap();
+                ```
+                ```xml  接口文件
+                    <!--public Map<Integer,Employee> getAllreturnMap();-->
+                    <!--查询一个map中有多条记录，select标签resultType返回类型写集合里面元素的类型-->
+                    <select id="getAllreturnMap" resultType="com.atguigu.bean.Employee">
+                        select * from boys
+                    </select>
+                ```
+                ```java java测试调用
+                    public void test() throws IOException {
+                            //2.获取和数据库的一次会话，相当于获取了和数据库的一次连接
+                            SqlSession openSession = sqlSessionFactory.openSession(true);
+                            //3.获取到dao接口的映射，使用SqlSesson操作数据库
+                            EmployeeDao mapper = openSession.getMapper(EmployeeDao.class);
+                            Map<Integer, Employee> allreturnMap = mapper.getAllreturnMap();
+                            System.out.println(allreturnMap);
+                            Employee employee = allreturnMap.get(1);
+                            System.out.println(employee.getBoyName());
+                            openSession.close();
+                        }
+                ```
