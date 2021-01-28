@@ -479,7 +479,7 @@
                             openSession.close();
                         }
                 ```
-                
+
             查询返回map(一条记录)
 
                 ```xml
@@ -530,6 +530,277 @@
                             System.out.println(allreturnMap);
                             Employee employee = allreturnMap.get(1);
                             System.out.println(employee.getBoyName());
+                            openSession.close();
+                        }
+                ```
+
+            resultMap自定义结果集的封装规则
+
+                ```xml
+                    <mapper namespace="com.atguigu.dao.CatDao">
+                        <!--public Cat getCatById(Integer id);-->
+                        <!--
+                            默认mybatis自动封装结果集
+                            1.按照列名和属性名一一对应(不区分大小写)(解释：即查询出来的表格的列名和封装数据的javaBean的属性名)
+                            2.如果不一一对应    (解释：即查询出来的表格的列名和封装数据的javaBean的属性名,不一一对应)
+                                1.开启驼峰命名法(满足驼峰命名规则 aaa_bbb aaa_Bbb)
+                                2.起别名
+
+                            resultType="com.atguigu.bean.Cat"在使用默认规则，即属性名和列名一一对应
+                            resultMap="myCat":查出数据封装结果的时候，使用mycat自定义的规则进行封装
+                        -->
+                        <select id="getCatById" resultMap="myCat">
+                            select * from t_cat where id = #{id};
+                        </select>
+
+                        <!--
+                            自定义结果集(resultMap)：自己定义数据表的每一列数据和javabean的属性的映射规则
+                            type="":指定为哪个javabean自定义封装规则；全类名
+                            id="":唯一标识
+                        -->
+                        <resultMap type="com.atguigu.bean.Cat" id="myCat">
+                            <!--
+                                指定主键列的对应规则
+                                column="id":指定哪一列是主键列（数据表中的列）
+                                property="":指定car的哪个属性封装id这一列数据
+                            -->
+                            <id property="id" column="id"></id>
+                            <!--普通列-->
+                            <result property="name" column="cName"></result>
+                            <result property="age" column="cAge"></result>
+                            <result property="gender" column="cgender"></result>
+                        </resultMap>
+                    </mapper>
+                ```
+
+            联合查询第一种方式
+
+                ```xml
+                    <mapper namespace="com.atguigu.dao.KeyDao">
+                        <!--
+                            private Integer id;
+                            private String keyName;
+                            private Lock lock;//当钥匙能开哪个锁
+                        -->
+                        <select id="getKeyById" resultMap="myKey">
+                            select k.id,k.`keyname`,k.`lockid`,
+                                l.`id` lid ,l.`lockName` from t_key k
+                                left join t_lock l on k.`lockid` = l.`id`
+                                where k.`id` = #{id}
+                        </select>
+
+                        <!--自定义封装规则：使用级联属性封装联合查询出的结果-->
+                        <resultMap type="com.atguigu.bean.Key" id="myKey">
+                            <id property="id" column="id"></id>
+                            <result property="keyName" column="keyname"></result>
+                            <result property="lock.id" column="lid"></result>
+                            <result property="lock.lockName" column="lockName"></result>
+                        </resultMap>
+                    </mapper>
+
+                    //输出的结果：Key{id=1, keyName='1号钥匙', lock=Lock{id=1, lockName='1号锁'}}
+                ```
+            
+            联合查询第二种：使用association标签联合对象
+
+                ```xml
+                    <mapper namespace="com.atguigu.dao.KeyDao">
+                        <!--
+                            private Integer id;
+                            private String keyName;
+                            private Lock lock;//当钥匙能开哪个锁
+                        -->
+                        <select id="getKeyById" resultMap="myKey">
+                            select k.id,k.`keyname`,k.`lockid`,
+                                l.`id` lid ,l.`lockName` from t_key k
+                                left join t_lock l on k.`lockid` = l.`id`
+                                where k.`id` = #{id}
+                        </select>
+
+                        <!--mybatis推荐的<association property=""><association>-->
+                        <resultMap type="com.atguigu.bean.Key" id="myKey">
+                            <id property="id" column="id"></id>
+                            <result property="keyName" column="keyname"></result>
+                            <!--接下来的属性是一个对象，自定义这个对象的封装规则，使用association标签：表示联合了一个对象->
+                            <!-javaType：指定这个属性的类型-->
+                            <association property="lock" javaType="com.atguigu.bean.Lock">
+                                <!--定义lock属性对应的这个lock对象如何封装-->
+                                <id property="id" column="lid"></id>
+                                <result property="lockName" column="lockName"></result>
+                            </association>
+                        </resultMap>
+                    </mapper>
+
+                    //输出的结果：Key{id=1, keyName='1号钥匙', lock=Lock{id=1, lockName='1号锁'}}
+                ```
+            
+            联合查询第二种：使用collection标签封装集合
+
+                ```xml
+                    <mapper namespace="com.atguigu.dao.LockDao">
+                        <select id="getLockById" resultMap="myLock">
+                            select l.*,k.id kid,k.`keyname`,k.`lockid` from t_lock l
+                            left join t_key k on l.`id` = k.`lockid`
+                            where l.id = #{id}
+                        </select>
+                        <!--
+                            public Class Lock{
+                                private Integer id;
+                                private String lockName;
+                                //查询锁的时候把所有的钥匙也查出来
+                                private List<Key> keys;
+                            }
+                        -->
+                        <resultMap type="com.atguigu.bean.Lock" id="myLock">
+                            <id property="id" column="id"></id>
+                            <result property="lockName" column="lockName"></result>
+                            <!--
+                                collection:作用：定义集合元素的封装
+                                    property="":指定哪个属性是集合属性
+                                    javaType:指定对象类型，这个属性在association标签里使用
+                                    ofType="":指定集合里面的类型
+                            -->
+                            <collection property="keys" ofType="com.atguigu.bean.Key">
+                                <!--标签体中指定集合中这个元素的封装规则-->
+                                <id property="id" column="kid"></id>
+                                <result property="keyName" column="keyname"></result>
+                            </collection>
+                        </resultMap>
+                    </mapper>
+                ```
+                ```java 测试输出结果
+                    public void Test(){
+                            SqlSession openSession = sqlSessionFactory.openSession(true);
+                            LockDao mapper = openSession.getMapper(LockDao.class);
+                            Lock lock = mapper.getLockById(3);
+                            System.out.println(lock);
+                            List<Key> keys = lock.getKeys();
+                            for(Key key:keys){
+                                System.out.println(key);
+                            }
+                            openSession.close();
+                        }
+                        //输出结果;Lock{id=3, lockName='303号房间的钥匙', keys=[Key{id=3, keyName='303钥匙1', lock=null}, Key{id=4, keyName='303钥匙2', lock=null}]}
+                ```
+
+            联合查询第三种：分布查询  (用的比较多)
+                        步骤：
+                            /**
+                            * 分布查询：
+                            *      思路：查询要是的时候顺便查出锁
+                            *          先把key钥匙查出来，在通过钥匙的id查出锁
+                            *          1.Key key = keyDao.getKeyById();
+                            *          2.Lock lock = lockDao.getLockById(1)
+                            */
+
+                                ```xml  LockDao.xml的内容
+                                    <mapper namespace="com.atguigu.dao.LockDao">
+                                        <!--public Lock getLockByIdSimple(Integer id);-->
+                                        <select id="getLockByIdSimple" resultType="com.atguigu.bean.Lock">
+                                            select * from t_lock where id=#{id}
+                                        </select>
+                                    </mapper>
+                                ```
+                                ```xml  KeyDao.xml的内容
+                                    <mapper namespace="com.atguigu.dao.KeyDao">
+                                        <!--
+                                            public Key getKeyByIdSimple(Integer id);
+                                            查询key的时候也可以带上锁的信息
+                                            getKeyByIdSimple查询出来的记过： id  keyname  lockid
+                                        -->
+                                        <select id="getKeyByIdSimple" resultMap="mykey">
+                                            select * from t_key where id=#{id}
+                                        </select>
+                                        <resultMap type="com.atguigu.bean.Key" id="mykey">
+                                            <id property="id" column="id"></id>
+                                            <result property="keyName" column="keyname"></result>
+                                        <!--     
+                                            告诉mybatis自己去调用一个查询查锁的
+                                            select="":指定一个查询sql的唯一标识，mybatis自动调用指定的sql将查出的lock封装进来
+                                            public Lock getLockByIdSimple(Integer id);需要传入锁的id
+                                                告诉mybatis把哪一列的值传递过去，column：指定将哪一列的数据传过去
+                                                    此处的column值：lockid对应的是上面查出来的值
+                                                select="com.atguigu.dao.LockDao.getLockByIdSimple"：指定执行LockDao里面的getLockByIdSimple方法在LockDao.xml里面对应的sql语句
+                                        -->
+                                            <association property="lock"
+                                                select="com.atguigu.dao.LockDao.getLockByIdSimple"
+                                                column="lockid">
+                                                <!-- 若要传入多个值则：column={key1=列名,key2=列名} -->
+                                            </association>
+                                        </resultMap>
+                                    </mapper>
+
+                                    执行机制：先执行getLockByIdSimple方法执行的sql，返回的结果封装到结果集里，因为KeyDao类里有Lock属性，所以第二步在进行lock的查询操作，将第一步查询出来的lockid作为参数，传递到getLockByIdSimple方法里
+                                ```
+
+            动态sql语句
+                概念：接口方法可以不传参数，也可传入多个参数；之前我们学的都是传入固定的参数
+
+                ```xml
+                    <mapper namespace="com.atguigu.dao.TeacherDao">
+                    <!--public Teacher getTeacherById(Integer id);-->
+                        <select id="getTeacherById" resultMap="teacherMap">
+                            select * from t_teacher where id =#{id}
+                        </select>
+                        <resultMap id="teacherMap" type="com.atguigu.bean.Teacher">
+                            <id property="id" column="id"></id>
+                            <result property="address" column="address"></result>
+                            <result property="birth" column="birth_date"></result>
+                            <result property="course" column="class_name"></result>
+                            <result property="name" column="teacherName"></result>
+                        </resultMap>
+                        <!--public List<Teacher> getTeacherByCondition(Teacher teacher);-->
+                        <!--
+                        if标签：
+                            作用：判断接口定义的方法传入的参数，因为方法每次传入的参数的个数和种类可以不固定
+                            属性test="":编写判断条件
+                            属性id!=null:执行机制：取出传入的javaBean属性中的id值，判断其是否为空;如果满足if条件会把内容拼接sql语句上
+                        where标签：（推荐使用这种）
+                            作用：可以帮我去掉在编写if判断的时前面的and
+                        trim标签：
+                            作用：截取字符串
+                            属性prefix="":前缀，为我们下面的sql整体添加一个前缀
+                            属性prefiexOverrides="":去除整体字符串前面多余的字符
+                            属性suffix="":为整体添加一个后缀
+                            属性suffixOverrides="":后面那个多了可以去掉
+                        -->
+                        <select id="getTeacherByCondition" resultMap="teacherMap">
+                            select * from t_teacher
+                    <!--<where>-->
+                    <!--    <if test="id!=null">-->
+                    <!--         id>#{id}-->
+                    <!--    </if>-->
+                    <!--    <if test="name!=null">-->
+                    <!--          and teacherName like #{name}-->
+                    <!--    </if>-->
+                    <!--    <if test="birth!=null">-->
+                    <!--          and birth_date &lt; #{birth}-->
+                    <!--    </if>-->
+                    <!--</where>-->
+                            <trim prefix="where" prefixOverrides="and" suffixOverrides="and">
+                                <if test="id!=null">
+                                    id>#{id} and
+                                </if>
+                                <if test="name!=null">
+                                    teacherName like #{name} and
+                                </if>
+                                <if test="birth!=null">
+                                    birth_date &lt; #{birth} and
+                                </if>
+                            </trim>
+                        </select>
+                    </mapper>
+                ```
+                ```java
+                    public void Test(){
+                            SqlSession openSession = sqlSessionFactory.openSession(true);
+                            TeacherDao mapper = openSession.getMapper(TeacherDao.class);
+                            Teacher teacher = new Teacher();
+                            //可以不传参数，可以传入多个参数
+                            teacher.setName("%a%");
+                            teacher.setId(1);
+                            List<Teacher> list = mapper.getTeacherByCondition(teacher);
+                            System.out.println(list);
                             openSession.close();
                         }
                 ```
