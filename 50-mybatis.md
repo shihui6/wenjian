@@ -533,7 +533,7 @@
                             openSession.close();
                         }
                 ```
-
+时间2021、1、28
             resultMap自定义结果集的封装规则
 
                 ```xml
