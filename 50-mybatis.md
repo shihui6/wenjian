@@ -734,7 +734,7 @@
                                 ```
 
             动态sql语句
-                概念：接口方法可以不传参数，也可传入多个参数；之前我们学的都是传入固定的参数
+                概念：接口方法可以不传参数，也可传入多个参数；之前我们学的都是传入固定的参数(动态sql也就是对传入参数不确定的处理)
 
                 ```xml
                     <mapper namespace="com.atguigu.dao.TeacherDao">
@@ -804,3 +804,263 @@
                             openSession.close();
                         }
                 ```
+时间2021、1、29
+            动态sql之foreach标签
+
+                ```java     接口文件部分
+                    //@Param("ids") List<Integer> ids给参数取别名
+                    public List<Teacher> getTeacherByIdIn(@Param("ids") List<Integer> ids);
+                ```
+                ```xml  配置sql语句
+                    <mapper namespace="com.atguigu.dao.TeacherDao">
+                        <resultMap id="teacherMap" type="com.atguigu.bean.Teacher">
+                            <id property="id" column="id"></id>
+                            <result property="address" column="address"></result>
+                            <result property="birth" column="birth_date"></result>
+                            <result property="course" column="class_name"></result>
+                            <result property="name" column="teacherName"></result>
+                        </resultMap>
+                        <!--
+                            foreach标签
+                                作用：帮我们遍历集合里的元素
+                                属性collection="":指定要遍历的集合的key，这里传入的值为/@Param("ids") List<Integer> ids这里定义的值
+                                属性close="":以什么结束
+                                属性index="":索引
+                                        如果遍历的是一个list
+                                            index：指定的变量保存了当前索引
+                                            item：保存当前遍历的元素的值
+                                        如果遍历的是一个map
+                                            index：指定的变量就保存了当前遍历的元素的key
+                                            item：就是保存当前遍历的元素的值
+                                属性item="变量名":每次遍历出的元素起一个变量名方便引用
+                                属性open="":以什么开始
+                                属性separator="":每次遍历的元素的分隔符
+                        -->
+                        <select id="getTeacherByIdIn" resultMap="teacherMap">
+                            select * from t_teacher where id in
+                            <foreach
+                                collection="ids" item="id_item"
+                                separator="," open="(" close=")"
+                            >
+                                #{id_item}
+                            </foreach>
+
+                        </select>
+                    </mapper>
+                ```
+                ```java     测试
+                    public void Test(){
+                        SqlSession openSession = sqlSessionFactory.openSession(true);
+                        TeacherDao mapper = openSession.getMapper(TeacherDao.class);
+                        List<Teacher> teacherByIdIn = mapper.getTeacherByIdIn(Arrays.asList(1, 2, 3, 4, 5));
+                        System.out.println(teacherByIdIn);
+                        openSession.close();
+                    }
+                ```
+
+            动态sql之choose标签的使用
+
+                ```java
+                    public List<Teacher> getTeacherByConditionChoose(Teacher teacher);
+                ```
+                ```xml
+                    <mapper namespace="com.atguigu.dao.TeacherDao">
+                        <resultMap id="teacherMap" type="com.atguigu.bean.Teacher">
+                            <id property="id" column="id"></id>
+                            <result property="address" column="address"></result>
+                            <result property="birth" column="birth_date"></result>
+                            <result property="course" column="class_name"></result>
+                            <result property="name" column="teacherName"></result>
+                        </resultMap>
+                    <!--    public List<Teacher> getTeacherByConditionChoose(Teacher teacher);-->
+                        <select id="getTeacherByConditionChoose" resultMap="teacherMap">
+                            select * from t_teacher
+                            <where>
+                                <choose>
+                                    <when test="id!=null">
+                                        id=#{id}
+                                    </when>
+                                    <when test="name!=null">
+                                        id=#{id}
+                                    </when>
+                                    <when test="birth !=null">
+                                        birth_date=#{birth}
+                                    </when>
+                                    <otherwise>
+                                        1=1
+                                    </otherwise>
+                                </choose>
+                            </where>
+                        </select>
+                    </mapper>
+                ```
+                ```java 测试
+                    public void Test(){
+                            SqlSession openSession = sqlSessionFactory.openSession(true);
+                            TeacherDao mapper = openSession.getMapper(TeacherDao.class);
+                            Teacher teacher = new Teacher();
+                            teacher.setId(1);
+                            teacher.setName("%a%");
+                            List<Teacher> list = mapper.getTeacherByConditionChoose(teacher);
+                            System.out.println(list);
+                            openSession.close();
+                        }
+                ```
+
+            动态sql之：set标签结合if标签更新操作
+
+                ```java 接口
+                    public int updateTeacher(Teacher teacher);
+                ```
+                ```xml
+                    <!--public int updateTeacher(Teacher teacher);-->
+                    <!--    
+                        set标签
+                            作用：专门在更新语句中使用，且在if标签拼接的同时能将最后一个逗号去掉
+                    -->
+                    <update id="updateTeacher">
+                        update t_teacher
+                        <set>
+                            <if test="name!=null">
+                                teacherName=#{name},
+                            </if>
+                            <if test="course!=null">
+                                class_name=#{course},
+                            </if>
+                        </set>
+                        <where>
+                            id=#{id}
+                        </where>
+                    </update>
+                ```
+                ```java 测试
+                    public void Test(){
+                            SqlSession openSession = sqlSessionFactory.openSession(true);
+                            TeacherDao mapper = openSession.getMapper(TeacherDao.class);
+                            Teacher teacher = new Teacher();
+                            teacher.setId(1);
+                            teacher.setName("哈哈哈");
+                            int i = mapper.updateTeacher(teacher);
+                            System.out.println(i);
+                            openSession.close();
+                        }
+                ```
+
+            动态sql---其他两个参数的使用
+                在mybatis中，传入的参数可以用来做判断：
+                    _parameter：代表传入来的参数
+                        1.传入了单个参数：_parameter就代表这个参数
+                        2.传入了多个参数：_parameter就代表多个参数集合起来的map
+                    _databaseId：代表当前环境
+                        如果配置了databaseIdProvider:_databaseId才有值
+
+            动态sql---抽取可重用的sql，用到include标签结合sql标签
+
+                ```xml
+                    <mapper>
+                        <!-- 抽取可重用的sql语句 -->
+                        <sql id="selectSql">select * from t_teacher</sql>
+                        <select id="getTeacherByIdIn" resultMap="teacherMap">
+                            <include refid="getTeacherByIdIn"></include> where id in
+                            <foreach
+                                collection="ids" item="id_item"
+                                separator="," open="(" close=")">
+                                #{id_item}
+                            </foreach>
+                        </select>
+                    </mapper>
+                ```
+
+***mybatis的缓存机制
+    缓存：
+        概念：暂时的存储一些数据
+        作用：加快系统的查询速度
+    
+    mybatis缓存机制：
+        概念：Map，能保存查询出的一些数据
+        一级缓存：线程级别的缓存，本地缓存；SqlSession级别的缓存，只有在当前的SqlSession能使用
+        二级缓存：全局范围的缓存，除了当前线程，SqlSession能用其他线程也可以使用
+
+            一级缓存：mybatis：SqlSession级别的缓存，默认是存在的
+                一级缓存机制：只要之前查询过的数据，mybatis就会保存在一个缓存中(Map),下次获取直接拿
+                一级缓存失效的几种情况
+                    1.不同的sqlSession，使用不同的一级缓存
+                        因为只有在同一个sqlSession期间查询到的数据会保存在这个sqlSession的缓存中，下次使用这个这个sqlSession查询会从缓存中拿
+                    2.同一个方法，不同的参数，由于之前没有查询过，所有还会发新的sql
+                    3.在这个sqlSession期间执行了任何一次增删改操作，增删改操作会把缓存清空
+                    4.在sqlSession期间手动清空缓存
+                
+                二级缓存
+                    概念：全局作用域的缓存，默认不开启，需要手动配置
+                    注意点：二级缓存在SqlSession关闭或提交之后才会生效
+                    使用步骤：
+                        1.全局配置文件中开启二级缓存<setting name="cacheEnabled" value="true" />
+
+                            ```xml
+                                <?xml version="1.0" encoding="UTF-8" ?>
+                                <!DOCTYPE configuration
+                                        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+                                        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+                                <configuration>
+                                    <settings>
+                                        <!--开启全局缓存开关，且告诉映射文件需要使用全局缓存-->
+                                        <setting name="cacheEnabled" value="true"></setting>
+                                    </settings>
+                                </configuration>
+                            ```
+                        2.需要使用二级缓存的映射文件处使用cache配置缓存<cache />意思是这个映射文件需要使用全局缓存
+
+                            ```xml
+                                <?xml version="1.0" encoding="UTF-8" ?>
+                                <!DOCTYPE mapper
+                                        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                                <mapper namespace="com.atguigu.dao.TeacherDao">
+                                    <!--表示该映射文件使用全局缓存(二级缓存)-->
+                                    <cache></cache>
+                                </mapper>
+                            ```
+                        3.注意：pojo(javabean)需要实现Seralizable接口
+
+                            ```java
+                                public class Teacher implements Serializable {}
+                            ```
+
+                    缓存的查询顺序
+                        1.任何时候都是先看二级缓存，再看一级缓存，如果大家都没有就去查询数据库
+                        2.不会出现一级缓存和二级缓存中有同一个数据
+                            二级缓存中是在一级缓存关闭了就有了
+                            一级缓存中，二级缓存中没有此数据，就会看一级缓存，一级缓存没有去查数据库，数据库的查询后把结果放在一级缓存中
+
+                    缓存的有关设置
+                        1.全局setting的cacheEnable
+                            配置二级缓存开关，一级缓存一直是打开的
+                        2.select标签的userCache属性
+                            配置这个select是否使用二级缓存。一级缓存一直是使用的
+                        3.sql标签的flushCache属性
+                            增删改默认flushCache=true。sql执行以后，会同时清空一级和二级缓存。查询默认flushCache=false
+                        4.sqlSession.clearCache()
+                            只是用来清除一级缓存
+
+                        
+    整合第三方缓存
+        整合ehCache:ehcache非常专业的java进行内的缓存框架
+        使用步骤：
+            1.导包
+                ehcache-core-2.6.8.jar(ehcache核心包)
+                mybatis-ehcache-1.0.3.jar(ehcache的整合包)
+                slf4j-api-1.7.21.jar(日志包)
+                slf4j-log4j12-1.7.21.jar(日志包)
+            2.ehcache需要一个配置文件
+                ehcache.xml;放在类路径下
+            3.在mapper.xml（映射文件中）配置自定义的缓存
+                <cache type="org.mybatis.caches.ehcache.EhcacheCache"></cache>
+            4.别的映射文件要用这个缓存
+                在mapper.xml的<cache type="org.mybatis.caches.ehcache.EhcacheCache"></cache>下面配置一下
+                <cache-ref namespace="com.atguigu.dao.TeacherDao">
+
+***SSM  
+    概念：Spring+SpringMVC+MyBatis
+    
+***文件上传和下载(在javaweb里面讲过了)
+    概念：浏览器将本地的文件上传到服务器上，交给服务器保存
