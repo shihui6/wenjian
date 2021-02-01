@@ -408,7 +408,7 @@
 
                     
 
-时间2021/11/1
+时间2021/1/11
                     5.级联属性
 
                         ```xml  
@@ -442,7 +442,7 @@
                             </bean>
                             <!--parent:指定当前bean的配置信息继承于哪个bean-->
                             <!-- 注意点：
-                                    person06的bean，可以省略class
+                                    person06的bean，可以省略class,因为继承可以用父级的类型
                                     person06继承于person05，把需要修改的属性值在person06中通过property写上即可，如这里的lastName属性
                              -->
                             <bean id="person06" parent="person05">
@@ -462,7 +462,7 @@
                         ```xml
                             <!--abstract="true"，指定这个bean的配置是一个抽象的，不能获取他的实例，只能被别人用来继承  -->
                             <bean id="person05" class="com.atguigu.bean.Person" abstract="true">
-                                <property name="lastName" value="张三"></property>
+                                <property name="lastName" value="张三"></property> 
                                 <property name="age" value="18"></property>
                                 <property name="gender" value="男"></property>
                                 <property name="email" value="zhangsan@atguigu.com"></property>
@@ -472,10 +472,10 @@
                     8。bean之间的依赖
                         概念：
                             只是改变创建顺序，没有真实的依赖关系
-                            原来bean实例的创建是按照配置的顺序创建bean的
+                            bean实例默认的创建是按照配置的顺序创建bean的
                         使用：通过depends-on指定创建的先后顺序
                             <bean id="car" class="com.atguigu.bean.Car" depends-on="book,person">
-                            意思是：在创建car之前，先创建book在创建person
+                            意思是：在创建car之前，先创建book再创建person
 
                     9.bean作用域，分别创建单实例和多实例的bean
                         bean的作用域：指定bean是否单实例，默认是单实例的；即通过属性scope指定单实例或多实例
@@ -572,7 +572,7 @@
                                         * getObject就是工厂方法，自动会调动
                                         * 返回创建的对象
                                         *
-                                        * 即：当创建容器的时候，会自动嗲用getObject方法，自动调用生成相应的对象
+                                        * 即：当创建容器的时候，会自动调用getObject方法，自动调用生成相应的对象
                                         */
                                         public Book getObject() throws Exception {
                                             System.out.println("Book对象创建完成了");
@@ -706,8 +706,8 @@
                     15。SpEL表达式(Spring Expression Language)
                         概念：
                             Spring表达式语言
-                            和jsp页面上的el表达式一样，spEL根据javaBean风格getxxx(),setxxx()方法定义的属性访问对象图，完全符合我们熟悉的操作习惯
-                        基本语法：SpEL使用#(...)作为定界符，所有在大括号中的字符都将被认为是SpEL表达式
+                            和jsp页面上的el表达式一样，spEL根据javaBean风格getxxx(),setxxx()方法定义的属性访问对象，完全符合我们熟悉的操作习惯
+                        基本语法：SpEL使用#{}作为定界符，所有在大括号中的字符都将被认为是SpEL表达式
                         使用：
 
                             ```xml  SPEL表达式在容器中的使用
@@ -757,7 +757,7 @@
                         context名称空间解释：   
                             需要在xml中用到标签context:component-scan
                             context:component-scan：自动扫描组件
-                            base-package：指定扫描的基础包；把基础包及他下面所有的包的所有加了注解的类都会自动扫描进ioc容器中
+                            属性base-package：指定扫描的基础包；把基础包及他下面所有的包的所有加了注解的类都会自动扫描进ioc容器中
                             <context:component-scan base-package="com.atguigu"></context:component-scan>
                 3.一定要导入aop包，因为aop包是支持加注解模式的
 
@@ -821,7 +821,7 @@
 时间2021/1/14
             3.DI(依赖注入)
                 1.自动装配注解
-                    概念：使用@Autowired注解实现根据类型实现自动装配
+                    概念：使用@Autowired注解实现根据类型自动装配
                         概念解释：@Autowired底层是通过xml里的自动装配属性进行操作，即给类中用到的自定义属性自动赋值
                                 @Autowired原理：
                                     1.先按照类型去容器中找到对应的组件；即bookService = ioc.getBean(BookService.class)

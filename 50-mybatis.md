@@ -222,7 +222,7 @@
                     1.标签properties：作用：引入外部文件，可以将配置连接池的信息放到dbconfig.properties文件中，通过${}引用即可
                         如<properties resource="dbconfig.properties"></properties>
 
-                    2.标签typeAliases：作用：为常用的类型javabean其别名(还是推荐使用全类名)
+                    2.标签typeAliases：作用：为常用的类型javabean起别名(还是推荐使用全类名)
                         如：
                         <typeAliases>
                             //标签typeAlias：作用：一个typeAlias标签为了给一个javaBean起别名,别名默认为类名(不区分大小写)，在配置文件中直接可以使用类名
