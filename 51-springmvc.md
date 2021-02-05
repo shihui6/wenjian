@@ -1,3 +1,4 @@
+时间2021、2、3
 使用：
     导包
         1.springmvc是spring的web模块；所有模块的运行都是依赖核心模块(ioc模块)
@@ -19,13 +20,14 @@
                         <!--
                             springmvc思想是有一个前端控制器能拦截所有请求，并只能派发
                             这个前端控制器是一个servlet；应该在web.xml中配置这个servlet来拦截所有请求
+                            DispatcherServlet类似于一个中央处理器的功能
                         -->
                     <servlet>
                         <servlet-name>springDispatcherServlet</servlet-name>
                         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
                         <init-param>
                             <!--
-                                contextConfigLocation：指定springmvc配置文件位置
+                                contextConfigLocation：指定springmvc配置文件位置；若不指定配置文件位置，则在web->WEB-INF下创建springmvc-servlet.xml书写配置文件
                             -->
                             <param-name>contextConfigLocation</param-name>
                             <param-value>classpath:springmvc.xml</param-value>
@@ -97,7 +99,7 @@
         3.如果不指定配置文件位置(springmvc.xml的位置)
             如果不指定也会默认在/WEB-INF下找一个 前端控制器名-servlet.xml，所以我们在/WEB-INF目录下创建相应的xml文件即可
 
-
+时间2021、2、4
     *路由地址的精确匹配
          /**
         * 外层类加注解@RequestMapping("/haha")，为当前类所有的方法的请求地址指定一个基准路径
@@ -391,6 +393,186 @@
                     }
                     // 已经省略getter和setter方法，构造函数方法
                 ```
-
+时间2021、2、5
     *SpringMVC的原生API
+    *SpringMVC除了在方法上传入原生的request和session外还能怎样把数据带给页面
+        1.可以在方法处传入Map，或者Model或者ModelMap。这些参数里面保存的所有的数据都会放在域中。可以在页面获取
+            Map,Model,ModelMap:最终都是BindingAwareModeMap在工作；相当于给BindingAwareModelMap中保存的东西都会被放在请求域中
+                解释：因为Map,Model,ModelMap最终都会继承或者实现BindingAwareModeMap
+            
+            事例：
+
+            ```java 处理请求并将数据放在域中
+                @RequestMapping(value = "model01")
+                public String Model(Map<String,String> map){
+                    map.put("msg","123");
+                    return "success";
+                }
+                @RequestMapping(value = "model02")
+                public String Model02(Model model){
+                    model.addAttribute("msg","今天天气真好");
+                    return "success";
+                }
+                @RequestMapping(value = "model03")
+                public String Model03(ModelMap model){
+                    model.addAttribute("msg","今天太阳真好");
+                    return "success";
+                }
+            ```
+            ```jsp  获取域中的数据
+                ${requestScope.msg}
+            ```
+
+        2.方法返回值可以变为ModelAndView类型
+            特点：既包含视图信息(页面地址)也包含模型数据(给页面带的数据)
+            而且数据是放在请求域中，request,session,application
+            事例：
+
+            ```java
+                /**
+                * 返回值是ModelAndView；可以为页面携带数据
+                */
+                @RequestMapping(value = "model04")
+                public ModelAndView Model04(ModelMap model){
+                    ModelAndView mv = new ModelAndView("success");
+                    mv.addObject("msg","你好好哟");
+                    return mv;
+                }
+            ```
+        
+        3.SpringMVC提供了一种可以临时给Session域中保存数据的方式
+            使用一个注解:@SessionAttributes(只能标在类上)
+            解释：给BindingAwareModelMap或ModelAndView中保存的数据，同时给session中放一份，value指定保存数据时要给session中放的数据的key；若BindingAwareModelMap没有与value指定的key一致就不保存数据
+            用法：
+                @SessionAttributes(values={"msg"}):
+                解释：
+                    value={"msg"}:只要保存的是这种key的数据，给Session中放一份
+                    types={String.class}:只要保存的是这种类型的数据，给Session中放一份
+            但是我们推荐使用原生API，因为@SessionAttributes()可能会引发异常
+
+    *输出参数
+        思路：
+            1.SpringMVC要封装请求参数的Book对象不应该是自己new出来的，而应该是从数据库中拿到的准备好的对象
+            2.再来使用这个对象封装请求参数
+        技术点：@ModelAttribute
+                用法：方法上的注解
+                特点：这个方法就会提前于目标方法先运行；我们可以在这里提前查出数据库中图书的信息
+                步骤:
+                    1.先将数据从数据库中取出来，保存在book对象中
+                    2.将保存的book对象的数据赋值给变量key
+                    3.告诉SpringMVC不要new这个book了，用我刚才保存了一个book
+                使用：
+
+                ```java 接受页面过来的请求，代码先执行加了注解@ModelAttribute的方法再执行目标方法
+                    @RequestMapping(value = "updateBook")
+                    public String updateBook(@ModelAttribute("haha")Book book){
+                        System.out.println("页面提交过来的图书信息"+book);
+                        return "success";
+                    }
+
+                    /**
+                    * 1.我们可以在这里提前查出数据库中图书的信息
+                    * 2.将这个图书信息保存起来(方便下一个方法能使用)
+                    */
+                    @ModelAttribute
+                    public void myModelAttribute(Map<String,Object> map){
+                        Book book = new Book("吴承恩", "西游记", 98.9, 98, 10);
+                        map.put("haha",book);
+                        System.out.println("modelAttribute方法查询了图书并保存起来了"+book);
+                    }
+                ```
+                ```jsp  页面发送请求
+                    <form action="updateBook" method="post">
+                    书名：西游记<br/>
+                    作者：<input type="text" name="author"><br/>
+                    价格：<input type="text" name="price"><br/>
+                    库存：<input type="text" name="stock"><br/>
+                    存量：<input type="text" name="sales"><br/>
+                    <input type="submit" name="提交接口">
+                    </form>
+                ```
+
+-----------------------------------------------------------------------------------------------------------
+**搭建开发环境
+    通过idea创建项目SpringMVC项目
+        步骤：file->java->Module,此页面勾选上web相关的选项->点击+号添加Name:archetypeCatalog,Value:internal(此配置可以加速构建项目)->生成项目之后，不全目录结构：main文件下新建java,resources文件夹，右键点击java文件Mark directory as,选中Sources root(源码的根目录)。右键点击resources文件Mark directory as,选中Resources Root(资源的根目录)
     
+    配置依赖：
+
+        ```xml   在pom.xml中引入如下依赖
+            <properties>
+                <spring.version>5.0.2.RELEASE</spring.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+                </dependency>
+                <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+                </dependency>
+                <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+                </dependency>
+                <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.5</version>
+                <scope>provided</scope>
+                </dependency>
+                <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>jsp-api</artifactId>
+                <version>2.0</version>
+                <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        ```
+    配置前端控制器：
+
+        ```xml 在web.xml中进行配置
+            <servlet>
+                <servlet-name>dispatcherServlet</servlet-name>
+                <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+                <init-param>
+                    <!--DispatcherServlet帮我们加载springmvc配置文件，加载之后springmvc里面的扫描注解才会生效-->
+                    <param-name>contextConfigLocation</param-name>
+                    <param-value>classpath:springmvc.xml</param-value>
+                </init-param>
+                <load-on-startup>1</load-on-startup>
+            </servlet>
+            <servlet-mapping>
+                <servlet-name>dispatcherServlet</servlet-name>
+                <url-pattern>/</url-pattern>
+            </servlet-mapping>
+        ```
+    
+    右键点击resources，创建springmvc.xml文件
+
+        ```xml  springmvc.xml的内容
+        <!--    开启注解扫描-->
+            <context:component-scan base-package="cn.itcast"></context:component-scan>
+        <!--    视图解析器-->
+            <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                <property name="prefix" value="/WEB-INF/pages/"></property>
+                <property name="suffix" value=".jsp"></property>
+            </bean>
+        <!--    开启springmvc框架注解的支持-->
+            <mvc:annotation-driven></mvc:annotation-driven>
+        ```
+    配置Tomcat服务
+
+*流程介绍
+    1.启动服务器，加载一些配置文件
+        DispatcherServlet对象被创建
+        springmvc.xml被加载
+        helloController类创建成对象
+        并且可以使用springmvc的注解功能了
+    2.发送请求，后台处理请求
+
+

@@ -148,7 +148,7 @@
                     执行流程：
                         如：
                         当输入http://localhost:8088/06_servlet；访问的是8088端口下的06_servlet这个web项目
-                        当输入http://localhost:8088/06_servlet/hello;当地址后添加/hello的时候，程序会首先到配置文件web.xml里面找有没有/hello这个路径，若有就找该路径对应的<serlet-name>标签对应的类名，通过类名和标签<servlet-class>找到对应要访问的类的位置
+                        当输入http://localhost:8088/06_servlet/hello;当地址后添加/hello的时候，程序会首先到配置文件web.xml(这里相当于中央处理器，所有的内容都要经过xml这个文件)里面找有没有/hello这个路径，若有就找该路径对应的<serlet-name>标签对应的类名，通过类名和标签<servlet-class>找到对应要访问的类的位置
 
         
         *Servlet的生命周期
