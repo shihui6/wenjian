@@ -1064,3 +1064,148 @@
     
 ***文件上传和下载(在javaweb里面讲过了)
     概念：浏览器将本地的文件上传到服务器上，交给服务器保存
+
+
+---------------------------------------------------------------------------------------------------------------------------
+1.什么是框架
+    它是我们软件开发中的一套解决方案，不同的框架解决不同的问题。
+    使用框架的好处：
+        框架封装了很多的细节，使开发者可以使用极简的方式实现功能。大大提高开发效率
+2.三层架构
+    表现层:
+            是用于展示数据的
+    业务层：
+            是处理业务需求的
+    持久层：
+            和数据库交互的
+
+3.持久层技术解决方案
+    JDBC技术：
+        Connection
+        PreparedStatement
+        ResultSet
+    Spring的JdbcTemplete:
+        Spring中对jdbc的简单封装
+    Apache的DBUtils：
+        它和Spring的JdbcTemplte很像，也是对Jdbc的简单封装
+    以上这些都不是框架，JDBC是规范，Spring的JdbcTemplte和Apache的DBUtils都只是工具类
+
+4.mybatis的概述
+    mybatis是一个持久层框架，用java编写的
+    它封装了jdbc操作的很多细节，是开发者只需要关注sql语句本身，而无需关注注册驱动，创建连接等繁杂过程
+    它使用了ORM思想实现了结果集的封装
+    ORM：
+        Object Relation Mapping 对象关系映射
+        简单的说：
+                就是把数据库表和实体类及实体类的属性对应起来，让我们可以操作实体类就实现操作数据表
+
+5.mybatis的环境搭建
+    环境搭建：
+        第一步：创建maven工程并导入坐标
+        第二步：创建实体类和dao的接口(实体类用来封装从数据库返回的数据，dao接口用来指定映射文件xml中的方法)
+        第三步：创建mybatis的主配置文件：mybatis-config.xml
+        第四步：创建映射文件：EmployeeDao.xml
+    环境搭建的注意事项：
+        第一个：创建UserDao.xml和UserDao.java时名称是为了和我们之前的知识保持一致
+                在mybatis中它把持久层的操作接口名称和映射文件也叫做mapper
+                所以：UserDao和UserMapper是一样的
+        第二个：在idea中创建目录的时候，它和包是一样的
+                包在创建时：com.itheima.dao它是三级结构
+                目录在创建时：com.itheima.dao是一级机构，所以在resources在创建目录时要一级一级创建
+        第三个：mybatis的映射文件位置必须和dao接口的包结构相同
+        第四个：映射配置文件的mapper标签namespace属性的取值必须是dao接口的全限定类名
+        第五个：映射配置文件的操作配置，id属性的取值必须是dao接口方法名(resources里面写映射和配置文件，java里面写接口和包装类)
+    *创建mybatis的maven项目：
+        file->java->maven生成项目
+        在pom.xml中配置：
+
+            ```xml
+                <!-- 打包方式 -->
+                <packaging>jar</packaging> 
+                <dependencies>
+                    <!-- mybatis的依赖 -->
+                    <dependency>
+                        <groupId>org.mybatis</groupId>
+                        <artifactId>mybatis</artifactId>
+                        <version>3.4.5</version>
+                    </dependency>
+                    <!-- mysql的依赖 -->
+                    <dependency>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                        <version>5.1.6</version>
+                    </dependency>
+                    <!-- 日志依赖 -->
+                    <dependency>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                        <version>1.2.12</version>
+                    </dependency>
+                    <!-- 单元测试依赖 -->
+                    <dependency>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                        <version>4.10</version>
+                        <scope>test</scope>
+                    </dependency>
+                </dependencies>
+            ```
+        在main中创建java包，包中创建java类和接口
+        在resources中创建SqlMapConfig.xml全局配置文件
+
+            ```xml      全局配置文件(mybatis-config.xml)
+                <?xml version="1.0" encoding="UTF-8" ?>
+                <!DOCTYPE configuration
+                        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+                        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+                <configuration>
+                    <environments default="development">
+                        <environment id="development">
+                            <transactionManager type="JDBC"/>
+                            <!--配置连接池-->
+                            <dataSource type="POOLED">
+                                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                                <property name="url" value="jdbc:mysql://localhost:3306/girls"/>
+                                <property name="username" value="root"/>
+                                <property name="password" value="wossh1423875545"/>
+                            </dataSource>
+                        </environment>
+                    </environments>
+                    <!-- dao接口的实现类文件，在全局配置中进行配置的地方 -->
+                    <!--引入我们自己编写的每一个接口的实现文件：即编写的实现接口的文件-->
+                    <mappers>
+                        <!--resource：表示从类路径下找关于接口实现的xml资源-->
+                        <mapper resource="com/itheima/dao/IUserDao.xml"/>
+                    </mappers>
+                </configuration>
+            ```
+        在resources中创建java目录里同名的三级目录，用于接口的映射文件UserDao.xml
+
+            ```xml
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE mapper
+                        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                <mapper namespace="com.itheima.dao.IUserDao">
+                    <!--配置查询所有-->
+                    <select id="findAll" resultType="com.itheima.domain.User">
+                        select * from user
+                    </select>
+                </mapper>
+            ```
+        Test目录里编写进行测试
+            案例步骤：
+                1.读取配置文件
+                2.创建SqlSessionFactory工厂
+                3.创建SqlSession
+                4.创建Dao接口的代理对象
+                5.执行dao接口的方法
+                6.释放资源
+                注意事项：
+                    不要忘记在映射配置中告知mybatis要封装到哪个实体类中
+                    配置方式：指定实体类的全类名
+                mybatis基于注解的入门案例：
+                    把UserDao.xml移除，在dao接口的方法上使用@Select注解，并且指定SQL语句
+                    同时需要在SqlMapConfig.xml中的mapper配置时，使用class属性指定dao接口的全限定类名
+
+        11-17课详细解析原理
