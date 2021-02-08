@@ -1106,15 +1106,12 @@
         第三步：创建mybatis的主配置文件：mybatis-config.xml
         第四步：创建映射文件：EmployeeDao.xml
     环境搭建的注意事项：
-        第一个：创建UserDao.xml和UserDao.java时名称是为了和我们之前的知识保持一致
-                在mybatis中它把持久层的操作接口名称和映射文件也叫做mapper
-                所以：UserDao和UserMapper是一样的
-        第二个：在idea中创建目录的时候，它和包是一样的
+        第一个：在idea中创建目录的时候，它和包是一样的
                 包在创建时：com.itheima.dao它是三级结构
                 目录在创建时：com.itheima.dao是一级机构，所以在resources在创建目录时要一级一级创建
-        第三个：mybatis的映射文件位置必须和dao接口的包结构相同
-        第四个：映射配置文件的mapper标签namespace属性的取值必须是dao接口的全限定类名
-        第五个：映射配置文件的操作配置，id属性的取值必须是dao接口方法名(resources里面写映射和配置文件，java里面写接口和包装类)
+        第二个：mybatis的映射文件位置必须和dao接口的包结构相同
+        第三个：映射配置文件的mapper标签namespace属性的取值必须是dao接口的全限定类名
+        第四个：映射配置文件的操作配置，id属性的取值必须是dao接口方法名(resources里面写映射和配置文件，java里面写接口和包装类)
     *创建mybatis的maven项目：
         file->java->maven生成项目
         在pom.xml中配置：
