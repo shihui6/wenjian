@@ -1208,4 +1208,63 @@
                     把UserDao.xml移除，在dao接口的方法上使用@Select注解，并且指定SQL语句
                     同时需要在SqlMapConfig.xml中的mapper配置时，使用class属性指定dao接口的全限定类名
 
+时间2021、2、8
+
+        ```java
+            public static void main(String[] args) throws Exception{
+                    //1.读取配置文件
+                    InputStream in = Resources.getResourceAsStream("SqlMapConfig.xml");
+            //            第一个：使用类加载器，它只能读取类路径下的配置问及那
+            //             第二个：使用ServletContext对象的getRealPath()
+            //        2.创建SqlSessionFactory工厂
+                    SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+            //            创建工厂mybatis使用了构建者模式,builder就是构建者(专业团队做专业的事)
+            //              构建者模式：把对象的创建细节隐藏，简化我们的操作
+                    SqlSessionFactory factory = builder.build(in);
+            //        3.使用工厂生产SqlSession对象
+                    SqlSession openSession = factory.openSession();
+            //                生产SqlSession使用了工厂模式(优势：解耦(降低类之间的依赖关系))
+            //        4.使用SqlSession创建Dao接口的代理对象
+                    IUserDao mapper = openSession.getMapper(IUserDao.class);
+            //                创建Dao接口的实现类使用了代理模式 (优势：不修改源码的基础上增强已有的方法)
+            //                此处是一个IncocationHandler的接口，我们需要写一个接口，在实现类中调用selectList方法
+            //        5.使用代理对象执行方法
+                    List<User> all = mapper.findAll();
+                    for(User user:all){
+                        System.out.println(user);
+                    }
+            //        6。释放资源
+                    openSession.close();
+                    in.close();
+                }
+        ```
+        整个流程的分析：根据上面代码分析
+            mybatis在使用代理dao的方式实现增删改查时做什么事呢？
+                1.创建代理对象
+
+                    ```java
+                        4.使用SqlSession创建Dao接口的代理对象
+                                IUserDao mapper = openSession.getMapper(IUserDao.class);
+                                //创建Dao接口的实现类使用了代理模式 (优势：不修改源码的基础上增强已有的方法)
+                                //此处是一个IncocationHandler的接口，我们需要写一个接口，在实现类中调用selectList方法
+                    ```
+                2。在代理对象中调用selectList
+                    开始：读取配置文件信息：用到的技术就是解析xml的技术（dom4j解析xml技术，其目的将xml的内容提取出来）最终的目的让工厂的selectList()方法执行
+                    1.根据配置文件的信息创建Connection对象，注册驱动，获取连接
+                    2.获取预处理对象PrepareStatement此时需要SQL语句，coon.prepareStatement(sql)
+                    3.执行查询：ResultSet resultSet = prepareStatement.executeQuery()
+                    4.遍历结果集用于封装
+                        List<E> list = new ArrayList()
+                        while(resultSet.next()){
+                            e element = xxxxx; (class.forName(全类名).newInstance())
+
+                            我们的实体类属性和表中的列名一致，于是我们就可以把表的列名看成是实体类的属性名称
+                            就可以使用反射的方法来根据名称获取每个属性，并把值赋进去
+
+                            进行封装，把每个rs的内容添加到element
+                            把element加入到list中
+                        }
+                    5.要想让selectList()方法执行，我们要提供SQL语，封装结果的实体类全类名(此处通过mapper封装起来的，通过对象保存起来，key，value的形式)
+
+
         11-17课详细解析原理
